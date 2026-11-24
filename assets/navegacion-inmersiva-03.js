@@ -104,6 +104,7 @@
   main.inert=true;
   document.body.classList.add('os-home-visible');
   stage.scrollTop=0;
+  if(!document.documentElement.classList.contains('exterior-native')&&matchMedia('(max-width:760px), (hover:none) and (pointer:coarse)').matches){window.scrollTo(0,0);}
   document.getElementById('osStageTitle').focus({preventScroll:true});
  }
  function abrirMapa(){
