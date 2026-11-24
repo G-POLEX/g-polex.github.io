@@ -1,9 +1,9 @@
 {
   "available": true,
-  "versionCode": 22,
-  "versionName": "1.0.22",
-  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.22-prueba.apk",
+  "versionCode": 25,
+  "versionName": "1.0.25",
+  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.25-prueba.apk",
   "minimumAndroid": 29,
   "signed": false,
-  "sha256": "f4bdfb9d454c8e0216d8cc78ccc9e00f1e9bd362ef8c1e0d6845f6a792d85179"
+  "sha256": "bc348313c83f6ee6c7c44a74dafd2768267bef76341210933841efef5cb542ba"
 }

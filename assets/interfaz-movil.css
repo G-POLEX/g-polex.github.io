@@ -52,6 +52,25 @@ html.exterior-native .exterior-ux-ruta{display:none!important}
  .exterior .exterior-preview{margin-top:20px}
  .exterior .ux-mobile-actions{padding:11px 14px calc(11px + env(safe-area-inset-bottom,0px));gap:10px}
  .exterior .ux-mobile-actions button{min-height:48px}
+
+ /* En la web móvil se conserva el acceso al catálogo mediante «Explorar plantillas»,
+    pero se retira el listado duplicado de categorías del inicio. */
+ html:not(.exterior-native) .os-stage-directory{display:none!important}
+ /* El instalador queda antes de la guía; la guía cierra el contenido del inicio. */
+ html:not(.exterior-native) .os-stage-footer .os-apk-install-card{order:1}
+ html:not(.exterior-native) .os-stage-footer .ux-home-guide{order:2;width:100%}
+
+ /* La APK ocupa la pantalla completa y respeta las zonas seguras del dispositivo. */
+ html.exterior-native .os-stage-toolbar{
+  padding-top:calc(18px + env(safe-area-inset-top,0px));
+  padding-right:calc(18px + env(safe-area-inset-right,0px));
+  padding-left:calc(18px + env(safe-area-inset-left,0px))
+ }
+ html.exterior-native .os-stage-shell{
+  padding-right:calc(18px + env(safe-area-inset-right,0px));
+  padding-left:calc(18px + env(safe-area-inset-left,0px));
+  padding-bottom:calc(34px + env(safe-area-inset-bottom,0px))
+ }
 }
 @media(max-width:360px){
  .os-stage .os-stage-shell{padding-inline:14px}
