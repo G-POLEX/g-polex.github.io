@@ -38,8 +38,8 @@
  status.textContent='Comprobando la disponibilidad del instalador…';
  status.style.cssText='font-size:12px;line-height:1.4;color:#d5dced';
  card.append(eyebrow,title,desc,button,status);
- // Última sección del inicio, después de la guía de uso.
- footer.append(card);
+ // La guía de uso cierra el inicio.
+ footer.insertBefore(card,footer.querySelector('.ux-home-guide'));
  let apkUrl='';
  const valid=target=>target.origin===location.origin&&!target.username&&!target.password&&!target.search&&!target.hash&&/^\/downloads\/Exterior(?:-[0-9]+\.[0-9]+\.[0-9]+(?:-prueba)?)?\.apk$/.test(target.pathname);
  button.addEventListener('click',()=>{
@@ -58,8 +58,8 @@
     button.style.opacity='1';
     button.style.cursor='pointer';
     const prueba=data.signed===false;
-    button.textContent=prueba?'Descargar APK de prueba':'Descargar APK';
-    status.textContent=prueba?'Versión de prueba. Puede requerir desinstalar la anterior.':'Versión '+String(data.versionName||data.versionCode)+' disponible.';
+    button.textContent='Descargar APK';
+    status.textContent=prueba?'Versión '+String(data.versionName||data.versionCode)+'. Firma de distribución pendiente; puede requerir reinstalación.':'Versión '+String(data.versionName||data.versionCode)+' disponible.';
    }
   }).catch(()=>{status.textContent='No se pudo comprobar la disponibilidad del instalador. Volver a cargar cuando haya conexión.';});
 })();

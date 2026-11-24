@@ -1,1 +1,1 @@
-bc348313c83f6ee6c7c44a74dafd2768267bef76341210933841efef5cb542ba  Exterior-1.0.25-prueba.apk
+04732287443f5320afc9bc30abbfdffb87ed8a01e7bbc9394ed1226310b9844e  Exterior-1.0.27-prueba.apk
