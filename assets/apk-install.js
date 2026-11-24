@@ -52,14 +52,13 @@
   .then(response=>{if(!response.ok)throw Error('No disponible');return response.json();})
   .then(data=>{
    const target=new URL(String(data.apkUrl||''),location.origin);
-   if(data.available===true&&Number(data.versionCode)>0&&valid(target)){
+   if(data.available===true&&data.signed===true&&Number(data.versionCode)>0&&valid(target)){
     apkUrl=target.href;
     button.disabled=false;
     button.style.opacity='1';
     button.style.cursor='pointer';
-    const prueba=data.signed===false;
     button.textContent='Descargar APK';
-    status.textContent=prueba?'Versión '+String(data.versionName||data.versionCode)+'. Firma de distribución pendiente; puede requerir reinstalación.':'Versión '+String(data.versionName||data.versionCode)+' disponible.';
-   }
+    status.textContent='Versión '+String(data.versionName||data.versionCode)+' disponible.';
+   }else{status.textContent='El instalador no está disponible en este momento.';}
   }).catch(()=>{status.textContent='No se pudo comprobar la disponibilidad del instalador. Volver a cargar cuando haya conexión.';});
 })();
