@@ -1,10 +1,10 @@
 {
   "available": true,
-  "versionCode": 36,
-  "versionName": "1.0.36",
-  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.36.apk",
+  "versionCode": 37,
+  "versionName": "1.0.37",
+  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.37.apk",
   "minimumAndroid": 29,
   "signed": true,
-  "sha256": "c176a2d15f24ec213efd11f1aa8e2635b2ead5967375679e09b0dad09f3d95d5",
+  "sha256": "5dbdc511e04219111c694f3f1c1f310241994047b298e812ab336af0b6dcbe46",
   "signerSha256": "12200a2967e66dd6cc8cc74b97493f42f606513f5fb252208b9ac4df04f8d3f2"
 }
