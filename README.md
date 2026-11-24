@@ -1,1 +1,0 @@
-# g-polex.github.io

@@ -1,0 +1,1270 @@
+<!doctype html>
+<html lang="es"><head>
+<meta http-equiv="Content-Security-Policy" content="default-src &#x27;none&#x27;; script-src &#x27;self&#x27;; script-src-attr &#x27;none&#x27;; style-src &#x27;self&#x27; &#x27;unsafe-inline&#x27;; img-src &#x27;self&#x27; data: blob:; font-src &#x27;self&#x27; data:; worker-src &#x27;self&#x27; blob:; connect-src &#x27;self&#x27; blob:; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;; manifest-src &#x27;self&#x27;"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Generador de artes · Gabinete de Política Exterior</title>
+<!-- Tipografías institucionales incrustadas: funcionamiento local sin solicitudes externas. -->
+<style>
+@font-face{font-family:MuseoL;font-weight:300;src:url(assets/fonts/ecc24f40f565ce3d863f.otf);font-display:swap}
+@font-face{font-family:'Museo Sans';font-weight:700;src:url(assets/fonts/c36ca8cd5566c156e23f.otf) format('opentype');font-display:swap}
+@font-face{font-family:'Museo Sans';font-weight:900;src:url(assets/fonts/3523734aa4e5c25525d4.otf);font-display:swap}
+:root{--bg:#eeeff1;--fg:#111e36;--card:transparent;--ac:#111e36;--bd:rgba(17,30,54,.3);color-scheme:light}input[type=checkbox],input[type=range]{accent-color:#111e36}
+
+*{box-sizing:border-box}body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:15px system-ui,sans-serif}
+main{max-width:760px;margin:auto}h1{font-size:22px;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:12px;opacity:.75;margin:8px 0 3px}
+input,textarea,select{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:rgba(255,255,255,.6);color:var(--fg);font:inherit}
+input::placeholder,textarea::placeholder{color:#616a78;opacity:1}
+textarea{min-height:64px}button{background:var(--ac);color:var(--bg);border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;margin:4px 4px 0 0}
+button.g{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+#estadoPng{position:fixed;z-index:10;bottom:12px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);margin:0;padding:10px 14px;border-radius:8px;background:var(--fg);color:var(--bg);text-align:center}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#out{display:flex;flex-wrap:wrap;gap:12px}#out figure{margin:0;width:calc(50% - 6px)}@media(max-width:640px){#out figure{width:100%}}#out img{width:100%;border:1px solid var(--bd);border-radius:8px}
+.logo-list{display:grid;gap:6px;margin:6px 0 12px}.logo-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border:1px solid var(--bd);border-radius:9px;background:rgba(255,255,255,.42);cursor:grab}.logo-item.dragging{opacity:.45}.logo-item.over{outline:2px dashed var(--ac);outline-offset:1px}.logo-thumb{width:66px;height:42px;object-fit:contain;background:#fff;border-radius:5px;flex:none}.logo-name{font-size:12px;flex:1}.logo-actions{display:flex;gap:3px;align-items:center}.logo-actions button{margin:0;padding:5px 9px;border-radius:7px;line-height:1.1}.logo-actions button:disabled{opacity:.3;cursor:not-allowed}.logo-actions .remove-logo{background:transparent;color:var(--fg);border:1px solid var(--bd)}.logo-help{display:block;margin:2px 0 8px}
+small{opacity:.7}.field-help{display:block;margin-top:4px}[hidden]{display:none!important}
+
+/* Edición de convocatorias de Movilidad Laboral */
+#movf h3{margin:0 0 9px;font-size:16px;color:#131e5b}
+#movf .mv-paste{background:#f3f6fc;border:1px solid var(--bd);border-radius:9px;padding:12px;margin-bottom:14px}
+#movf details summary{cursor:pointer;color:#173d70;font-size:14px;font-weight:700;list-style-position:inside}
+#movf .mv-paste textarea{min-height:120px}
+#movf .mv-design{border-top:1px solid var(--bd);padding-top:12px;margin-top:14px}
+#movf .mv-block{border:1px solid var(--bd);border-radius:9px;padding:11px 13px;margin:10px 0;background:#fafbfe}
+#movf .mv-block h4{margin:0;color:#182449;font-size:15px}
+#movf .mv-block textarea{min-height:75px}
+#movf .mv-block-options{margin-top:9px;border-top:1px solid #e0e6f1;padding-top:7px}
+#movf .mv-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+#movf .mv-actions button{font-size:12px;margin:0;min-height:35px;padding:6px 9px}
+#movf .mv-add{display:flex;align-items:flex-end;flex-wrap:wrap;gap:7px 9px;margin-top:13px}
+#movf .mv-add>div{flex:1 1 162px}
+#movf .mv-add>button{min-height:42px;margin:0}
+#movf .mv-empty{font-size:13px;color:#536277}
+@media(max-width:540px){
+ #movf :is(.mv-paste,.mv-add,.mv-block-options) button{min-height:44px}
+}
+
+/* Actividades del día a día */
+#ad textarea { resize: vertical; }
+#logoListAD .logo-item {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 5px 0;
+}
+#logoListAD .logo-item.over { outline: 0; }
+#logoListAD .logo-item.over .logo-name { font-weight: 700; }
+#logoListAD .logo-thumb,
+#ad:not([hidden]) ~ #resultCard,
+#ad:not([hidden]) ~ #resultCard #out :is(figure, img) {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+#ad:not([hidden]) ~ #resultCard #out { margin-top: 8px; }
+#ad:not([hidden]) ~ #resultCard #out img { display: block; height: auto; }
+#sede:not([hidden]) ~ #resultCard #out figure{width:min(100%,460px);margin:8px auto 0;text-align:center}
+#sede:not([hidden]) ~ #resultCard #out img{display:block;height:auto;margin-bottom:6px}
+.sede-formatos{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.sede-edicion summary,.sede-oficina summary{cursor:pointer;font-weight:700}
+#sedeCampos,#sedeColores{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin-top:8px}
+.sede-oficina{grid-column:1/-1;border:1px solid var(--bd);padding:8px 12px;border-radius:8px}
+.sede-oficina textarea{resize:vertical}
+.sede-color{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 8px;border:1px solid var(--bd);border-radius:8px;margin:0;opacity:1}
+.sede-color input[type="color"]{width:46px;height:36px;padding:2px;flex-shrink:0}
+#sede button.g{margin-top:10px}
+#sede button:disabled{opacity:.5}
+@media(max-width:420px){.sede-formatos,#sedeCampos{grid-template-columns:1fr}}
+
+/* Aviso accesible de capacidad para comunicados/convocatorias UCOM. */
+[data-prensa] .prensa-aviso-capacidad{display:grid;gap:9px;margin:15px 0 0;padding:13px 15px;border:1px solid #b2bfd6;border-left:4px solid #243d74;border-radius:9px;background:#f6f8fc;color:#1d2d4c;line-height:1.45;font-size:14px}
+[data-prensa] .prensa-aviso-capacidad[hidden], [data-prensa] .prensa-aviso-accion[hidden]{display:none!important}
+[data-prensa] .prensa-aviso-capacidad p{margin:0}
+[data-prensa] .prensa-aviso-accion{justify-self:start;max-width:100%;white-space:normal;min-height:40px;padding:8px 13px;font-weight:700}
+</style>
+<!-- Licencias de las fuentes incluidas para Actividades del día a día.
+Copyright 2024 The Montserrat.Git Project Authors (https://github.com/JulietaUla/Montserrat.git)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+https://openfontlicense.org
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+Copyright 2020 The Poppins Project Authors (https://github.com/itfoundry/Poppins)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+Copyright 2010 The Raleway Project Authors (impallari@gmail.com), with Reserved Font Name "Raleway".
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+-->
+<style>
+@font-face {
+  font-family: 'AD Montserrat';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(assets/fonts/0f7f5f2fbb4eae126790.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'AD Montserrat';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(assets/fonts/a187b077090fe8ae3fd2.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'AD Montserrat';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(assets/fonts/26b2403f995ed65fb490.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'AD Montserrat';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(assets/fonts/54d9a78b7ff60b689ad9.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'AD Montserrat';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(assets/fonts/06b16db7a969135d48d3.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'AD Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(assets/fonts/de10eb6f1f452594080f.woff2) format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A;
+}
+@font-face {
+  font-family: 'AD Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(assets/fonts/ccfd87f69ef00d811da3.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'AD Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(assets/fonts/9338e65fc077355c7a87.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'AD Poppins';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(assets/fonts/6c6bb57f25ccf0ee8553.woff2) format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A;
+}
+@font-face {
+  font-family: 'AD Poppins';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(assets/fonts/a72eccfa6cfa9c26b400.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'AD Poppins';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(assets/fonts/60bf0aba6526436f3930.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'AD Raleway';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(assets/fonts/36920a27f3f245302f04.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'AD Raleway';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(assets/fonts/ac99ad1c437b60ef445a.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'AD Raleway';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(assets/fonts/49d1df38711652b72cbb.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'AD Raleway';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(assets/fonts/2d603982caea60f15b74.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'AD Raleway';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(assets/fonts/b1bef1f03a77a36fc257.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style><style>
+/* Interfaz EXTERIOR. Los estilos de los artes se aplican en el lienzo. */
+.exterior{--azul:#131e5b;--naval:#171e41;--oro:#d7aa81;--superficie:#e8ecf6;--panel:#fff;--fg:#171e41;--ac:#131e5b;--bd:#ccd4e4;max-width:none}
+body:has(.exterior){padding:0;background:#e8ecf6}
+.exterior-cabecera{background:var(--naval);color:#fff;border-bottom:3px solid var(--oro)}
+.exterior-marca{max-width:1360px;margin:auto;min-height:88px;padding:14px 32px;display:flex;align-items:center;gap:22px}
+.exterior-logo{width:clamp(108px,11vw,152px);height:auto;display:block;flex:none}
+.exterior-identidad{border-inline-start:1px solid #59617e;padding-inline-start:22px;min-width:0}
+.exterior-contexto{margin:0 0 4px;color:#e6bd98;font-size:13px;font-weight:700}
+.exterior h1{font-size:clamp(23px,2.7vw,35px);line-height:1.12;letter-spacing:-.025em;margin:0}
+.exterior-acciones{margin-inline-start:auto;display:flex;align-items:center;gap:8px}
+.exterior-acciones button.g{margin:0;min-height:44px;padding:8px 14px;background:transparent;color:#fff;border-color:#8b94ae;border-radius:8px}
+.exterior-acciones button.g:hover{background:#303c65}
+#irVistaPrevia,#volverEdicion{display:none}
+
+.exterior-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,39%);align-items:start;gap:24px;max-width:1360px;margin:auto;padding:24px 32px}
+.exterior-editor,.exterior-preview{min-width:0}
+.exterior-editor-top{position:relative;display:flex;align-items:center;flex-wrap:wrap;gap:9px 14px;margin:0 0 16px;padding-inline-start:12px;border-inline-start:3px solid var(--oro)}
+.exterior-arte{min-width:0;flex:1 1 205px}
+.exterior-categoria{margin:0 0 3px;font-size:13px;font-weight:650;line-height:1.35;color:#44516c}
+.exterior h2.exterior-encabezado{margin:0;font-size:clamp(23px,2.65vw,34px);line-height:1.16;letter-spacing:-.025em;color:var(--azul);overflow-wrap:anywhere}
+.exterior-disenos summary{display:flex;align-items:center;gap:9px;min-height:44px;padding:8px 12px;background:var(--panel);border:1px solid #aab7d0;border-radius:8px;color:var(--azul);font-size:14px;font-weight:700;list-style:none;cursor:pointer}
+.exterior-disenos summary::-webkit-details-marker{display:none}
+.exterior-disenos summary::after{content:"";width:7px;height:7px;border-inline-end:2px solid;border-block-end:2px solid;transform:translateY(-2px) rotate(45deg)}
+.exterior-disenos[open] summary::after{transform:translateY(2px) rotate(225deg)}
+.exterior-disenos summary:hover,.exterior-disenos[open] summary{background:#f5f7fc}
+.exterior-disenos-menu{position:absolute;z-index:3;inset-block-start:calc(100% + 6px);inset-inline-end:0;width:min(320px,100%);max-height:min(400px,55vh);overflow:auto;overscroll-behavior:contain;display:grid;gap:4px;background:var(--panel);border:1px solid #b9c5db;border-radius:12px;padding:7px;box-shadow:0 8px 24px #192f6020}
+#listaDisenos{display:grid;gap:4px}
+.exterior-disenos-menu button{width:100%;min-height:44px;margin:0;padding:8px 10px;background:transparent;color:var(--azul);border:1px solid transparent;border-radius:7px;text-align:start;font-size:14px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.exterior-disenos-menu button:hover{background:#f0f3fa}
+.exterior-disenos-menu button[aria-current="true"]{background:#edf1fa;border-inline-start:3px solid #b58459}
+.exterior-disenos-menu .field-help{margin:2px 8px 4px}
+
+.exterior-editor .card,#resultCard.exterior-preview{background:var(--panel);border:1px solid var(--bd);border-radius:12px;padding:17px;margin:0 0 12px}
+.exterior-editor .exterior-seccion{margin:0 0 8px;font-size:16px;line-height:1.3;color:var(--azul)}
+.exterior-editor label,.exterior-preview label{opacity:1;font-weight:650;color:#182449;font-size:14px}
+.exterior-editor :is(input,select,textarea),.exterior-preview select{min-width:0;border-color:#b7c2d7}
+.exterior-editor :is(input:not([type="checkbox"],[type="radio"],[type="range"],[type="color"]),select),.exterior-preview select,#buscarPlantillas{min-height:44px}
+.exterior :is(input,select,textarea,button,a,summary):focus-visible{outline:3px solid #5b6fbd;outline-offset:2px}
+.exterior .exterior-cabecera :focus-visible{outline-color:#ffcf9d}
+.exterior button{cursor:pointer}
+.exterior button:disabled{cursor:not-allowed;opacity:.55}
+.exterior :is(input,textarea)::placeholder{color:#59657c}
+.exterior-editor :is(fieldset,details,div){min-width:0}
+.exterior-editor fieldset{margin:0;border:1px solid var(--bd);border-radius:9px;padding:10px}
+.exterior-editor #sedeSelector .sede-formatos{grid-template-columns:repeat(auto-fit,minmax(min(100%,175px),1fr))}
+.sede-editar-partes{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.sede-editar-partes button{min-height:44px;padding:7px 11px;font-size:13px}
+.exterior #sede .sede-editar-partes button{margin:0}
+.sede-editar-partes button[aria-pressed="true"]{background:var(--azul);color:#fff;border-color:var(--azul)}
+.exterior-editor #sedeCampos:has(fieldset){grid-template-columns:minmax(0,1fr)}
+
+.exterior-preview{position:sticky;top:18px;scroll-margin-top:12px}
+.exterior-preview-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.exterior-preview h2{margin:0;font-size:18px;color:var(--azul)}
+.exterior-paginacion{display:flex;align-items:center;gap:7px;min-width:0;font-size:13px}
+#previewPagina{text-align:center;overflow-wrap:anywhere}
+.exterior-paginacion button{flex:none;width:34px;height:34px;padding:0;margin:0;background:#e8ecf6;color:var(--azul);font-size:21px;line-height:1}
+.exterior #out{display:flex;flex-wrap:nowrap;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;background:var(--superficie);border:1px solid #d6deed;border-radius:9px}
+.exterior #out:empty{min-height:200px}
+.exterior #out figure{flex:0 0 100%;min-width:0;width:100%;margin:0;padding:14px 10px 12px;text-align:center;scroll-snap-align:start}
+.exterior #out img{display:block;width:auto;max-width:100%;height:auto;max-height:clamp(200px,calc(100vh - 350px),610px);margin:0 auto 10px;border:1px solid #cbd4e4;border-radius:2px;object-fit:contain;box-shadow:0 4px 14px #192f6020}
+.exterior #out button{margin:0;min-height:44px}
+.exterior-descargas{margin-top:12px}
+.exterior-lote{display:flex;gap:6px;flex-wrap:wrap}
+.exterior-lote button{margin:8px 0 0;font-size:13px;min-height:44px}
+.exterior .field-help,.exterior small{opacity:1;color:#44516c;line-height:1.45}
+.exterior .logo-name{overflow-wrap:anywhere}
+@media(max-width:1000px){
+ .exterior-layout{padding:20px;gap:16px}.exterior-marca{padding-inline:20px}
+}
+@media(max-width:700px){
+ .exterior-marca{display:grid;grid-template-columns:auto minmax(0,1fr);min-height:0;padding:12px 14px 10px;gap:10px 12px}
+ .exterior-logo{width:clamp(76px,21vw,108px)}.exterior-identidad{padding-inline-start:12px}
+ .exterior-contexto{font-size:11px;margin-bottom:3px}.exterior h1{font-size:clamp(19px,5.2vw,24px)}
+ .exterior-acciones{grid-column:1/-1;margin:0}
+ .exterior-acciones button.g{flex:1;min-width:0;padding-inline:7px;font-size:13px}
+ #irVistaPrevia,#volverEdicion{display:inline-flex;align-items:center;justify-content:center}
+ #volverEdicion:hover{background:#f0f3fa}
+ #volverEdicion{margin:0;min-height:44px;padding:7px 9px;border-radius:8px;color:var(--azul);font-size:13px}
+ .exterior-layout{display:block;padding:15px 12px}
+ .exterior-editor-top{margin-bottom:13px}
+ .exterior-editor .card,#resultCard.exterior-preview{padding:13px}
+ .exterior-editor .row,.exterior-editor #sedeSelector .sede-formatos{grid-template-columns:minmax(0,1fr)}
+ .exterior-editor :is(input:not([type="checkbox"],[type="radio"],[type="range"],[type="color"]),select,textarea),.exterior-preview select,#buscarPlantillas{font-size:16px}
+ .exterior-preview{position:static}
+ .exterior-preview-bar{display:grid;grid-template-columns:minmax(0,1fr) auto}
+ .exterior-paginacion{grid-column:1/-1;justify-self:center}
+ .exterior-paginacion button{width:44px;height:44px}
+ .exterior #out img{max-height:min(65vh,590px)}.exterior #sedeColores{grid-template-columns:minmax(0,1fr)}
+}
+.exterior #sedeCampos.editorial-campos{grid-template-columns:minmax(0,1fr)}
+[data-prensa] .sede-edicion>summary{display:none}
+[data-prensa] #sedeCampos{gap:10px}
+[data-prensa] .prensa-tipo{margin-block:8px 2px;display:flex;flex-wrap:wrap;gap:6px 18px}
+[data-prensa] .prensa-tipo label{display:flex;align-items:center;gap:8px;margin:0;min-height:44px}
+[data-prensa] .prensa-tipo input{width:auto;margin:0;accent-color:#131e5b}
+[data-prensa] .prensa-formato{max-width:24rem}
+[data-prensa] .prensa-generar{justify-self:start;margin-top:6px}
+.prensa-textarea{position:relative;min-width:0}
+#adF>fieldset{margin-block:10px}
+#adF>fieldset>legend label{display:flex;align-items:center;gap:8px;margin:0;padding:0 4px}
+#adF>fieldset>legend input{width:auto;margin:0;accent-color:#131e5b}
+.exterior-editor .aviso-opciones,.exterior-editor .aviso-bloque{margin-top:14px}
+.aviso-opciones legend,.aviso-bloque legend{padding:0 5px;color:var(--azul);font-weight:700}
+.aviso-opciones-lista{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,155px),1fr));gap:6px}
+.exterior-editor .aviso-casilla{display:flex;align-items:center;gap:8px;margin:6px 0 0;min-height:44px;line-height:1.3}
+.aviso-casilla input{flex:none;width:18px;height:18px;margin:0;accent-color:var(--azul)}
+.aviso-opciones-lista .aviso-casilla{margin:0;padding:7px 8px;border:1px solid var(--bd);border-radius:8px;cursor:pointer}
+.aviso-opciones-lista .aviso-casilla:has(input:checked){background:#edf1fb;border-color:#879bc7}
+.aviso-lista-sedes>div+div{margin-top:8px;padding-top:4px;border-top:1px solid var(--bd)}
+.aviso-bloque button.g,.aviso-identidad button.g{min-height:44px}
+.aviso-identidad{margin-top:16px;padding-top:5px;border-top:1px solid var(--bd)}
+.aviso-identidad summary{min-height:44px;padding:11px 0;font-weight:700;color:var(--azul);cursor:pointer}
+#aviso-estado-logo{overflow-wrap:anywhere}
+.exterior-editor .consular-fechas-guiadas>.field-help{display:block;margin:2px 0 14px;line-height:1.5}
+.exterior-editor .consular-fecha-grupo{border-top:1px solid #e1e5ee;padding:12px 0 14px;min-width:0}
+.exterior-editor .consular-fecha-grupo:first-child{border-top:0;padding-top:2px}
+.exterior-editor .consular-fecha-grupo>.field-help{display:block;margin:5px 0;line-height:1.4}
+.exterior-editor .consular-fecha-grupo>button{margin-top:5px}
+
+.prensa-subrayado{position:absolute;z-index:1;overflow:hidden;box-sizing:border-box;pointer-events:none;color:transparent;white-space:pre-wrap;overflow-wrap:break-word}
+.prensa-subrayado mark{color:transparent;background:transparent;text-decoration:underline wavy #b42318;text-decoration-thickness:1px;text-underline-offset:2px}
+.prensa-palabras,.prensa-sugerencias>div{display:flex;gap:6px;flex-wrap:wrap}
+.prensa-palabras{max-height:108px;overflow:auto;margin-top:8px}
+.prensa-sugerencias{position:fixed;inset:auto;margin:0;box-sizing:border-box;width:max-content;max-width:min(320px,calc(100vw - 16px));max-height:calc(100vh - 16px);overflow:auto;z-index:20;border:1px solid #c0c9e4;border-radius:10px;background:#fff;padding:10px 12px;color:#131e5b;box-shadow:0 5px 22px #263c6333}
+.prensa-sugerencias strong{display:block;margin-bottom:6px;overflow-wrap:anywhere}
+.prensa-sugerencias button{min-height:36px;overflow-wrap:anywhere;max-width:100%}
+
+#mapaGenerador{max-width:1120px;margin:auto;padding:clamp(16px,3vw,42px) clamp(12px,4vw,36px)}
+.mapa-cabecera{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 20px;align-items:center;padding:clamp(16px,3vw,30px);background:#fff;border:1px solid #ccd4e4;border-radius:15px;border-top:3px solid #d7aa81;margin-bottom:clamp(12px,2vw,24px)}
+.exterior .mapa-cabecera h2{margin:0;font-size:clamp(24px,4vw,38px);line-height:1.15;letter-spacing:-.025em;color:var(--azul)}
+#buscarPlantillas{grid-column:1/-1;min-width:0;max-width:650px;margin:0;padding:11px 14px;border:1px solid #b7c2d7;color:var(--azul);background:#f5f7fc;border-radius:9px}
+#buscarPlantillas::placeholder{color:#4f5d76}
+#cerrarMapa{margin:0;min-height:44px}
+.exterior .catalogo-ficha{margin:5px 0 0;color:#465575;font-size:13px;line-height:1.42;overflow-wrap:anywhere}
+#compararVariantes{margin:-3px 0 15px;background:var(--panel);border:1px solid var(--bd);border-radius:9px}
+#compararVariantes>summary{cursor:pointer;padding:11px 13px;font-size:14px;font-weight:650;color:var(--azul)}
+#disenosVariantes,#resultadosPlantillas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#disenosVariantes{padding:0 10px 10px}
+#resultadosPlantillas{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#resultadosPlantillas[hidden],#ramasMapa[hidden]{display:none}
+#disenosVariantes button,#resultadosPlantillas button{display:flex;align-items:center;gap:9px;text-align:start;margin:0;min-height:64px;min-width:0;padding:8px 10px;border:1px solid #bdc9df;border-radius:9px;background:#fff;color:var(--azul);overflow-wrap:anywhere}
+#disenosVariantes button:hover,#resultadosPlantillas button:hover{background:#f2f5fc;border-color:#788bb6}
+#disenosVariantes button[aria-current=true]{background:#edf1fa;border-inline-start:3px solid #b58459}
+#disenosVariantes img,#resultadosPlantillas img{display:block;object-fit:contain;flex:none;border-radius:4px;background:#ebeff6}
+#disenosVariantes strong,#resultadosPlantillas strong,#listaDisenos strong{display:block;font-size:14px;line-height:1.3}
+#disenosVariantes small,#resultadosPlantillas small,#listaDisenos small{display:block;margin-top:3px;font-size:12px;font-weight:400;color:#465575;line-height:1.35}
+#resultadosPlantillas .catalogo-categoria{margin:0 0 3px;font-size:11px;font-weight:650}
+@media(max-width:740px){#resultadosPlantillas{grid-template-columns:1fr}}
+@media(max-width:460px){#disenosVariantes{grid-template-columns:1fr}}
+#ramasMapa,#subcategoriasSede{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#subcategoriasSede[hidden]{display:none}
+#ramasMapa button,#subcategoriasSede button{display:grid;align-content:start;gap:5px;min-height:92px;min-width:0;border:1px solid #bdc9df;border-radius:11px;background:#fff;color:var(--azul);font-size:clamp(14px,1.5vw,17px);font-weight:700;text-align:left;padding:15px 16px;line-height:1.3;overflow-wrap:anywhere;margin:0}
+#ramasMapa button small,#subcategoriasSede button small{display:block;color:#465575;font-size:clamp(11px,1.1vw,13px);font-weight:400;line-height:1.35}
+#ramasMapa button:hover,#subcategoriasSede button:hover{background:#f2f5fc;border-color:#788bb6}
+#ramasMapa button[aria-current="true"],#subcategoriasSede button[aria-current="true"]{border-inline-start:3px solid #c48d5c;background:#f7f9fd}
+#mapaGenerador :focus-visible{outline:3px solid #6479cb;outline-offset:2px}
+@media(max-width:740px){
+ #ramasMapa,#subcategoriasSede{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #ramasMapa button,#subcategoriasSede button{min-height:70px;padding:10px}
+ #cerrarMapa{font-size:12px;padding:7px 9px}
+ .mapa-cabecera{gap:9px}
+}
+@media(max-width:350px){.mapa-cabecera{grid-template-columns:1fr}#cerrarMapa{justify-self:start}}
+.sugerencias-consulares:not(:empty){display:flex;flex-wrap:wrap;gap:4px 7px;margin-block:3px 9px}
+.sugerencias-consulares button.g{margin:0;min-height:38px;max-width:100%;text-align:left;font-size:.85rem;overflow-wrap:anywhere}
+.sugerencias-consulares small{flex-basis:100%}
+@media(max-width:740px){.sugerencias-consulares button.g,.sugerencias-texto button.g{min-height:44px}}
+#out[aria-busy="true"] button{cursor:progress}
+@media(max-height:650px){.exterior-preview{position:static}}
+@font-face{font-family:"Bembo institucional";src:url(assets/fonts/6d5689260739cd320365.otf) format("truetype");font-weight:400;font-display:swap}
+
+/* Homologación de selección (categorías, artes para sede y resultados).
+   Solo afecta al catálogo, no a los lienzos ni a sus controles de exportación. */
+#mapaGenerador{max-width:1100px}
+.mapa-cabecera{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.mapa-cabecera h2{flex:1 1 270px;min-width:0}
+#volverCategoriasSede{order:-1;flex:0 0 100%;width:max-content;max-width:100%;justify-content:flex-start;min-height:36px;margin:0;padding:4px 0;border:0;background:transparent;color:#24416d;font-size:14px;font-weight:700;text-align:left}
+#volverCategoriasSede:hover{background:transparent;text-decoration:underline;text-underline-offset:3px}
+#cerrarMapa{margin:0 0 0 auto}
+#buscarPlantillas{flex:0 0 100%;max-width:none;grid-column:auto}
+#ramasMapa,#subcategoriasSede,#resultadosPlantillas{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch}
+#ramasMapa button,#subcategoriasSede button,#resultadosPlantillas button{
+ position:relative;display:block;min-height:106px;padding:17px 35px 17px 17px;
+ border:1px solid #c0ccdf;border-radius:12px;background:#fff;
+ box-shadow:0 1px 2px #1e315510;text-align:left;line-height:1.3;
+ color:var(--azul);font-size:16px;font-weight:700;
+ overflow-wrap:anywhere;word-break:normal;transition:border-color .14s,background-color .14s,box-shadow .14s
+}
+#ramasMapa button::after,#subcategoriasSede button::after,#resultadosPlantillas button::after{
+ content:'›';position:absolute;right:15px;top:16px;color:#536787;
+ font-size:25px;line-height:1;font-weight:400
+}
+#ramasMapa button:hover,#subcategoriasSede button:hover,#resultadosPlantillas button:hover{
+ background:#f6f8fd;border-color:#8294ba;box-shadow:0 3px 12px #21366518
+}
+#ramasMapa button:active,#subcategoriasSede button:active,#resultadosPlantillas button:active{background:#eef2fb}
+#ramasMapa button span,#subcategoriasSede button span,#resultadosPlantillas button span{display:block;min-width:0}
+#ramasMapa button strong,#subcategoriasSede button strong,#resultadosPlantillas button strong{
+ display:block;font-size:16px;line-height:1.28;font-weight:750
+}
+#ramasMapa button small,#subcategoriasSede button small,#resultadosPlantillas button small{
+ display:block;margin-top:7px;font-size:13px;line-height:1.42;font-weight:400;color:#465575
+}
+#resultadosPlantillas button img{display:none}
+#resultadosPlantillas button .catalogo-categoria{font-size:12px;font-weight:700;color:#586985;margin:0 0 7px}
+#ramasMapa button[aria-current="true"],#subcategoriasSede button[aria-current="true"]{
+ border-inline-start:3px solid #b78b62;background:#f8f9fd
+}
+#contadorPlantillas{flex-basis:100%;margin:0;color:#506079;font-size:13px;line-height:1.4}
+#contadorPlantillas[hidden]{display:none}
+@media(max-width:900px){#ramasMapa,#subcategoriasSede,#resultadosPlantillas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){
+ #ramasMapa,#subcategoriasSede,#resultadosPlantillas{grid-template-columns:minmax(0,1fr);gap:9px}
+ #ramasMapa button,#subcategoriasSede button,#resultadosPlantillas button{min-height:80px;padding:13px 38px 14px 15px;font-size:16px}
+ #ramasMapa button::after,#subcategoriasSede button::after,#resultadosPlantillas button::after{top:16px;right:15px}
+ #mapaGenerador{padding:16px 12px 32px}
+ .mapa-cabecera{padding:16px;gap:10px 12px}
+ .mapa-cabecera h2{flex-basis:190px;font-size:25px}
+ #cerrarMapa{min-height:40px;padding:7px 10px;font-size:12px}
+}
+@media(max-width:375px){.mapa-cabecera h2{flex-basis:100%}#cerrarMapa{margin-left:0}}
+@media(prefers-reduced-motion:reduce){
+ #ramasMapa button,#subcategoriasSede button,#resultadosPlantillas button{transition:none}
+}
+
+</style><style id="estilo-validacion-fechas-03">
+/* Validación editorial de fechas: solo controles del formulario. */
+.exterior-editor input[aria-invalid="true"],
+.exterior-editor textarea[aria-invalid="true"]{border-color:#ad5c27!important;outline-offset:2px}
+.exterior-editor .advertencia-fecha-03{display:block;margin:5px 0 9px;color:#864019;font-size:13px;font-weight:650;line-height:1.35;white-space:normal}
+</style>
+<style id="estilo-proyeccion-03">
+.exterior-layout:has(#proy:not([hidden])){display:block;max-width:1440px}
+.exterior-layout:has(#proy:not([hidden]))>.exterior-editor{width:100%;max-width:none}
+#proy[hidden]{display:none!important}
+#proy{color:#17234a;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.85fr);gap:15px;align-items:start}
+#proy .proy-editor-col,#proy .proy-preview-col{min-width:0}
+#proy .card{padding:17px}
+#proy .proy-label{display:flex;flex-direction:column;gap:5px;font-size:14px;font-weight:650;color:#1d2b57}
+#proy .proy-label input,#proy .proy-label select,#proy .proy-label textarea{display:block;width:100%;max-width:100%;font:inherit;font-size:15px;padding:9px;border:1px solid #b7c2d7;border-radius:8px;color:#17234a;background:#fff;box-sizing:border-box}
+#proy .proy-label textarea{resize:vertical;min-height:70px}
+#proy .proy-grid,#proy .proy-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#proy .proy-section-head{display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:space-between;margin-bottom:12px}
+#proy .proy-section-head h3{font-size:17px;margin:0;color:#121e51}
+#proy .proy-tools,#proy .proy-actions,#proy .proy-nav{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:12px}
+#proy button{min-height:40px}
+#proy .proy-item{border:1px solid #d1d9e8;border-radius:9px;background:white;margin:9px 0;overflow:hidden}
+#proy .proy-item>summary{cursor:pointer;padding:12px;display:flex;align-items:center;flex-wrap:wrap;gap:7px;font-size:14px;color:#1b2b59}
+#proy .proy-item>summary strong{flex:1;min-width:160px;overflow-wrap:anywhere}
+#proy .proy-item>summary small{font-size:12px;flex-basis:100%;margin-left:29px;color:#586984}
+#proy .proy-index{background:#edf0fa;border-radius:4px;padding:5px 8px;font-size:12px;font-weight:700}
+#proy .proy-item-content{padding:14px;border-top:1px solid #dce2ee;background:#fcfdff}
+#proy .proy-exclude{display:flex;gap:7px;align-items:center;font-weight:600}
+#proy .proy-exclude input{width:18px;height:18px}
+#proy .proy-extra{font-size:12px;color:#586984;overflow-wrap:anywhere}
+#proy .proy-preview-col{position:sticky;top:14px}
+#proy .proy-stage{background:#e9eef8;border:1px solid #d4dbe9;border-radius:9px;padding:12px}
+#proyCanvasHost canvas{display:block;width:100%;max-width:100%;height:auto;box-shadow:0 3px 14px #152c5b22;background:white;aspect-ratio:16/9}
+#proy .proy-nav{justify-content:center}#proy .proy-nav button{min-width:44px}
+#proy #proyPageTitle{font-size:12px;color:#52617c;margin-top:5px}
+#proy .proy-group{display:flex;gap:8px;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #d6ddea}
+#proy .proy-group span{overflow-wrap:anywhere}
+#proy #proyWarnings{background:#fff8ed;border:1px solid #e6ca99;border-radius:8px;padding:10px 14px}
+#proy #proyWarningsList{max-height:150px;overflow:auto;font-size:13px;padding-left:17px}
+#proy .proy-import summary,#proy .proy-groups-details summary{cursor:pointer;font-weight:700;min-height:39px;padding:9px 0;color:#17265d}
+#proy #proyRaw,#proy #proyNotas{width:100%;min-height:155px;box-sizing:border-box;resize:vertical;font-size:15px}
+#proy #proyImportMsg{margin:9px 0 0;font-weight:650;color:#384d7e}
+#proy #proyStatus{font-size:13px;color:#3c506f;min-height:20px}
+#proy #proyDownload{background:#131f60;color:white;border:1px solid #131f60;font-weight:750}
+#proy #proyDownload:disabled{opacity:.6}
+#proy .proy-file-import{border:1px solid #d1d9e8;border-radius:9px;background:#fcfdff;padding:11px 13px;margin:0 0 12px}
+#proy .proy-file-row{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:8px}
+#proy .proy-file-picker{display:inline-flex;align-items:center;min-height:40px;padding:9px 14px;border:1px solid #131f60;border-radius:10px;background:#131f60;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin:0}
+#proy .proy-file-picker:hover{background:#1b2a7a}
+#proy .proy-file-picker:focus-within{outline:3px solid #6479cb;outline-offset:2px}
+/* El input permanece enfocable por teclado aunque esté oculto visualmente. */
+#proy .proy-file-input{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+#proy .proy-file-name{flex:1 1 140px;min-width:0;font-size:13px;color:#3c506f;overflow-wrap:anywhere}
+#proy .proy-file-row button{margin:0}
+#proy .proy-file-row button:disabled{opacity:.5;cursor:not-allowed}
+#proy #proyFileMsg{margin:8px 0 0;font-weight:650;color:#384d7e;font-size:13px}
+#proy #proyFileMsg:empty{display:none}
+@media(max-width:1000px){#proy{display:block}#proy .proy-preview-col{position:static}}
+@media(max-width:560px){#proy .proy-grid,#proy .proy-fields{grid-template-columns:minmax(0,1fr)}#proy .card{padding:13px}}
+</style><style id="svp-mejora-hallazgo40">
+.svp-arte-selector{border:1px solid var(--bd,#cbd3dc);border-radius:12px;margin:12px 0;padding:14px}
+.svp-arte-selector legend{color:var(--azul,#132657);font-weight:800;padding:0 6px}
+.svp-acciones-artes{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 3px}
+.svp-acciones-artes button{flex:1 1 110px;min-height:42px}
+.svp-arte-selector select{width:100%;max-width:100%}
+</style>
+
+<style id="estilo-navegacion-inmersiva-03">
+/* Proyecto 03: interfaz únicamente. El motor de artes y sus lienzos permanecen intactos. */
+:root{--os-ink:#111940;--os-navy:#171e41;--os-blue:#131e5b;--os-gold:#d7aa81;--os-light:#eef1f8}
+.os-stage[hidden]{display:none!important}
+.os-stage{position:fixed;z-index:1000;inset:0;overflow:auto;overscroll-behavior:contain;background:radial-gradient(ellipse at 8% 11%,#263765 0%,transparent 40%),linear-gradient(115deg,#141b3d 0%,#171f49 57%,#1a2455 100%);color:#fff;font-family:'Museo Sans','MuseoL','AD Montserrat',system-ui,sans-serif;scrollbar-color:#7a87a7 #171e41}
+.os-stage::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.35;background-image:linear-gradient(90deg,transparent 99.93%,#bbcae233 100%),linear-gradient(0deg,transparent 99.93%,#bbcae233 100%);background-size:84px 84px}
+body.os-home-visible{overflow:hidden}
+.os-stage *{box-sizing:border-box}
+.os-stage button{cursor:pointer}
+.os-stage button:focus-visible,.os-home-control:focus-visible,#osMapaInicio:focus-visible{outline:3px solid #e5bd96;outline-offset:4px}
+.os-stage-toolbar{display:flex;align-items:center;justify-content:space-between;gap:24px;max-width:1480px;margin:auto;padding:24px clamp(18px,4.3vw,64px);border-bottom:1px solid #ffffff26}
+.os-stage-brand{display:flex;align-items:center;gap:18px;min-width:0}
+.os-stage-mark{min-width:88px;max-width:122px;display:flex;align-items:center}
+.os-stage-mark img{max-width:122px;width:100%;max-height:72px;object-fit:contain}
+.os-stage-identity{display:grid;gap:4px;padding-left:17px;border-left:1px solid #7e8ca9}
+.os-stage-identity strong{font-size:14px;letter-spacing:.005em;color:#fff}
+.os-stage-identity span{font-size:12px;color:#bbc5dc}
+.os-stage-nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px}
+.os-stage-nav button,.os-stage-action{min-height:44px;border-radius:9px;border:1px solid #677496;color:#f4f6fd;background:transparent;padding:11px 17px;font-size:14px;font-weight:700;margin:0;transition:background .18s,border-color .18s}
+.os-stage-nav button:hover,.os-stage-action:hover{background:#ffffff14;border-color:#b3c1d9}
+.os-stage-nav button[aria-current="page"]{background:#e9eefb;color:#131e5b;border-color:#e9eefb}
+.os-stage-nav button[hidden]{display:none!important}
+.os-stage-shell{max-width:1480px;margin:0 auto;padding:clamp(26px,5vw,70px) clamp(18px,4.3vw,64px) 48px}
+.os-stage-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(360px,.82fr);gap:clamp(28px,4vw,70px);align-items:start}
+.os-stage-hero{padding-top:clamp(8px,3vw,30px);min-width:0}
+.os-stage-overline{font:700 12px/1.6 'Museo Sans','MuseoL',system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#e1b994;margin:0 0 30px}
+.os-stage-title{font-family:'Museo Sans','MuseoL',system-ui,sans-serif;font-weight:900;font-size:clamp(49px,6.8vw,104px);line-height:.98;letter-spacing:-.05em;margin:0 0 35px;max-width:850px}
+.os-stage-title span{display:block}
+.os-stage-title em{color:#d6a983;font-style:normal}
+.os-stage-title:focus{outline:none}
+.os-stage-lead{font-size:clamp(16px,1.4vw,20px);line-height:1.55;color:#d3d9e7;max-width:570px;margin:0 0 30px;font-weight:300}
+/* Buscador en inicio: usa el catálogo original, sin duplicar el índice ni su navegación. */
+.os-home-search{width:min(100%,625px);margin:0 0 23px}
+.os-home-search label{display:block;margin:0 0 9px;color:#f0f3fb;font-size:14px;font-weight:750}
+.os-home-search-box{display:flex;align-items:stretch;gap:8px}
+.os-home-search input{width:100%;min-width:0;min-height:54px;padding:13px 16px;font:400 16px/1.35 'Museo Sans','MuseoL',system-ui,sans-serif;border-radius:10px;border:1px solid #a8b9d1;background:#f6f8fd;color:#111940;outline-offset:3px}
+.os-home-search input:focus-visible{outline:3px solid #d7aa81}
+.os-home-search input::placeholder{color:#566681;opacity:1}
+.os-home-search-submit{flex:none;min-height:54px;border:1px solid #d7aa81;border-radius:10px;background:#d7aa81;color:#171e41;padding:10px 18px;font-size:14px;font-weight:750}
+.os-home-search-submit:hover{background:#edc6a6}
+.os-home-search-results{margin-top:10px;padding:13px;background:#f7f9ff;border-radius:11px;color:#131e5b;box-shadow:0 12px 35px #080d2555}
+.os-home-search-results[hidden]{display:none!important}
+.os-home-search-status{color:#515f78;font-size:12px;margin:0 0 8px}
+.os-home-search-list{display:grid;gap:4px;max-height:350px;overflow:auto}
+.os-home-search-result{width:100%;border:0;border-radius:7px;background:transparent;color:#131e5b;padding:10px 11px;margin:0;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.os-home-search-result:hover,.os-home-search-result:focus-visible{background:#e6ebf5}
+.os-home-search-result strong{font-size:14px;line-height:1.3;display:block}
+.os-home-search-result small{font-size:12px;line-height:1.35;color:#57657e;display:block;margin-top:3px}
+.os-home-search-result>span:last-child{font-size:22px;color:#8a6445}
+.os-home-search-all{border:0;border-top:1px solid #d2d9e8;border-radius:0;background:transparent;color:#142258;font-size:13px;font-weight:800;text-align:left;min-height:38px;padding:11px 8px 4px;margin:5px 0 0;width:100%}
+.os-home-search-all:hover{text-decoration:underline}
+.os-stage-actions{display:flex;gap:12px;flex-wrap:wrap}
+.os-stage-action{min-height:52px;padding:13px 19px}
+.os-stage-action--primary{background:#d7aa81;border-color:#d7aa81;color:#171e41}
+.os-stage-action--primary:hover{background:#edc6a6;border-color:#edc6a6}
+.os-stage-small{color:#aab8d3;font-size:12px;line-height:1.5;margin-top:34px}
+.os-stage-directory{min-width:0;border:1px solid #7181ac73;border-top:3px solid #d7aa81;border-radius:15px;background:#111a3bab;box-shadow:0 22px 65px #080e2c44;overflow:hidden}
+.os-stage-directory-head{padding:23px 25px 19px;border-bottom:1px solid #ffffff22;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.os-stage-directory-head h2{font-size:17px;line-height:1.25;margin:0;color:#fff}
+.os-stage-directory-head span{font-size:13px;color:#d6b291;white-space:nowrap}
+.os-stage-family-list{display:grid}
+.os-stage-family{position:relative;display:grid;grid-template-columns:42px minmax(0,1fr) 20px;gap:10px;align-items:center;width:100%;min-height:74px;padding:12px 23px;margin:0;text-align:left;border:0;border-bottom:1px solid #ffffff1a;border-radius:0;background:transparent;color:#fff}
+.os-stage-family:last-child{border-bottom:0}
+.os-stage-family:hover,.os-stage-family:focus-visible{background:#ffffff17}
+.os-stage-number{font-size:12px;color:#d7aa81;font-weight:700;align-self:start;padding-top:4px}
+.os-stage-family-name{font-weight:700;font-size:15px;line-height:1.25;display:block}
+.os-stage-family-info{font-weight:400;color:#b8c3d9;font-size:12px;line-height:1.35;margin-top:4px;display:block}
+.os-stage-family-arrow{font-size:23px;color:#d7aa81;font-weight:300}
+.os-stage-footer{margin-top:30px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid #ffffff21;padding-top:20px;font-size:12px;color:#bac5da}
+.os-home-control{margin:0!important}
+/* Mapa existente, con su navegación, búsqueda, submenús e historial originales. */
+.exterior #mapaGenerador:not([hidden]){max-width:none;min-height:calc(100vh - 91px);padding:clamp(24px,4vw,66px) max(18px,calc((100vw - 1320px)/2));background:linear-gradient(130deg,#182247,#17214c 60%,#101a3e);color:#f6f7ff}
+.exterior #mapaGenerador .mapa-cabecera{background:transparent;border:0;border-bottom:1px solid #ffffff38;border-top:0;border-radius:0;box-shadow:none;margin:0 0 25px;padding:0 0 26px;gap:13px 18px}
+.exterior #mapaGenerador .mapa-cabecera::before{content:'CATÁLOGO DE PLANTILLAS';display:block;flex:0 0 100%;font-size:12px;letter-spacing:.11em;font-weight:750;color:#e7b68e;margin-bottom:2px}
+.exterior #mapaGenerador .mapa-cabecera h2{color:#fff;font-weight:850;font-size:clamp(26px,3.7vw,49px)}
+.exterior #mapaGenerador #buscarPlantillas{max-width:none;color:#17214c;background:#f3f5fb;border:1px solid #b9c4d8;border-radius:10px;padding:12px 15px}
+.exterior #mapaGenerador #buscarPlantillas:focus{outline-color:#d7aa81}
+.exterior #mapaGenerador #cerrarMapa,.exterior #mapaGenerador #volverCategoriasSede,.exterior #mapaGenerador #osMapaInicio{background:#ffffff16;color:#fff;border:1px solid #7a8baa;border-radius:9px;min-height:44px;padding:10px 16px;margin:0}
+.exterior #mapaGenerador #volverCategoriasSede{order:0;flex:none}
+.exterior #mapaGenerador #cerrarMapa:hover,.exterior #mapaGenerador #volverCategoriasSede:hover,.exterior #mapaGenerador #osMapaInicio:hover{background:#ffffff2a;text-decoration:none}
+.exterior #mapaGenerador #ramasMapa,.exterior #mapaGenerador #subcategoriasSede,.exterior #mapaGenerador #resultadosPlantillas{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;counter-reset:os-map-cards}
+.exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button{min-height:146px;padding:23px 42px 24px 23px;background:#f8f9fc;border:1px solid #d3d9e8;border-top:3px solid #d7aa81;border-radius:12px;color:#131e5b;box-shadow:0 5px 18px #0b12263a;transition:transform .17s,background .17s,border-color .17s,box-shadow .17s}
+.exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button:hover{background:#fff;border-color:#e0b893;box-shadow:0 13px 28px #0003;transform:translateY(-2px)}
+.exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button strong{font-size:clamp(15px,1.35vw,19px);font-weight:800;line-height:1.25}
+.exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button small{font-size:13px;line-height:1.45;color:#4b5770}
+.exterior #mapaGenerador #ramasMapa button{counter-increment:os-map-cards;padding-top:44px}
+.exterior #mapaGenerador #ramasMapa button::before{content:counter(os-map-cards,decimal-leading-zero);position:absolute;left:23px;top:15px;color:#8b5e3a;font-size:11px;letter-spacing:.12em}
+.exterior #mapaGenerador #ramasMapa button::after{color:#9b6f4b;right:20px;top:19px}
+.exterior #mapaGenerador #contadorPlantillas{color:#dae1f0;margin:0}
+.exterior #mapaGenerador #sinPlantillas{color:#dce2f0}
+/* Ajustes de ilustración propios de actividades cotidianas. */
+.ad-artwork-controls{border:1px solid #d9dfeb;background:#f4f6fa;border-radius:12px;padding:13px 15px;margin-top:12px;display:grid;gap:6px}
+.ad-artwork-controls[hidden]{display:none}
+.ad-artwork-controls>strong{font-size:15px;color:#13245c}
+.ad-artwork-controls>label{margin-top:5px;display:flex;gap:8px;justify-content:space-between;align-items:center}
+.ad-artwork-controls output{font-weight:700;color:#13245c}
+.ad-artwork-controls input[type=range]{width:100%;margin:5px 0}
+.ad-artwork-controls>button{justify-self:start}
+.ad-artwork-controls>small{font-size:12px;line-height:1.4;color:#4b5770}
+/* Edición: jerarquía de acciones más clara y vista previa visible. */
+.exterior .exterior-cabecera{box-shadow:0 3px 12px #13245c10}
+.exterior .exterior-layout{max-width:1500px;grid-template-columns:minmax(0,1fr) minmax(335px,40%);gap:20px}
+.exterior .exterior-editor-top{border-inline-start-width:4px}
+.exterior .exterior-preview{top:14px}
+@media(min-width:1200px){.exterior .exterior-layout{padding-top:22px}}
+@media(max-width:1050px){.os-stage-grid{grid-template-columns:minmax(0,1fr) minmax(310px,.9fr)}.os-stage-title{font-size:clamp(46px,6.5vw,75px)}.exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas){grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.os-stage-toolbar{padding:17px 18px;align-items:flex-start}.os-stage-brand{gap:10px}.os-stage-mark{min-width:60px;max-width:75px}.os-stage-identity{padding-left:10px}.os-stage-identity strong{font-size:12px}.os-stage-identity span{font-size:11px}.os-stage-nav button{font-size:12px;padding:9px 10px;min-height:40px}.os-stage-shell{padding:25px 18px 32px}.os-stage-grid{grid-template-columns:1fr;gap:35px}.os-home-search{margin-bottom:20px}.os-home-search-box{gap:7px}.os-home-search-submit{padding:10px 12px}.os-stage-hero{padding-top:0}.os-stage-title{font-size:clamp(46px,10vw,77px);margin-bottom:22px}.os-stage-overline{margin-bottom:20px}.os-stage-directory-head{padding:20px}.os-stage-family{min-height:70px;padding:13px 18px}.exterior .exterior-layout{display:block;max-width:100%;gap:0}.exterior #mapaGenerador:not([hidden]){padding:26px 16px 45px}.exterior #mapaGenerador .mapa-cabecera{gap:10px}.exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button{min-height:114px;padding:40px 35px 16px 16px}.exterior #mapaGenerador #ramasMapa button::before{left:16px}}
+@media(max-width:520px){.os-stage-toolbar{display:block}.os-stage-nav{margin-top:18px;justify-content:flex-start}.os-stage-nav button{flex:1}.os-stage-title{font-size:clamp(42px,11vw,63px)}.os-stage-lead{font-size:15px}.os-stage-action{flex:1;min-width:145px}.os-stage-family{grid-template-columns:35px minmax(0,1fr) 15px}.os-stage-family-name{font-size:14px}.os-stage-directory-head{padding:16px 18px}.exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas){grid-template-columns:minmax(0,1fr);gap:11px}.exterior #mapaGenerador .mapa-cabecera h2{flex-basis:100%;font-size:27px}.exterior #mapaGenerador #cerrarMapa,.exterior #mapaGenerador #volverCategoriasSede,.exterior #mapaGenerador #osMapaInicio{font-size:12px;min-height:40px;padding:8px 11px}.exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button{min-height:100px}}
+@media(prefers-reduced-motion:reduce){.os-stage button,.exterior #mapaGenerador button{transition:none!important;transform:none!important}}
+</style>
+<style id="tipografias-prensa-locales">
+
+/* Fuentes oficiales proporcionadas por Contenido Oficial, carpeta Fonts, 24-11-2026. */
+@font-face{font-family:"Bembo oficial";font-weight:400;font-style:normal;font-display:block;src:url(assets/fonts/6d5689260739cd320365.otf) format("opentype");}
+@font-face{font-family:"Bembo oficial";font-weight:700;font-style:normal;font-display:block;src:url(assets/fonts/b40af917c677dff75f18.otf) format("opentype");}
+@font-face{font-family:"Museo Sans oficial";font-weight:100;font-style:normal;font-display:block;src:url(assets/fonts/68e3b7f95415674605d0.otf) format("opentype");}
+@font-face{font-family:"Museo Sans oficial";font-weight:100;font-style:italic;font-display:block;src:url(assets/fonts/aa01da4d89552cc0c880.otf) format("opentype");}
+@font-face{font-family:"Museo Sans oficial";font-weight:300;font-style:normal;font-display:block;src:url(assets/fonts/ecc24f40f565ce3d863f.otf) format("opentype");}
+@font-face{font-family:"Museo Sans oficial";font-weight:300;font-style:italic;font-display:block;src:url(assets/fonts/1138074e495542a660f1.otf) format("opentype");}
+@font-face{font-family:"Museo Sans oficial";font-weight:700;font-style:italic;font-display:block;src:url(assets/fonts/df10f88d5947a5117d6e.otf) format("opentype");}
+@font-face{font-family:"Museo Sans oficial";font-weight:900;font-style:italic;font-display:block;src:url(assets/fonts/2b4a239914214abf74f5.otf) format("opentype");}
+@font-face{font-family:"Museo Sans oficial";font-weight:500;font-style:normal;font-display:block;src:url(assets/fonts/46428f2c539eecc8b06f.otf) format("opentype");}
+@font-face{font-family:"Museo Sans oficial";font-weight:500;font-style:italic;font-display:block;src:url(assets/fonts/1f7fe83c703e5ab07a5c.otf) format("opentype");}
+@font-face{font-family:"Museo Sans oficial";font-weight:700;font-style:normal;font-display:block;src:url(assets/fonts/c36ca8cd5566c156e23f.otf) format("opentype");}
+@font-face{font-family:"Museo Sans oficial";font-weight:900;font-style:normal;font-display:block;src:url(assets/fonts/3523734aa4e5c25525d4.otf) format("opentype");}
+
+
+
+</style>
+
+<style id="ux-equipo-03">
+.os-stage [hidden],.exterior [hidden]{display:none!important}
+.ux-mobile-actions{display:none}
+@media(max-width:760px){
+ .os-stage-toolbar{padding:13px 16px;display:flex;align-items:center;gap:8px}
+ .os-stage-brand{gap:10px}.os-stage-mark{min-width:62px;max-width:75px}
+ .os-stage-nav{display:none}
+ .os-stage-shell{padding:19px 16px 26px}
+ .os-stage-grid{gap:19px}.os-stage-hero{padding-top:0}
+ .os-stage-overline{font-size:11px;letter-spacing:.09em;margin:0 0 9px}
+ .os-stage-title{font-size:clamp(34px,8vw,48px);line-height:1.06;letter-spacing:-.045em;margin:0 0 10px}
+ .os-stage-title span{display:inline}.os-stage-title span+span::before{content:' '}
+ .os-stage-lead{font-size:15px;line-height:1.4;margin:0 0 16px;max-width:unset}
+ .os-home-search{margin:0;width:100%}.os-home-search label{margin:0 0 6px;font-size:14px}
+ .os-home-search input,.os-home-search-submit{min-height:46px;padding:10px 12px;font-size:16px}
+ .os-home-search-submit{font-size:14px}
+ #osHomeSearchHelp{display:none}
+ .os-stage-hero>.os-stage-small{display:none}
+ .os-stage-actions{display:none}
+ .os-stage.os-resume-available .os-stage-actions{display:flex;margin-top:12px}
+ .os-stage-actions [data-os-action="map"]{display:none}
+ .os-stage-actions #osContinue{min-height:44px;padding:9px 12px;flex:1}
+ .os-stage-directory{border-radius:12px;box-shadow:none}
+ .os-stage-directory-head{padding:12px 14px}.os-stage-directory-head h2{font-size:16px}
+ #osFamilyCount{display:none}
+ .os-stage-family{grid-template-columns:minmax(0,1fr) 16px;gap:8px;min-height:61px;padding:10px 14px}
+ .os-stage-number{display:none}.os-stage-family-name{font-size:15px;line-height:1.25}
+ .os-stage-family-info{font-size:12px;line-height:1.35;margin-top:3px}
+ .os-stage-footer{margin-top:18px;padding-top:12px;font-size:11px}
+ .exterior #mapaGenerador:not([hidden]){padding:18px 14px 30px;min-height:calc(100vh - 65px)}
+ .exterior #mapaGenerador .mapa-cabecera{gap:8px;margin:0 0 14px;padding:0 0 14px}
+ .exterior #mapaGenerador .mapa-cabecera::before{display:none}
+ .exterior #mapaGenerador .mapa-cabecera h2{font-size:25px;flex:1 0 100%;line-height:1.18}
+ .exterior #mapaGenerador #buscarPlantillas{font-size:16px;min-height:44px}
+ .exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas){grid-template-columns:1fr;gap:8px}
+ .exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button{min-height:78px;padding:12px 32px 12px 14px;border-top-width:1px;box-shadow:none}
+ .exterior #mapaGenerador #ramasMapa button::before{display:none}
+ .exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button strong{font-size:15px}
+ .exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button small{font-size:13px;line-height:1.35}
+ .exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button::after{right:12px;top:50%;transform:translateY(-50%)}
+ .exterior .exterior-layout:not([hidden]){display:block;padding:14px 12px calc(85px + env(safe-area-inset-bottom,0px))}
+ .exterior .exterior-preview{position:static;scroll-margin-top:12px}
+ .exterior .exterior-editor-top{gap:8px;margin-bottom:14px}
+ .exterior .exterior-editor-top .catalogo-ficha{font-size:13px;line-height:1.4}
+ .exterior .exterior-editor :is(input:not([type=checkbox],[type=radio],[type=range],[type=color]),textarea,select),.exterior .exterior-preview select{font-size:16px}
+ .exterior .exterior-editor :is(button,summary){min-height:44px}
+ .exterior .exterior-acciones #irVistaPrevia{display:none}
+ .ux-mobile-actions{position:fixed;z-index:50;bottom:0;left:0;right:0;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr);gap:8px;padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px));background:#f5f7fc;border-top:1px solid #cbd4e4;box-shadow:0 -4px 18px #131e5b16}
+ .ux-mobile-actions button{margin:0;min-height:46px;padding:9px 8px;border-radius:9px;font-size:14px;line-height:1.2}
+ .exterior #out img{max-height:none;width:auto;max-width:100%}
+ .exterior #out figure{padding:10px 8px}
+ .exterior #out figure button{min-height:46px;width:100%}
+ .exterior #estadoPng{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+}
+</style>
+
+<style id="ux-navegacion-simple-03">
+.os-stage .ux-brand-home{border:0;background:transparent;color:inherit;padding:0;margin:0;text-align:left;min-height:44px;border-radius:8px;max-width:100%;font-family:inherit;box-shadow:none}
+.os-stage .ux-brand-home:hover,.os-stage .ux-brand-home:active{background:#ffffff0b}
+.os-stage .ux-brand-home:focus-visible,.exterior-home-brand:focus-visible{outline:3px solid #d7aa81;outline-offset:4px}
+.exterior-home-brand{display:flex;align-items:center;gap:22px;min-width:0;color:inherit;text-decoration:none;border-radius:8px;flex:none;max-width:100%;min-height:44px}
+.exterior-home-brand:hover{color:inherit;text-decoration:none;background:#ffffff0b}
+.os-stage .os-stage-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0}
+.os-stage .os-stage-actions [data-os-action="map"]{display:inline-flex;align-items:center;justify-content:center;min-height:44px}
+.os-stage .os-stage-action{min-height:44px;padding:10px 16px}
+.ux-home-guide{width:100%;max-width:720px;color:#d2d9e9;font-size:14px;line-height:1.5}
+.ux-home-guide summary{cursor:pointer;min-height:44px;display:list-item;padding:10px 0;color:#e1b994;font-weight:700}
+.ux-home-guide p{margin:0 0 10px}
+@media(max-width:760px){
+ .os-stage-toolbar{display:flex;padding:13px 16px;min-height:0}
+ .os-stage .ux-brand-home{width:auto;max-width:100%}
+ .os-stage .os-stage-actions{display:flex;margin-top:10px}
+ .os-stage .os-stage-actions .os-stage-action{flex:1 1 145px;font-size:14px;min-height:44px;padding:9px 12px}
+ .os-stage .os-stage-actions [data-os-action="map"]{display:inline-flex}
+ .os-stage-footer{padding-top:4px;margin-top:12px}
+ .exterior-home-brand{grid-column:1/-1;gap:12px}
+ .exterior .exterior-acciones{gap:8px}
+}
+@media(max-width:400px){.os-stage .ux-brand-home .os-stage-identity strong{font-size:12px}.os-stage .ux-brand-home .os-stage-identity span{font-size:11px}.os-stage .os-stage-actions{gap:7px}}
+</style>
+<style id="ux-homologacion-01">
+/* Identidad común de la interfaz. Los lienzos conservan sus fuentes y colores. */
+.exterior{font-family:"Museo Sans",MuseoL,system-ui,sans-serif;line-height:1.45}
+.exterior :is(button,input,select,textarea,summary){font-family:inherit}
+.exterior .exterior-editor :is(.card>h3,.card>details>summary,.card>legend,.exterior-seccion),.exterior #proy .proy-section-head h3{font-size:16px;font-weight:700;line-height:1.35;color:var(--azul)}
+.exterior :is(.field-help,.logo-help){font-size:13px;line-height:1.45;color:#44516c;opacity:1;overflow-wrap:anywhere}
+.exterior .exterior-editor :is(input:not([type=checkbox],[type=radio],[type=range],[type=color]),textarea,select),.exterior .exterior-preview select{background:#fff;border-color:#b7c2d7;border-radius:8px;line-height:1.35}
+.exterior .exterior-editor :is(input[type=checkbox],input[type=radio],input[type=range]){accent-color:var(--azul)}
+.exterior .exterior-editor button.g,.exterior .exterior-preview button.g{border-radius:8px;font-weight:700;line-height:1.3}
+.exterior .exterior-editor :is(button.g):not(:disabled):hover,.exterior .exterior-preview button.g:not(:disabled):hover{background:#edf1fa}
+.exterior .exterior-editor :is(label,legend){overflow-wrap:anywhere}
+.exterior .exterior-editor input[type=file]{max-width:100%;font-size:14px}
+.exterior :is(button,summary,input,select,textarea):focus-visible{outline-offset:3px}
+.exterior #editorialEstado:not([hidden]){padding:10px 12px;border-inline-start:3px solid #b58459;background:#fff8ef;border-radius:6px;color:#674322}
+.exterior #proy .proy-preview-col{border-color:var(--bd);border-radius:12px}
+@media(max-width:760px){
+ .exterior .exterior-editor :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=file]),select,textarea){font-size:16px}
+ .exterior .exterior-editor #proy :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=file]),select,textarea){font-size:16px}
+ .exterior .ux-mobile-actions button{font-family:inherit}
+}
+</style>
+<link id="exterior-interface-20261124" rel="stylesheet" href="assets/interfaz-movil.css"><link rel="icon" type="image/png" sizes="32x32" href="exterior-32.png"><link rel="icon" type="image/png" sizes="192x192" href="exterior-192.png"><link rel="apple-touch-icon" href="exterior-192.png"><meta name="theme-color" content="#111e60"><script defer src="assets/apk-install.js"></script><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer"></head><body class="os-home-visible">
+<section id="osStage" aria-busy="true" class="os-stage" role="dialog" aria-modal="true" aria-labelledby="osStageTitle">
+ <header class="os-stage-toolbar">
+  <button type="button" class="os-stage-brand ux-brand-home" data-os-action="home" aria-label="Exterior — volver al inicio" title="Volver al inicio"><span class="os-stage-mark" id="osStageMark" aria-hidden="true"><img src="assets/marca-interfaz-7d2986d2662e796a8ff5.png" alt="" decoding="async"></span><span class="os-stage-identity"><strong>Gabinete de Política Exterior</strong><span>Ministerio de Relaciones Exteriores</span></span></button>
+ </header>
+ <div class="os-stage-shell">
+  <div class="os-stage-grid">
+   <div class="os-stage-hero">
+    <p class="os-stage-overline">Dirección de Comunicaciones</p>
+    <h1 id="osStageTitle" class="os-stage-title" tabindex="-1"><span>Generador</span><span><em>de artes</em></span></h1>
+    <p class="os-stage-lead">Elegir un tipo de arte para comenzar.</p>
+    <form id="osHomeSearchForm" class="os-home-search" role="search" autocomplete="off">
+     <label for="osHomeSearch">Buscar plantillas</label>
+     <div class="os-home-search-box"><input disabled id="osHomeSearch" type="search" placeholder="Ej.: consulado móvil" aria-controls="osHomeSearchResults" aria-describedby="osHomeSearchHelp"><button disabled class="os-home-search-submit" type="submit">Buscar</button></div>
+     <div id="osHomeSearchResults" class="os-home-search-results" hidden><p id="osHomeSearchStatus" class="os-home-search-status" role="status" aria-live="polite"></p><div id="osHomeSearchList" class="os-home-search-list" aria-label="Resultados encontrados"></div><button id="osHomeSearchAll" class="os-home-search-all" type="button" hidden>Ver todos los resultados</button></div>
+     <p id="osHomeSearchHelp" class="os-stage-small" style="margin:8px 0 0">Buscar por tema o nombre.</p>
+    </form>
+    <div class="os-stage-actions"><button disabled type="button" class="os-stage-action os-stage-action--primary" data-os-action="map">Explorar plantillas</button><button type="button" class="os-stage-action" data-os-action="continue" id="osContinue" hidden>Continuar edición</button></div>
+
+
+   </div>
+   <aside class="os-stage-directory" aria-label="Seleccionar tipo de arte"><div class="os-stage-directory-head"><h2>Tipos de arte</h2><span id="osFamilyCount" aria-live="polite"></span></div><div class="os-stage-family-list" id="osFamilyList"><p class="os-startup-status" role="status">Preparando las plantillas…</p><button type="button" disabled class="os-stage-family"><span class="os-stage-number">01</span><span><span class="os-stage-family-name">Comunicados y convocatorias</span><span class="os-stage-family-info">Comunicados de prensa y convocatorias a medios de comunicación.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">02</span><span><span class="os-stage-family-name">Artes para sede</span><span class="os-stage-family-info">Publicaciones de sede, incluidas las convocatorias de movilidad laboral y las carteleras consulares.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">03</span><span><span class="os-stage-family-name">Actividades del día a día</span><span class="os-stage-family-info">Invitaciones a actividades, incluido El Salvador+.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">04</span><span><span class="os-stage-family-name">Efemérides</span><span class="os-stage-family-info">Día del Salvadoreño en el Exterior</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">05</span><span><span class="os-stage-family-name">Jornadas de atención consular</span><span class="os-stage-family-info">Jornadas extraordinarias y consulados móviles individuales.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">06</span><span><span class="os-stage-family-name">Avisos</span><span class="os-stage-family-info">Avisos de cierre o cambios en la atención institucional.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">07</span><span><span class="os-stage-family-name">Artes de uso interno</span><span class="os-stage-family-info">Firmas de correo, proyecciones y esquelas.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">08</span><span><span class="os-stage-family-name">Artes de otras instituciones</span><span class="os-stage-family-info">Jornadas de identificación (DUI/RNPN).</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button></div></aside>
+  </div>
+  <footer class="os-stage-footer"><details class="ux-home-guide"><summary>Cómo utilizar el generador</summary><p>Elegir una plantilla y completar los campos. Revisar la vista previa antes de descargar. Pulsar la marca Exterior para volver al inicio.</p></details></footer>
+ </div>
+</section>
+<main class="exterior">
+<header class="exterior-cabecera">
+ <div class="exterior-marca">
+  <a class="exterior-home-brand" id="osHomeHeader" href="#inicio" aria-label="Exterior — volver al inicio" title="Volver al inicio"><img class="exterior-logo" src="assets/marca-interfaz-7d2986d2662e796a8ff5.png" alt="EXTERIOR">
+  <div class="exterior-identidad"><p class="exterior-contexto">Gabinete de Política Exterior</p><h1>Generador de artes</h1></div></a>
+  <div class="exterior-acciones" hidden><button type="button" id="abrirMapa" class="g" aria-controls="mapaGenerador" aria-expanded="true">Plantillas</button>
+  <button type="button" id="irVistaPrevia" class="g" aria-controls="resultCard">Vista previa</button></div>
+ </div>
+</header>
+<section id="mapaGenerador" aria-labelledby="tituloMapa">
+ <div class="mapa-cabecera">
+  <h2 id="tituloMapa" tabindex="-1">Elegir un tipo de arte</h2>
+  <button type="button" class="g" id="cerrarMapa" hidden>Volver al editor</button>
+  <input id="buscarPlantillas" type="search" aria-label="Buscar plantillas" placeholder="Buscar por tema o diseño…">
+ </div>
+ <nav id="ramasMapa" aria-label="Tipos de arte"></nav>
+ <nav id="subcategoriasSede" aria-label="Artes para sede" hidden></nav>
+ <nav id="resultadosPlantillas" aria-label="Resultados de búsqueda" hidden></nav>
+ <p id="sinPlantillas" class="field-help" role="status" hidden>No se encontraron plantillas.</p>
+</section>
+<div class="exterior-layout" hidden>
+ <div id="uxMobileActions" class="ux-mobile-actions" role="group" aria-label="Accesos de edición">
+  <button type="button" id="uxEdit" class="g">Editar datos</button>
+  <button type="button" id="uxPreview">Vista previa y descarga</button>
+ </div>
+ <section class="exterior-editor" aria-labelledby="editorTitulo">
+  <input id="m" type="hidden" value="efemerides">
+  <select id="consularDiseno" hidden>
+   <option value="individual">Jornada o consulado móvil individual</option>
+   <option value="mixta">Cartelera de jornadas y consulados</option>
+  </select>
+  <select id="internoDiseno" hidden>
+   <option value="firma">Firma de correo</option>
+   <option value="proyeccion">Proyección semanal de temas</option>
+  </select>
+  <header class="exterior-editor-top">
+   <div class="exterior-arte">
+    <p class="exterior-categoria" id="editorCategoria">Efemérides</p>
+    <h2 class="exterior-encabezado" id="editorTitulo" tabindex="-1">Día del Salvadoreño en el Exterior</h2>
+    <p class="catalogo-ficha" id="editorFicha" aria-live="polite"></p>
+   </div>
+   <details class="exterior-disenos" id="disenosExterior" hidden>
+    <summary>Cambiar diseño</summary>
+    <div class="exterior-disenos-menu">
+     <small class="field-help" id="avisoDisenoExterior" hidden>Cambiar de diseño restablece los textos y elimina los logotipos adjuntos.</small>
+     <div id="listaDisenos"></div>
+    </div>
+   </details>
+  </header>
+  
+   <details id="compararVariantes" hidden>
+   <summary>Comparar variantes</summary>
+   <div id="disenosVariantes"></div>
+  </details>
+
+<div id="dui" hidden>
+<div class="card">
+<h3 class="exterior-seccion">Contenido del arte</h3>
+<div class="row"><div><label for="t">Título</label><input id="t" value="Lorem ipsum dolor"></div>
+<div><label for="s">Subtítulo</label><input id="s" value="Sit amet consectetur"></div></div>
+<div class="row"><div><label for="p">País</label><input id="p" placeholder="Indicar el nombre completo."></div>
+<div><label for="f">Formato</label><select id="f"><option value="1350">Publicación (4:5)</option><option value="1920">Historia (9:16)</option></select></div></div>
+<div class="row"><div><label for="lay">Variante</label><select id="lay"><option value="cl">Clásico (1–2 sedes grandes)</option><option value="gr">Cuadrícula (2 columnas, varias sedes)</option></select></div>
+<div><label for="gd">Fecha común (solo cuadrícula)</label><input id="gd" aria-describedby="dui-date-help" placeholder="Indicar la fecha completa."><small id="dui-date-help" class="field-help">Si todas las sedes comparten fecha, dejar vacías las fechas individuales.</small></div></div>
+<label><input type="checkbox" id="hd" checked style="width:auto"> Mostrar encabezado (título y subtítulo; solo cuadrícula)</label>
+<label><input type="checkbox" id="lg" checked style="width:auto"> Mostrar logotipo del RNPN</label>
+</div>
+<div id="locs"></div>
+<button class="g" data-sec-click="add()">Agregar sede</button>
+</div>
+<div id="dse">
+<div class="card">
+<h3 class="exterior-seccion">Contenido del arte</h3>
+<label for="d1">Línea superior</label><input id="d1" value="Conmemoración del">
+<div class="row"><div><label for="d2">Título (oscuro)</label><input id="d2" value="Día del Salvadoreño"></div><div><label for="d3">Título (azul)</label><input id="d3" value="en el Exterior"></div></div>
+<label for="df">Fecha</label><input id="df" placeholder="Indicar la fecha completa.">
+<label for="dh">Hora</label><input id="dh" placeholder="Indicar la hora local de inicio.">
+<label for="du">Lugar</label><textarea id="du" placeholder="Indicar el recinto y su dirección."></textarea>
+</div>
+<div class="card"><label for="dp">Fotografía</label><select id="dp"><option value="0">Aeropuerto con bandera</option><option value="1">Volcán y arcoíris</option><option value="2" selected>Bandera en el volcán</option><option value="c">Fotografía personalizada</option></select>
+<label for="dpf">Cargar fotografía</label><input type="file" id="dpf" accept="image/png,image/jpeg,image/webp">
+<label for="dpo">Posición vertical de la fotografía</label><input type="range" id="dpo" min="0" max="100" value="50">
+</div>
+<div class="card" id="dseColaboradores"></div>
+</div>
+<div id="ad" hidden>
+<select id="adT" hidden></select>
+<div class="card" id="adConfiguracion">
+<div id="adVersionWrap"><label for="adV" id="adVersionEtiqueta">Variante</label><select id="adV"></select></div>
+<small id="adAyudaPlantilla" class="field-help">Cambiar de variante restablece los textos y elimina los logotipos adjuntos.</small></div>
+<div class="card"><h3 class="exterior-seccion">Contenido del arte</h3><div id="adF"></div></div>
+<div class="card" id="adLogosExistentes"><label for="adLg">Logotipos de entidades colaboradoras (opcional)</label><input type="file" id="adLg" accept="image/png,image/jpeg" multiple>
+<label for="adLT">Encabezado de los logotipos</label><input id="adLT" maxlength="64" value="Con apoyo de:">
+<div id="adArtworkControls" class="ad-artwork-controls" hidden>
+ <strong>Ajustar ilustración</strong>
+ <label for="adArtworkSize">Tamaño de la ilustración <output id="adArtworkSizeValue">100%</output></label>
+ <input id="adArtworkSize" type="range" min="75" max="115" value="100" step="1" aria-label="Tamaño de la ilustración">
+ <label for="adArtworkOffset">Posición vertical <output id="adArtworkOffsetValue">0</output></label>
+ <input id="adArtworkOffset" type="range" min="-70" max="70" value="0" step="5" aria-label="Posición vertical de la ilustración">
+ <button type="button" class="g" id="adArtworkReset">Restablecer ilustración</button>
+ <small>Ajuste exclusivo de la ilustración.</small>
+</div>
+<div class="logo-list" id="logoListAD" aria-label="Orden de los logotipos: Actividades del día a día"></div>
+<small class="logo-help">Cargar hasta cuatro logotipos (PNG o JPG). Usar las flechas para ordenarlos o arrastrarlos.</small></div></div>
+<div id="mov" hidden><div id="movf"></div></div>
+<div id="proy" hidden>
+ <div class="proy-editor-col">
+  <div class="card"><div class="proy-section-head"><h3>Proyección semanal de temas</h3><button type="button" class="g" id="proyPreviewJump">Vista previa</button></div>
+   <div class="proy-file-import">
+    <p class="field-help">Cargar el archivo de proyección semanal (JSON). También se puede pegar el contenido en el apartado siguiente.</p>
+    <div class="proy-file-row">
+     <label class="proy-file-picker" for="proyFile">Cargar archivo JSON<input type="file" id="proyFile" class="proy-file-input" accept=".json,application/json,text/json"></label>
+     <span id="proyFileName" class="proy-file-name">Ningún archivo seleccionado</span>
+     <button type="button" class="g" id="proyFileBtn" disabled>Cargar al formulario</button>
+    </div>
+    <p id="proyFileMsg" role="status" aria-live="polite"></p>
+   </div>
+   <details class="proy-import" id="proyImport"><summary>Pegar desde un documento</summary>
+    <p class="field-help">Pegar el contenido del archivo JSON o el texto de la agenda.</p>
+    <textarea id="proyRaw" rows="9" aria-label="Texto o JSON para importar" placeholder="Pegar la proyección semanal o el contenido del JSON."></textarea>
+    <button type="button" class="g" id="proyImportBtn">Pasar al formulario</button><p id="proyImportMsg" role="status" aria-live="polite"></p>
+   </details>
+  </div>
+  <div class="card"><h3 class="exterior-seccion">Datos generales</h3><div id="proyMeta" class="proy-grid"></div></div>
+  <div class="card"><div class="proy-section-head"><h3>Actividades</h3><span id="proyRegistroCount" class="field-help"></span></div>
+   <div class="proy-actions"><button type="button" class="g" id="proyAddSede">Agregar actividad de sede</button><button type="button" class="g" id="proyAddExterior">Agregar actividad del exterior</button></div>
+   <label class="proy-label">Mostrar actividades<select id="proyFilter"><option value="TODOS">Todas</option><option value="SEDE">Sede</option><option value="EXTERIOR">Exterior</option></select></label>
+   <p id="proyNotice" class="field-help" role="status"></p><div id="proyEventos"></div>
+   <details class="proy-groups-details"><summary>Agrupaciones temáticas</summary><p class="field-help">Asignar una agrupación a las actividades relacionadas. Quitar la agrupación conserva las actividades.</p><div id="proyGrupos"></div></details>
+   <details><summary>Notas de importación</summary><p class="field-help">Las líneas sin clasificar permanecen aquí.</p><textarea id="proyNotas"></textarea></details>
+   <div id="proyWarnings" hidden><strong>Datos que requieren revisión</strong><ul id="proyWarningsList"></ul></div>
+  </div>
+ </div>
+ <aside class="proy-preview-col card" id="proyPreview" tabindex="-1"><div class="proy-section-head"><h3>Vista previa del PDF</h3><button type="button" class="g" id="proyBackEdit">Volver a editar</button></div>
+  <div class="proy-stage"><div id="proyCanvasHost"></div><div class="proy-nav"><button type="button" class="g" id="proyPrev" aria-label="Página anterior">‹</button><strong id="proyPageCount" aria-live="polite">Página 1</strong><button type="button" class="g" id="proyNext" aria-label="Página siguiente">›</button></div><div id="proyPageTitle"></div></div>
+  <p id="proyStatus" role="status"></p><button type="button" id="proyDownload">Descargar PDF</button>
+  <p class="field-help">PDF horizontal (16:9). Las páginas se ajustan al contenido.</p>
+ </aside>
+</div>
+<div id="sede" hidden>
+ <select id="sedeDiseno" hidden><option value="oficinas">Oficinas regionales</option></select>
+ <div class="card" id="sedeSelector">
+  <div class="row sede-formatos">
+   <div id="sedeVersionWrap"><label for="sedeVersion">Variante</label><select id="sedeVersion"></select></div>
+   <div id="sedeVarianteWrap" hidden><label for="sedeVariante">Arte del conjunto</label><select id="sedeVariante"><option value="v3">Horario con fotografía</option><option value="v2">Directorio con direcciones y contactos</option></select></div>
+   <div id="sedeFormatoWrap"><label for="sedeFormato">Formato</label><select id="sedeFormato"><option value="post">Publicación (4:5)</option><option value="historia">Historia (9:16)</option></select></div>
+  </div>
+ </div>
+ <div class="card">
+  <details class="sede-edicion" open><summary>Contenido del arte</summary>
+   <input id="sedeParte" type="hidden" value="v8">
+   <div id="sedeEditarPartes" class="sede-editar-partes" role="group" aria-label="Editar páginas del arte" hidden>
+    <button type="button" class="g" data-sede-parte="v8" aria-pressed="true" aria-controls="sedeCampos">Editar mapa</button>
+    <button type="button" class="g" data-sede-parte="v9" aria-pressed="false" aria-controls="sedeCampos">Editar directorio</button>
+   </div>
+   <div id="sedeCampos"></div>
+   <button type="button" class="g" id="sedeTextoRestaurar" aria-label="Restablecer los textos de la versión seleccionada">Restablecer textos</button>
+  </details>
+ </div>
+ <div class="card" id="sedePanelColores">
+  <details class="sede-edicion" open><summary>Colores</summary>
+   <label for="sedePaleta">Combinación de colores</label>
+    <select id="sedePaleta"><option value="">Personalizada</option><option value="original">Original del diseño</option></select>
+   <small class="field-help">Las propuestas mantienen los colores de las oficinas regionales. En los conjuntos se aplican a ambas imágenes.</small>
+    <div id="sedeColores"></div>
+   <button type="button" class="g" id="sedePaletaAleatoria">Proponer combinación de colores</button>
+   <button type="button" class="g" id="sedePaletaDeshacer" hidden>Deshacer combinación</button>
+   <button type="button" class="g" id="sedeColorRestaurar">Restablecer colores</button>
+  </details>
+ </div>
+ <div class="card" id="sedePanelFoto" hidden>
+  <b>Fotografía</b>
+  <label for="sedeFoto">Cargar fotografía</label>
+  <input type="file" id="sedeFoto" accept="image/png,image/jpeg,image/webp">
+  <small class="field-help" id="sedeFotoNombre" aria-live="polite">Fotografía de referencia</small>
+  <div class="row sede-formatos">
+   <div><label for="sedeFotoX">Encuadre horizontal</label><input type="range" id="sedeFotoX" min="0" max="100" value="50"></div>
+   <div><label for="sedeFotoY">Encuadre vertical</label><input type="range" id="sedeFotoY" min="0" max="100" value="50"></div>
+  </div>
+  <button type="button" class="g" id="sedeFotoRestaurar">Restablecer fotografía</button>
+ </div>
+</div>
+</section>
+<aside class="card exterior-preview" id="resultCard" aria-labelledby="previewTitulo" tabindex="-1">
+ <div class="exterior-preview-bar">
+  <h2 id="previewTitulo">Vista previa</h2>
+  <button type="button" id="volverEdicion" class="g" aria-controls="editorTitulo">Volver a editar</button>
+  <div id="previewNavegacion" class="exterior-paginacion" hidden>
+   <button type="button" id="previewAnterior" aria-label="Página anterior">‹</button>
+   <span id="previewPagina" aria-live="polite"></span>
+   <button type="button" id="previewSiguiente" aria-label="Página siguiente">›</button>
+  </div>
+ </div>
+ <p id="editorialEstado" role="status" class="field-help" hidden></p><div id="out" role="region" aria-label="Páginas de la vista previa" tabindex="-1"></div>
+ <div class="exterior-descargas"><label for="q">Calidad de imagen (PNG)</label><select id="q">
+ <option value="nitida">Máxima nitidez</option>
+ <option value="4.1667">Alta</option>
+ <option value="2">Media</option><option value="1">Baja</option>
+</select>
+  <div class="exterior-lote">
+   <button type="button" id="downloadAll" class="g" hidden>Descargar todos los artes (PNG)</button>
+   <button type="button" id="downloadZip" hidden>Descargar archivo ZIP</button>
+  </div>
+ </div>
+</aside>
+</div>
+
+</main>
+<p id="estadoPng" role="status" hidden></p>
+<script defer src="assets/recursos-01.js"></script>
+<script defer src="assets/recursos-02.js"></script>
+<script defer src="assets/recursos-03.js"></script>
+<script defer src="assets/recursos-04.js"></script>
+<script defer src="assets/recursos-05.js"></script>
+<script defer src="assets/generador.js"></script>
+<script type="application/json" id="licencias-ortografia">"Diccionario de español de El Salvador, RLA-ES v2.9\n\nFuente y distribución original: https://github.com/sbosio/rla-es/releases/tag/v2.9\n\nEl diccionario es_ES no se usa. Los archivos es_SV.aff y es_SV.dic se conservan sin cambios de contenido y se usan bajo MPL 1.1.\n\n# Licencia\n\nEl proyecto y los diccionarios se distribuyen bajo un triple esquema de\nlicencias disjuntas: [GNU GPL versión 3 o posterior](https://www.gnu.org/licenses/gpl-3.0.en.html), [GNU LGPL versión 3 o\nposterior](https://www.gnu.org/licenses/lgpl-3.0.en.html) o [MPL versión 1.1 o posterior](https://www.mozilla.org/en-US/MPL/1.1/).\nPuede seleccionar libremente bajo cuál de estas licencias realizará el uso.\n\nEl detalle de cada licencia está accesible en:\n\n- https://www.gnu.org/licenses/gpl-3.0.en.html\n- https://www.gnu.org/licenses/lgpl-3.0.en.html\n- https://www.mozilla.org/en-US/MPL/1.1/\n\ny en los ficheros:\n- LICENSE/GPLv3.txt  \n- LICENSE/LGPLv3.txt\n- LICENSE/MPL-1.1.txt\n\n\nEl diccionario de sinónimos se distribuye según lo auspiciado por la [GNU LGPL v2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html).\n\nEl detalle está accesible:\n\n- en la dirección web  https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html\n- y en el fichero LICENSE/LGPLv2.1.txt\n\n\n  ****************************************************************************\n  **                                                                        **\n  **          Diccionario para corrección ortográfica en español de         **\n  **                      LibreOffice/Apache OpenOffice                     **\n  **                                                                        **\n  ****************************************************************************\n\nPara: es_SV\n\n  ****************************************************************************\n\n                                  Versión 2.9\n\nSUMARIO\n\n1. AUTOR\n2. LICENCIA\n3. COLABORACIÓN\n4. AGRADECIMIENTOS\n\n\n1. AUTOR\n\n   Este diccionario ha sido desarrollado inicialmente por Santiago Bosio;\nquien actualmente coordina el desarrollo de todos los diccionarios localizados.\n\n   El diccionario es un desarrollo completamente nuevo, y NO ESTÁ BASADO en el\ntrabajo de Jesús Carretero y Santiago Rodríguez, ni en la versión adaptada al\nformato de MySpell por Richard Holt.\n\n2. LICENCIA\n\n   Este diccionario para corrección ortográfica, integrado por el fichero\nde afijos y la lista de palabras (es_SV[.aff|.dic]) se distribuye\nbajo un triple esquema de licencias disjuntas: GNU GPL versión 3 o posterior,\nGNU LGPL versión 3 o posterior, ó MPL versión 1.1 o posterior. Puede\nseleccionar libremente bajo cuál de estas licencias utilizará este diccionario.\nEn el fichero LICENSE.md encontrá más detalles.\n\n3. COLABORACIÓN\n\n   Este diccionario es resultado del trabajo colaborativo de muchas personas.\nLa buena noticia es que ¡usted también puede participar!\n\n   ¿Tiene dudas o sugerencias? ¿Desearía ver palabras agregadas, o que se\nrealizaran correcciones? Consulte las indicaciones técnicas publicadas en\nCONTRIBUTING.md. Estaremos encantados de atenderle.\n\n4. AGRADECIMIENTOS\n\n   Hay varias personas que han colaborado con aportes o sugerencias a la\ncreación de este diccionario. Se agradece especialmente a:\n\n   - Richard Holt.\n   - Marcelo Garrone.\n   - Kevin Hendricks.\n   - Juan Rey Saura.\n   - Carlos Dávila.\n   - Román Gelbort.\n   - J. Eduardo Moreno.\n   - Gonzalo Higuera Díaz.\n   - Ricardo Palomares Martínez.\n   - Sergio Medina.\n   - Ismael Olea.\n   - Alejandro Moreno.\n   - Alexandro Colorado.\n   - Andrés Sánchez.\n   - Juan Rafael Fernández García.\n   - eksperimental.\n   - Ezequiel (ezeperez26).\n   - KNTRO.\n   - Ricardo Berlasso.\n   - Edward Villegas-Pulgarin (cosmocalibur)\n   - y a todos los integrantes de la comunidad en español que proponen mejoras\n     a este diccionario.\n\n\n                          MOZILLA PUBLIC LICENSE\n                                Version 1.1\n\n                              ---------------\n\n1. Definitions.\n\n     1.0.1. \"Commercial Use\" means distribution or otherwise making the\n     Covered Code available to a third party.\n\n     1.1. \"Contributor\" means each entity that creates or contributes to\n     the creation of Modifications.\n\n     1.2. \"Contributor Version\" means the combination of the Original\n     Code, prior Modifications used by a Contributor, and the Modifications\n     made by that particular Contributor.\n\n     1.3. \"Covered Code\" means the Original Code or Modifications or the\n     combination of the Original Code and Modifications, in each case\n     including portions thereof.\n\n     1.4. \"Electronic Distribution Mechanism\" means a mechanism generally\n     accepted in the software development community for the electronic\n     transfer of data.\n\n     1.5. \"Executable\" means Covered Code in any form other than Source\n     Code.\n\n     1.6. \"Initial Developer\" means the individual or entity identified\n     as the Initial Developer in the Source Code notice required by Exhibit\n     A.\n\n     1.7. \"Larger Work\" means a work which combines Covered Code or\n     portions thereof with code not governed by the terms of this License.\n\n     1.8. \"License\" means this document.\n\n     1.8.1. \"Licensable\" means having the right to grant, to the maximum\n     extent possible, whether at the time of the initial grant or\n     subsequently acquired, any and all of the rights conveyed herein.\n\n     1.9. \"Modifications\" means any addition to or deletion from the\n     substance or structure of either the Original Code or any previous\n     Modifications. When Covered Code is released as a series of files, a\n     Modification is:\n          A. Any addition to or deletion from the contents of a file\n          containing Original Code or previous Modifications.\n\n          B. Any new file that contains any part of the Original Code or\n          previous Modifications.\n\n     1.10. \"Original Code\" means Source Code of computer software code\n     which is described in the Source Code notice required by Exhibit A as\n     Original Code, and which, at the time of its release under this\n     License is not already Covered Code governed by this License.\n\n     1.10.1. \"Patent Claims\" means any patent claim(s), now owned or\n     hereafter acquired, including without limitation,  method, process,\n     and apparatus claims, in any patent Licensable by grantor.\n\n     1.11. \"Source Code\" means the preferred form of the Covered Code for\n     making modifications to it, including all modules it contains, plus\n     any associated interface definition files, scripts used to control\n     compilation and installation of an Executable, or source code\n     differential comparisons against either the Original Code or another\n     well known, available Covered Code of the Contributor's choice. The\n     Source Code can be in a compressed or archival form, provided the\n     appropriate decompression or de-archiving software is widely available\n     for no charge.\n\n     1.12. \"You\" (or \"Your\")  means an individual or a legal entity\n     exercising rights under, and complying with all of the terms of, this\n     License or a future version of this License issued under Section 6.1.\n     For legal entities, \"You\" includes any entity which controls, is\n     controlled by, or is under common control with You. For purposes of\n     this definition, \"control\" means (a) the power, direct or indirect,\n     to cause the direction or management of such entity, whether by\n     contract or otherwise, or (b) ownership of more than fifty percent\n     (50%) of the outstanding shares or beneficial ownership of such\n     entity.\n\n2. Source Code License.\n\n     2.1. The Initial Developer Grant.\n     The Initial Developer hereby grants You a world-wide, royalty-free,\n     non-exclusive license, subject to third party intellectual property\n     claims:\n          (a)  under intellectual property rights (other than patent or\n          trademark) Licensable by Initial Developer to use, reproduce,\n          modify, display, perform, sublicense and distribute the Original\n          Code (or portions thereof) with or without Modifications, and/or\n          as part of a Larger Work; and\n\n          (b) under Patents Claims infringed by the making, using or\n          selling of Original Code, to make, have made, use, practice,\n          sell, and offer for sale, and/or otherwise dispose of the\n          Original Code (or portions thereof).\n\n          (c) the licenses granted in this Section 2.1(a) and (b) are\n          effective on the date Initial Developer first distributes\n          Original Code under the terms of this License.\n\n          (d) Notwithstanding Section 2.1(b) above, no patent license is\n          granted: 1) for code that You delete from the Original Code; 2)\n          separate from the Original Code;  or 3) for infringements caused\n          by: i) the modification of the Original Code or ii) the\n          combination of the Original Code with other software or devices.\n\n     2.2. Contributor Grant.\n     Subject to third party intellectual property claims, each Contributor\n     hereby grants You a world-wide, royalty-free, non-exclusive license\n\n          (a)  under intellectual property rights (other than patent or\n          trademark) Licensable by Contributor, to use, reproduce, modify,\n          display, perform, sublicense and distribute the Modifications\n          created by such Contributor (or portions thereof) either on an\n          unmodified basis, with other Modifications, as Covered Code\n          and/or as part of a Larger Work; and\n\n          (b) under Patent Claims infringed by the making, using, or\n          selling of  Modifications made by that Contributor either alone\n          and/or in combination with its Contributor Version (or portions\n          of such combination), to make, use, sell, offer for sale, have\n          made, and/or otherwise dispose of: 1) Modifications made by that\n          Contributor (or portions thereof); and 2) the combination of\n          Modifications made by that Contributor with its Contributor\n          Version (or portions of such combination).\n\n          (c) the licenses granted in Sections 2.2(a) and 2.2(b) are\n          effective on the date Contributor first makes Commercial Use of\n          the Covered Code.\n\n          (d)    Notwithstanding Section 2.2(b) above, no patent license is\n          granted: 1) for any code that Contributor has deleted from the\n          Contributor Version; 2)  separate from the Contributor Version;\n          3)  for infringements caused by: i) third party modifications of\n          Contributor Version or ii)  the combination of Modifications made\n          by that Contributor with other software  (except as part of the\n          Contributor Version) or other devices; or 4) under Patent Claims\n          infringed by Covered Code in the absence of Modifications made by\n          that Contributor.\n\n3. Distribution Obligations.\n\n     3.1. Application of License.\n     The Modifications which You create or to which You contribute are\n     governed by the terms of this License, including without limitation\n     Section 2.2. The Source Code version of Covered Code may be\n     distributed only under the terms of this License or a future version\n     of this License released under Section 6.1, and You must include a\n     copy of this License with every copy of the Source Code You\n     distribute. You may not offer or impose any terms on any Source Code\n     version that alters or restricts the applicable version of this\n     License or the recipients' rights hereunder. However, You may include\n     an additional document offering the additional rights described in\n     Section 3.5.\n\n     3.2. Availability of Source Code.\n     Any Modification which You create or to which You contribute must be\n     made available in Source Code form under the terms of this License\n     either on the same media as an Executable version or via an accepted\n     Electronic Distribution Mechanism to anyone to whom you made an\n     Executable version available; and if made available via Electronic\n     Distribution Mechanism, must remain available for at least twelve (12)\n     months after the date it initially became available, or at least six\n     (6) months after a subsequent version of that particular Modification\n     has been made available to such recipients. You are responsible for\n     ensuring that the Source Code version remains available even if the\n     Electronic Distribution Mechanism is maintained by a third party.\n\n     3.3. Description of Modifications.\n     You must cause all Covered Code to which You contribute to contain a\n     file documenting the changes You made to create that Covered Code and\n     the date of any change. You must include a prominent statement that\n     the Modification is derived, directly or indirectly, from Original\n     Code provided by the Initial Developer and including the name of the\n     Initial Developer in (a) the Source Code, and (b) in any notice in an\n     Executable version or related documentation in which You describe the\n     origin or ownership of the Covered Code.\n\n     3.4. Intellectual Property Matters\n          (a) Third Party Claims.\n          If Contributor has knowledge that a license under a third party's\n          intellectual property rights is required to exercise the rights\n          granted by such Contributor under Sections 2.1 or 2.2,\n          Contributor must include a text file with the Source Code\n          distribution titled \"LEGAL\" which describes the claim and the\n          party making the claim in sufficient detail that a recipient will\n          know whom to contact. If Contributor obtains such knowledge after\n          the Modification is made available as described in Section 3.2,\n          Contributor shall promptly modify the LEGAL file in all copies\n          Contributor makes available thereafter and shall take other steps\n          (such as notifying appropriate mailing lists or newsgroups)\n          reasonably calculated to inform those who received the Covered\n          Code that new knowledge has been obtained.\n\n          (b) Contributor APIs.\n          If Contributor's Modifications include an application programming\n          interface and Contributor has knowledge of patent licenses which\n          are reasonably necessary to implement that API, Contributor must\n          also include this information in the LEGAL file.\n\n               (c)    Representations.\n          Contributor represents that, except as disclosed pursuant to\n          Section 3.4(a) above, Contributor believes that Contributor's\n          Modifications are Contributor's original creation(s) and/or\n          Contributor has sufficient rights to grant the rights conveyed by\n          this License.\n\n     3.5. Required Notices.\n     You must duplicate the notice in Exhibit A in each file of the Source\n     Code.  If it is not possible to put such notice in a particular Source\n     Code file due to its structure, then You must include such notice in a\n     location (such as a relevant directory) where a user would be likely\n     to look for such a notice.  If You created one or more Modification(s)\n     You may add your name as a Contributor to the notice described in\n     Exhibit A.  You must also duplicate this License in any documentation\n     for the Source Code where You describe recipients' rights or ownership\n     rights relating to Covered Code.  You may choose to offer, and to\n     charge a fee for, warranty, support, indemnity or liability\n     obligations to one or more recipients of Covered Code. However, You\n     may do so only on Your own behalf, and not on behalf of the Initial\n     Developer or any Contributor. You must make it absolutely clear than\n     any such warranty, support, indemnity or liability obligation is\n     offered by You alone, and You hereby agree to indemnify the Initial\n     Developer and every Contributor for any liability incurred by the\n     Initial Developer or such Contributor as a result of warranty,\n     support, indemnity or liability terms You offer.\n\n     3.6. Distribution of Executable Versions.\n     You may distribute Covered Code in Executable form only if the\n     requirements of Section 3.1-3.5 have been met for that Covered Code,\n     and if You include a notice stating that the Source Code version of\n     the Covered Code is available under the terms of this License,\n     including a description of how and where You have fulfilled the\n     obligations of Section 3.2. The notice must be conspicuously included\n     in any notice in an Executable version, related documentation or\n     collateral in which You describe recipients' rights relating to the\n     Covered Code. You may distribute the Executable version of Covered\n     Code or ownership rights under a license of Your choice, which may\n     contain terms different from this License, provided that You are in\n     compliance with the terms of this License and that the license for the\n     Executable version does not attempt to limit or alter the recipient's\n     rights in the Source Code version from the rights set forth in this\n     License. If You distribute the Executable version under a different\n     license You must make it absolutely clear that any terms which differ\n     from this License are offered by You alone, not by the Initial\n     Developer or any Contributor. You hereby agree to indemnify the\n     Initial Developer and every Contributor for any liability incurred by\n     the Initial Developer or such Contributor as a result of any such\n     terms You offer.\n\n     3.7. Larger Works.\n     You may create a Larger Work by combining Covered Code with other code\n     not governed by the terms of this License and distribute the Larger\n     Work as a single product. In such a case, You must make sure the\n     requirements of this License are fulfilled for the Covered Code.\n\n4. Inability to Comply Due to Statute or Regulation.\n\n     If it is impossible for You to comply with any of the terms of this\n     License with respect to some or all of the Covered Code due to\n     statute, judicial order, or regulation then You must: (a) comply with\n     the terms of this License to the maximum extent possible; and (b)\n     describe the limitations and the code they affect. Such description\n     must be included in the LEGAL file described in Section 3.4 and must\n     be included with all distributions of the Source Code. Except to the\n     extent prohibited by statute or regulation, such description must be\n     sufficiently detailed for a recipient of ordinary skill to be able to\n     understand it.\n\n5. Application of this License.\n\n     This License applies to code to which the Initial Developer has\n     attached the notice in Exhibit A and to related Covered Code.\n\n6. Versions of the License.\n\n     6.1. New Versions.\n     Netscape Communications Corporation (\"Netscape\") may publish revised\n     and/or new versions of the License from time to time. Each version\n     will be given a distinguishing version number.\n\n     6.2. Effect of New Versions.\n     Once Covered Code has been published under a particular version of the\n     License, You may always continue to use it under the terms of that\n     version. You may also choose to use such Covered Code under the terms\n     of any subsequent version of the License published by Netscape. No one\n     other than Netscape has the right to modify the terms applicable to\n     Covered Code created under this License.\n\n     6.3. Derivative Works.\n     If You create or use a modified version of this License (which you may\n     only do in order to apply it to code which is not already Covered Code\n     governed by this License), You must (a) rename Your license so that\n     the phrases \"Mozilla\", \"MOZILLAPL\", \"MOZPL\", \"Netscape\",\n     \"MPL\", \"NPL\" or any confusingly similar phrase do not appear in your\n     license (except to note that your license differs from this License)\n     and (b) otherwise make it clear that Your version of the license\n     contains terms which differ from the Mozilla Public License and\n     Netscape Public License. (Filling in the name of the Initial\n     Developer, Original Code or Contributor in the notice described in\n     Exhibit A shall not of themselves be deemed to be modifications of\n     this License.)\n\n7. DISCLAIMER OF WARRANTY.\n\n     COVERED CODE IS PROVIDED UNDER THIS LICENSE ON AN \"AS IS\" BASIS,\n     WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,\n     WITHOUT LIMITATION, WARRANTIES THAT THE COVERED CODE IS FREE OF\n     DEFECTS, MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE OR NON-INFRINGING.\n     THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE COVERED CODE\n     IS WITH YOU. SHOULD ANY COVERED CODE PROVE DEFECTIVE IN ANY RESPECT,\n     YOU (NOT THE INITIAL DEVELOPER OR ANY OTHER CONTRIBUTOR) ASSUME THE\n     COST OF ANY NECESSARY SERVICING, REPAIR OR CORRECTION. THIS DISCLAIMER\n     OF WARRANTY CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE. NO USE OF\n     ANY COVERED CODE IS AUTHORIZED HEREUNDER EXCEPT UNDER THIS DISCLAIMER.\n\n8. TERMINATION.\n\n     8.1.  This License and the rights granted hereunder will terminate\n     automatically if You fail to comply with terms herein and fail to cure\n     such breach within 30 days of becoming aware of the breach. All\n     sublicenses to the Covered Code which are properly granted shall\n     survive any termination of this License. Provisions which, by their\n     nature, must remain in effect beyond the termination of this License\n     shall survive.\n\n     8.2.  If You initiate litigation by asserting a patent infringement\n     claim (excluding declatory judgment actions) against Initial Developer\n     or a Contributor (the Initial Developer or Contributor against whom\n     You file such action is referred to as \"Participant\")  alleging that:\n\n     (a)  such Participant's Contributor Version directly or indirectly\n     infringes any patent, then any and all rights granted by such\n     Participant to You under Sections 2.1 and/or 2.2 of this License\n     shall, upon 60 days notice from Participant terminate prospectively,\n     unless if within 60 days after receipt of notice You either: (i)\n     agree in writing to pay Participant a mutually agreeable reasonable\n     royalty for Your past and future use of Modifications made by such\n     Participant, or (ii) withdraw Your litigation claim with respect to\n     the Contributor Version against such Participant.  If within 60 days\n     of notice, a reasonable royalty and payment arrangement are not\n     mutually agreed upon in writing by the parties or the litigation claim\n     is not withdrawn, the rights granted by Participant to You under\n     Sections 2.1 and/or 2.2 automatically terminate at the expiration of\n     the 60 day notice period specified above.\n\n     (b)  any software, hardware, or device, other than such Participant's\n     Contributor Version, directly or indirectly infringes any patent, then\n     any rights granted to You by such Participant under Sections 2.1(b)\n     and 2.2(b) are revoked effective as of the date You first made, used,\n     sold, distributed, or had made, Modifications made by that\n     Participant.\n\n     8.3.  If You assert a patent infringement claim against Participant\n     alleging that such Participant's Contributor Version directly or\n     indirectly infringes any patent where such claim is resolved (such as\n     by license or settlement) prior to the initiation of patent\n     infringement litigation, then the reasonable value of the licenses\n     granted by such Participant under Sections 2.1 or 2.2 shall be taken\n     into account in determining the amount or value of any payment or\n     license.\n\n     8.4.  In the event of termination under Sections 8.1 or 8.2 above,\n     all end user license agreements (excluding distributors and resellers)\n     which have been validly granted by You or any distributor hereunder\n     prior to termination shall survive termination.\n\n9. LIMITATION OF LIABILITY.\n\n     UNDER NO CIRCUMSTANCES AND UNDER NO LEGAL THEORY, WHETHER TORT\n     (INCLUDING NEGLIGENCE), CONTRACT, OR OTHERWISE, SHALL YOU, THE INITIAL\n     DEVELOPER, ANY OTHER CONTRIBUTOR, OR ANY DISTRIBUTOR OF COVERED CODE,\n     OR ANY SUPPLIER OF ANY OF SUCH PARTIES, BE LIABLE TO ANY PERSON FOR\n     ANY INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY\n     CHARACTER INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF GOODWILL,\n     WORK STOPPAGE, COMPUTER FAILURE OR MALFUNCTION, OR ANY AND ALL OTHER\n     COMMERCIAL DAMAGES OR LOSSES, EVEN IF SUCH PARTY SHALL HAVE BEEN\n     INFORMED OF THE POSSIBILITY OF SUCH DAMAGES. THIS LIMITATION OF\n     LIABILITY SHALL NOT APPLY TO LIABILITY FOR DEATH OR PERSONAL INJURY\n     RESULTING FROM SUCH PARTY'S NEGLIGENCE TO THE EXTENT APPLICABLE LAW\n     PROHIBITS SUCH LIMITATION. SOME JURISDICTIONS DO NOT ALLOW THE\n     EXCLUSION OR LIMITATION OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO\n     THIS EXCLUSION AND LIMITATION MAY NOT APPLY TO YOU.\n\n10. U.S. GOVERNMENT END USERS.\n\n     The Covered Code is a \"commercial item,\" as that term is defined in\n     48 C.F.R. 2.101 (Oct. 1995), consisting of \"commercial computer\n     software\" and \"commercial computer software documentation,\" as such\n     terms are used in 48 C.F.R. 12.212 (Sept. 1995). Consistent with 48\n     C.F.R. 12.212 and 48 C.F.R. 227.7202-1 through 227.7202-4 (June 1995),\n     all U.S. Government End Users acquire Covered Code with only those\n     rights set forth herein.\n\n11. MISCELLANEOUS.\n\n     This License represents the complete agreement concerning subject\n     matter hereof. If any provision of this License is held to be\n     unenforceable, such provision shall be reformed only to the extent\n     necessary to make it enforceable. This License shall be governed by\n     California law provisions (except to the extent applicable law, if\n     any, provides otherwise), excluding its conflict-of-law provisions.\n     With respect to disputes in which at least one party is a citizen of,\n     or an entity chartered or registered to do business in the United\n     States of America, any litigation relating to this License shall be\n     subject to the jurisdiction of the Federal Courts of the Northern\n     District of California, with venue lying in Santa Clara County,\n     California, with the losing party responsible for costs, including\n     without limitation, court costs and reasonable attorneys' fees and\n     expenses. The application of the United Nations Convention on\n     Contracts for the International Sale of Goods is expressly excluded.\n     Any law or regulation which provides that the language of a contract\n     shall be construed against the drafter shall not apply to this\n     License.\n\n12. RESPONSIBILITY FOR CLAIMS.\n\n     As between Initial Developer and the Contributors, each party is\n     responsible for claims and damages arising, directly or indirectly,\n     out of its utilization of rights under this License and You agree to\n     work with Initial Developer and Contributors to distribute such\n     responsibility on an equitable basis. Nothing herein is intended or\n     shall be deemed to constitute any admission of liability.\n\n13. MULTIPLE-LICENSED CODE.\n\n     Initial Developer may designate portions of the Covered Code as\n     \"Multiple-Licensed\".  \"Multiple-Licensed\" means that the Initial\n     Developer permits you to utilize portions of the Covered Code under\n     Your choice of the NPL or the alternative licenses, if any, specified\n     by the Initial Developer in the file described in Exhibit A.\n\nEXHIBIT A -Mozilla Public License.\n\n     ``The contents of this file are subject to the Mozilla Public License\n     Version 1.1 (the \"License\"); you may not use this file except in\n     compliance with the License. You may obtain a copy of the License at\n     http://www.mozilla.org/MPL/\n\n     Software distributed under the License is distributed on an \"AS IS\"\n     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the\n     License for the specific language governing rights and limitations\n     under the License.\n\n     The Original Code is ______________________________________.\n\n     The Initial Developer of the Original Code is ________________________.\n     Portions created by ______________________ are Copyright (C) ______\n     _______________________. All Rights Reserved.\n\n     Contributor(s): ______________________________________.\n\n     Alternatively, the contents of this file may be used under the terms\n     of the _____ license (the  \"[___] License\"), in which case the\n     provisions of [______] License are applicable instead of those\n     above.  If you wish to allow use of your version of this file only\n     under the terms of the [____] License and not to allow others to use\n     your version of this file under the MPL, indicate your decision by\n     deleting  the provisions above and replace  them with the notice and\n     other provisions required by the [___] License.  If you do not delete\n     the provisions above, a recipient may use your version of this file\n     under either the MPL or the [___] License.\"\n\n     [NOTE: The text of this Exhibit A may differ slightly from the text of\n     the notices in the Source Code files of the Original Code. You should\n     use the text of this Exhibit A rather than the text found in the\n     Original Code Source Code for Your Modifications.]\n\n\n\nnspell 2.1.5\n\n(The MIT License)\n\nCopyright (c) 2016 Titus Wormer \u003ctituswormer@gmail.com>\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n'Software'), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.\nIN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,\nTORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE\nSOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n\nis-buffer 2.0.5\n\nThe MIT License (MIT)\n\nCopyright (c) Feross Aboukhadijeh\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n"</script><script defer id="validacion-fechas-03" src="assets/validacion-fechas-03.js"></script>
+<script defer id="modulo-proyeccion-03" src="assets/modulo-proyeccion-03.js"></script>
+
+<script defer id="navegacion-inmersiva-03" src="assets/navegacion-inmersiva-03.js"></script>
+
+</body></html>

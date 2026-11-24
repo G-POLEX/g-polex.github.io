@@ -1,0 +1,61 @@
+/* Ajustes exclusivos de interfaz. No modifica los lienzos ni la exportación. */
+html.exterior-native .exterior-ux-ruta{display:none!important}
+#osStage[aria-busy="true"] #osFamilyList{opacity:.86}
+#osStage .os-startup-status{margin:0;padding:14px 20px;color:#d3d9e7;font-size:13px;line-height:1.5}
+#osStage .os-apk-install-card{flex:0 0 100%;width:min(100%,625px);box-sizing:border-box;max-width:100%}
+@media(max-width:760px),(hover:none) and (pointer:coarse){
+ .exterior-ux-ruta{display:none!important}
+}
+@media(max-width:760px){
+ .os-stage .os-stage-toolbar{padding:18px max(18px,env(safe-area-inset-left)) 17px;gap:12px}
+ .os-stage .os-stage-brand{gap:12px;align-items:center}
+ .os-stage .os-stage-identity{min-width:0;gap:4px}
+ .os-stage .os-stage-identity strong,.os-stage .os-stage-identity span{line-height:1.4;overflow-wrap:anywhere}
+ .os-stage .os-stage-shell{padding:27px max(18px,env(safe-area-inset-left)) calc(34px + env(safe-area-inset-bottom,0px))}
+ .os-stage .os-stage-grid{grid-template-columns:minmax(0,1fr);gap:28px}
+ .os-stage .os-stage-overline{margin:0 0 12px}
+ .os-stage .os-stage-title{font-size:clamp(36px,8.6vw,52px);line-height:1.08;margin:0 0 16px}
+ .os-stage .os-stage-lead{line-height:1.55;margin:0 0 23px}
+ .os-stage .os-home-search label{margin-bottom:9px}
+ .os-stage .os-home-search-box{gap:9px}
+ .os-stage .os-home-search input,.os-stage .os-home-search-submit{min-height:49px}
+ .os-stage .os-home-search-results{margin-top:12px}
+ .os-stage .os-stage-actions{margin-top:15px;gap:10px}
+ .os-stage .os-stage-actions .os-stage-action{min-height:48px}
+ .os-stage .os-stage-directory{border-radius:14px}
+ .os-stage .os-stage-directory-head{padding:17px 16px}
+ .os-stage .os-stage-family{grid-template-columns:minmax(0,1fr) 18px;gap:12px;min-height:78px;padding:15px 16px}
+ .os-stage .os-stage-family>span{min-width:0}
+ .os-stage .os-stage-family-name{font-size:15px;line-height:1.36;overflow-wrap:anywhere}
+ .os-stage .os-stage-family-info{font-size:13px;line-height:1.45;margin-top:6px;overflow-wrap:anywhere}
+ .os-stage .os-stage-footer{display:flex;flex-direction:column;align-items:stretch;gap:16px;padding-top:16px;margin-top:26px}
+ .os-stage .os-apk-install-card{width:100%;max-width:100%;margin:0!important}
+ .exterior .exterior-marca{padding:15px 16px;gap:13px}
+ .exterior .exterior-home-brand{min-width:0;gap:12px}
+ .exterior .exterior-identidad{min-width:0;overflow-wrap:anywhere}
+ .exterior .exterior-acciones{flex-wrap:wrap;gap:10px}
+ .exterior .exterior-acciones button.g{flex:1 1 120px;min-height:46px}
+ .exterior #mapaGenerador:not([hidden]){padding:24px 16px 36px}
+ .exterior #mapaGenerador .mapa-cabecera{gap:12px;margin-bottom:20px;padding-bottom:18px}
+ .exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas){grid-template-columns:minmax(0,1fr);gap:12px}
+ .exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button{min-height:88px;padding:16px 33px 16px 16px;overflow-wrap:anywhere}
+ .exterior #mapaGenerador :is(#ramasMapa,#subcategoriasSede,#resultadosPlantillas) button small{line-height:1.5;margin-top:4px}
+ .exterior .exterior-layout:not([hidden]){padding:20px 14px calc(100px + env(safe-area-inset-bottom,0px))}
+ .exterior .exterior-editor-top{gap:12px;margin-bottom:20px}
+ .exterior .exterior-editor .card,.exterior #resultCard.exterior-preview{padding:16px;margin-bottom:16px;min-width:0}
+ .exterior .exterior-editor .row,.exterior #proy .proy-fields,.exterior #proy .proy-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ .exterior .exterior-editor :is(input,textarea,select,fieldset),.exterior .exterior-preview select{max-width:100%;min-width:0;box-sizing:border-box}
+ .exterior .exterior-editor :is(label,legend,small){line-height:1.45;overflow-wrap:anywhere}
+ .exterior .exterior-editor :is(.logo-actions,.exterior-lote,.svp-acciones-artes,.proy-tools,.proy-actions){flex-wrap:wrap;gap:9px}
+ .exterior .exterior-editor .logo-item{flex-wrap:wrap;gap:10px}
+ .exterior .exterior-editor .logo-name{min-width:0}
+ .exterior .exterior-preview{margin-top:20px}
+ .exterior .ux-mobile-actions{padding:11px 14px calc(11px + env(safe-area-inset-bottom,0px));gap:10px}
+ .exterior .ux-mobile-actions button{min-height:48px}
+}
+@media(max-width:360px){
+ .os-stage .os-stage-shell{padding-inline:14px}
+ .os-stage .os-stage-toolbar{padding-inline:14px}
+ .os-stage .os-stage-actions .os-stage-action{flex-basis:100%}
+ .exterior .exterior-layout:not([hidden]){padding-inline:10px}
+}
