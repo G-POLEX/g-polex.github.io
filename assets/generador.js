@@ -2003,7 +2003,9 @@ async function descargarPNGs(indice, zip = false) {
  const main = document.querySelector('main'), estado = $('estadoPng');
  const categoria=$('m').value, esPrensa=categoria==='prensa';
  const calidad = esPrensa ? 'nitida' : $('q').value;
- const limite = esPrensa ? Infinity : limiteExportacion;
+ const guardadoAndroid=typeof window.exteriorGuardarAndroid==='function';
+ // MediaStore admite archivos más grandes que el límite de publicación web.
+ const limite = guardadoAndroid ? 512 * 1024 * 1024 : esPrensa ? Infinity : limiteExportacion;
  main.inert = true;
  estado.textContent = 'Preparando PNG…';
  estado.hidden = false;
@@ -2022,16 +2024,20 @@ async function descargarPNGs(indice, zip = false) {
   for (const [i, arte] of artes.entries()) {
    estado.textContent = artes.length > 1 ? 'Generando PNG ' + (i + 1) + ' de ' + artes.length + '…' : 'Generando PNG…';
    const nombre = arte.nombre;
-   const png = await exportarPng(arte, calidad, zip ? limite - costoZip(nombre) - 22 : limite);
+   const limitePng=zip && !guardadoAndroid ? limite - costoZip(nombre) - 22 : limite;
+   const png = await exportarPng(arte, calidad, limitePng);
    if (zip) lote.push({nombre, png});
    else await guardarPng(nombre, png);
   }
   if (zip) await descargarZipPorPartes(lote,limite,categoria);
  } catch (error) {
   console.error(error);
-  const superaLimite=!esPrensa&&/supera el límite/.test(error.message);
+  if(error?.exteriorSave===true)return; // El puente ya informó el error de guardado.
+  const mensaje=String(error?.message||'');
+  const superaLimite=!guardadoAndroid&&!esPrensa&&/supera el límite/.test(mensaje);
   alert(esPrensa ? 'No se pudo preparar el archivo en máxima nitidez. Intentar la descarga nuevamente.' :
    superaLimite ? 'No se pudo generar un archivo de hasta 20 MB. Reducir el peso o tamaño de la imagen de origen.' :
+   guardadoAndroid ? 'No se pudo preparar '+(zip?'el ZIP':'el PNG')+'. Intentar nuevamente.' :
    'No se pudo preparar la descarga. Probar con una calidad menor.');
  } finally {
   estado.hidden = true;

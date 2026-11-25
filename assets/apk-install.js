@@ -49,7 +49,7 @@
    if(data.status==='security-review'){status.textContent='Descarga temporalmente suspendida por revisión de seguridad.';return;}
    const target=new URL(String(data.apkUrl||''),location.origin);
    const fingerprint=value=>typeof value==='string'&&/^[a-f0-9]{64}$/i.test(value);
-   if(data.available===true&&data.signed===true&&version&&fingerprint(data.sha256)&&fingerprint(data.signerSha256)&&valid(target,version)){
+   if((data.status===undefined||data.status==='available')&&data.available===true&&data.signed===true&&version&&fingerprint(data.sha256)&&fingerprint(data.signerSha256)&&valid(target,version)){
     apkUrl=target.href;
     button.disabled=false;
     button.style.opacity='1';
