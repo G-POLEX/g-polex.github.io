@@ -1,11 +1,11 @@
 {
-  "available": false,
-  "versionCode": 53,
-  "versionName": "1.0.53",
-  "apkUrl": "",
+  "available": true,
+  "versionCode": 55,
+  "versionName": "1.0.55",
+  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.55.apk",
   "minimumAndroid": 29,
   "signed": true,
-  "sha256": "96875fc85e4f87a413a95d258810d25d7a54f2adb26842cca11a06209e762418",
+  "sha256": "21b6d47248bd57f7626f2d0756041afedd7e5cf6764cdf10c3a612ca082c3f9b",
   "signerSha256": "12200a2967e66dd6cc8cc74b97493f42f606513f5fb252208b9ac4df04f8d3f2",
-  "status": "security-review"
+  "releaseNotes": "Mejoras en el guardado de imágenes PNG y archivos ZIP, edición separada de la vista previa y consulta de versiones en Ajustes."
 }
