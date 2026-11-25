@@ -849,7 +849,7 @@
  const toolGrid=make('div','web51-tools-grid');tools.append(toolGrid);
  const all=button('Todas las opciones',()=>{selection='';applyToolFilter();},'web51-all-tools');tools.append(all);
  editor.querySelector('.exterior-editor-top')?.after(tools);
- const labels={info:'Información',representation:'Representación',time:'Fecha y horario',photo:'Fotografía e ilustración',directory:'Directorio y contactos',logos:'Logotipos',appearance:'Formato y colores',import:'Importar contenido',activities:'Actividades',extra:'Más opciones'};
+ const labels={info:'Información',representation:'Representación',time:'Fecha y horario',photo:'Fotografía e ilustración',directory:'Directorio y contactos',logos:'Logotipos',appearance:'Formato',import:'Importar contenido',activities:'Actividades',extra:'Más opciones'};
  function classify(s){
   s=fold(s);
   if(/pegar desde|importar|importacion/.test(s))return 'import';
@@ -863,6 +863,7 @@
   if(/titulo|contenido|texto|informacion|introduccion|convocatoria|subtitulo/.test(s))return 'info';
   return '';
  }
+ function regionalPalette(){return el('m').value==='sede'&&el('sedeDiseno')?.value==='oficinas'&&!el('sedePanelColores')?.hidden;}
  let groups=new Map(),blocks=[],selection='',context='',signature='';
  const originalVisible=n=>{for(let p=n;p&&p!==editor;p=p.parentElement)if(p.hidden||p.style.display==='none')return false;return true;};
  function applyToolFilter(){
@@ -894,8 +895,8 @@
    for(const n of b.querySelectorAll('label,summary,legend')){if(!originalVisible(n))continue;const k=classify(n.textContent);if(k)add(k,b,n);}
   }
   if(selection&&!groups.has(selection))selection='';
-  const keys=Object.keys(labels).filter(k=>groups.has(k));const next=keys.join(',');
-  if(next!==signature){signature=next;toolGrid.replaceChildren();for(const k of keys){const b=button(labels[k],()=>selectTool(k));b.dataset.webTool=k;toolGrid.append(b);}}
+  const keys=Object.keys(labels).filter(k=>groups.has(k));const next=keys.join(',')+'|'+regionalPalette();
+  if(next!==signature){signature=next;toolGrid.replaceChildren();for(const k of keys){const b=button(k==='appearance'&&regionalPalette()?'Formato y colores':labels[k],()=>selectTool(k));b.dataset.webTool=k;toolGrid.append(b);}}
   tools.hidden=!keys.length;applyToolFilter();
  }
  // Vista previa de las imágenes existentes. No redibujar ni duplicar el motor.
@@ -934,7 +935,7 @@
  function syncPreview(){
   const has=inEditor()&&el('m').value!=='proy'&&available().length>0;
   preview.hidden=!has;expand.disabled=!has||out.getAttribute('aria-busy')==='true';
-  const can=has&&el('m').value==='sede'&&el('sedeDiseno')?.value==='oficinas'&&!el('sedePanelColores')?.hidden&&!randomOriginal?.hidden;
+  const can=has&&regionalPalette()&&!randomOriginal?.hidden;
   palette.hidden=!can;random.disabled=!can||randomOriginal?.disabled||out.getAttribute('aria-busy')==='true';undo.disabled=!can||undoOriginal?.hidden||undoOriginal?.disabled||out.getAttribute('aria-busy')==='true';
  }
  function syncNav(){
