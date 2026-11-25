@@ -1,13 +1,13 @@
 (function(){
  'use strict';
- if(!('serviceWorker' in navigator)||!window.isSecureContext||window.Capacitor?.isNativePlatform?.()||['localhost','127.0.0.1'].includes(location.hostname)&&window.Capacitor)return;
+ if(document.documentElement.classList.contains('exterior-native')||!('serviceWorker' in navigator)||!window.isSecureContext||window.Capacitor?.isNativePlatform?.()||['localhost','127.0.0.1'].includes(location.hostname)&&window.Capacitor)return;
  const pie=document.querySelector('#osStage .os-stage-footer');
  if(!pie)return;
  const caja=document.createElement('div');
  caja.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0';
  const boton=document.createElement('button');boton.type='button';boton.className='exterior-ux-instalar';
  const estado=document.createElement('span');estado.setAttribute('role','status');estado.style.cssText='font-size:13px;line-height:1.4';
- caja.append(boton,estado);pie.prepend(caja);
+ caja.append(boton,estado);pie.insertBefore(caja,pie.querySelector('.ux-home-guide'));
  let reg=null,preparando=false,listo=false,ultima=0;
  const normal=()=>{boton.disabled=false;boton.textContent='Preparar uso sin conexión';estado.textContent='Descarga inicial de aproximadamente 40 MB. Utilizar Wi-Fi.'};
  const disponible=()=>{listo=true;preparando=false;boton.hidden=true;estado.textContent='Disponible sin conexión en este dispositivo.'};
