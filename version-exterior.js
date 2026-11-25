@@ -1,1 +1,1 @@
-window.__versionExteriorPublicada = "f2686e9a72aa12b7dbaaf892";
+window.__versionExteriorPublicada = "12c4fa3619cb33013debe401";

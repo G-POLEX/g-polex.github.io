@@ -1823,7 +1823,42 @@ function abrirSubmenuSede(registrar=true){
   destino.focus({preventScroll:true});
   destino.scrollIntoView({block:'center'});
  };
+// Vista previa del arte consular: reutilizar el mismo selector y los datos
+// del formulario, sin cambiar de pantalla ni duplicar las descargas.
+function sincronizarFormatoPreviaConsular(){
+ const activo=M==='ad'&&$('adT').value==='actividad-consular-individual';
+ let grupo=$('consularFormatoPrevia');
+ if(!grupo&&!activo)return;
+ if(!grupo){
+  grupo=document.createElement('div');grupo.id='consularFormatoPrevia';
+  grupo.setAttribute('role','group');grupo.setAttribute('aria-label','Formato de la vista previa');
+  grupo.style.margin='0 0 12px';
+  const fila=document.createElement('div');fila.style.cssText='display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px';
+  for(const [valor,rotulo] of [['post','Publicación'],['historia','Historia']]){
+   const boton=document.createElement('button');boton.type='button';boton.className='g';
+   boton.textContent=rotulo;boton.dataset.formatoConsularPrevia=valor;
+   boton.setAttribute('aria-controls','out');boton.style.minHeight='44px';
+   boton.onclick=()=>{
+    if(M!=='ad'||$('adT').value!=='actividad-consular-individual'||$('adV').value===valor)return;
+    $('adV').value=valor;
+    previewActual=0;
+    $('adV').dispatchEvent(new Event('input',{bubbles:true}));
+   };
+   fila.append(boton);
+  }
+  grupo.append(fila);$('out').before(grupo);
+ }
+ grupo.hidden=!activo;
+ if(!activo)return;
+ for(const boton of grupo.querySelectorAll('button')){
+  const elegido=boton.dataset.formatoConsularPrevia===$('adV').value;
+  boton.setAttribute('aria-pressed',String(elegido));
+  boton.style.background=elegido?'#111e60':'';
+  boton.style.color=elegido?'#fff':'';
+ }
+}
 function go(){
+ sincronizarFormatoPreviaConsular();
  if(M==='proy'){if(typeof proyRefresh==='function')proyRefresh();return;}
  clearTimeout(tm);
  versionVistaPrevia++;
@@ -5290,11 +5325,11 @@ function montarIdentidadAviso(panel,datos,ficha){
  const ajustes=document.createElement('details'), titulo=document.createElement('summary');
  ajustes.className='aviso-identidad';ajustes.open=!!ficha.identidadAbierta;
  ajustes.ontoggle=()=>{ficha.identidadAbierta=ajustes.open;};
- titulo.textContent='Diseño y representación';ajustes.append(titulo);
+ titulo.textContent='Diseño y logotipo institucional';ajustes.append(titulo);
  casillaAviso(ajustes,'aviso-comunicado','Usar composición de comunicado',ficha.comunicado,
   marcar=>{ficha.comunicado=marcar;});
  camposRepresentacionUcom((id,etiqueta,opciones)=>campoEditorial(ajustes,datos,id,etiqueta,
-  {...opciones,requerido:false}));
+  {...opciones,requerido:false,ayuda:id==='repre1'?'Editar el nombre que acompaña al escudo. Si ambas líneas quedan vacías, se usa el nombre del Ministerio.':''}));
  panel.append(ajustes);
 }
 
@@ -5651,6 +5686,7 @@ async function prepararSede() {
 async function fuentesEditorial() {
  await Promise.all([
   document.fonts.load('300 38px MuseoL','áéíóú'),
+  document.fonts.load('500 30px "Museo Sans oficial"','áéíóú'),
   document.fonts.load('400 32px "Bembo institucional"','Relaciones Exteriores áéíóúñ'),
   document.fonts.load('700 38px "Museo Sans"','áéíóú'),
   document.fonts.load('900 65px "Museo Sans"','áéíóú')
@@ -6996,17 +7032,28 @@ function dibujarFilasActividad(g, filas, iconos, {x,y,ancho,pie,tamaño=31,dim=5
  return {inicio:y-total,fin:y,alto:total,desborde:total>disponible+.5};
 }
 
+// Reutilizar las imágenes originales del HTML; la columna fija las alinea.
+function dibujarIconoConsularPost(g,tipo,iconos,x,y,dim){
+ if(!tipo)return;
+ if(iconos[tipo]){
+  dibujarIconoActividad(g,tipo,iconos,x,y,dim);
+ }else if(!dibujarIconoFilaAviso(g,tipo,x,y,dim,dim,ucomAzul)){
+  dibujarIconoActividad(g,tipo,iconos,x,y,dim);
+ }
+}
+
 // Composición editorial inspirada en el arte consular de Aurora: filas amplias,
 // tipografía proporcionada al espacio y separadores entre datos, sin alturas fijas.
 // Limitada a las jornadas y consulados móviles individuales; no altera carteleras.
-function dibujarFilasConsularesDistribuidas(g, filas, iconos, {x,y,ancho,pie,tamaño=35,dim=61,aireMaximo=43,tamañoMinimo=24,equilibrarAire=false}) {
+function dibujarFilasConsularesDistribuidas(g, filas, iconos, {x,y,ancho,pie,tamaño=35,dim=61,aireMaximo=43,tamañoMinimo=24,soloMedir=false}) {
  const activas=filas.filter(([,texto])=>datosUcom(texto));
  if(!activas.length)return {inicio:y,fin:y,alto:0,desborde:false};
  const sangria=102, margenDerecho=34, maximo=ancho-sangria-margenDerecho;
  const disponible=Math.max(0,pie-y);
  const calcular=(tam,padding)=>{
   const altoLinea=tam*1.24;
-  g.font='300 '+tam+'px '+L;
+  g.font='500 '+tam+'px "Museo Sans oficial",'+F;
+  g.textBaseline='top';
   const filasMedidas=activas.map(([icono,texto,tipo])=>{
    const contenido=String(texto).replace(/\r\n?/g,'\n');
    // A diferencia del antiguo renglón forzado, los días largos pueden ocupar
@@ -7016,11 +7063,13 @@ function dibujarFilasConsularesDistribuidas(g, filas, iconos, {x,y,ancho,pie,tam
     const corte=contenido.lastIndexOf(', de ');
     if(corte>0)tramos=[contenido.slice(0,corte+1),contenido.slice(corte+2)];
    }
-   const lineas=tramos.flatMap(p=>lineasEditorial(g,p,maximo));
-   const altoTexto=lineas.length*altoLinea;
+   const lineas=tramos.flatMap(p=>wrap(g,protegerNombresAviso(p).trim(),maximo).filter(Boolean));
+   const primera=g.measureText(lineas[0]||'Ág'), ultima=g.measureText(lineas.at(-1)||'Ág');
+   const tintaSuperior=-primera.actualBoundingBoxAscent;
+   const altoTexto=(lineas.length-1)*altoLinea+ultima.actualBoundingBoxDescent-tintaSuperior;
    // Mantener separación real entre el texto y las reglas divisorias.
    const altura=Math.max(dim*tam/tamaño,altoTexto)+padding*2;
-   return {icono,tipo,lineas,altoTexto,altura};
+   return {icono,tipo,lineas,altoTexto,tintaSuperior,altura};
   });
   return {filasMedidas,altoLinea,total:filasMedidas.reduce((a,f)=>a+f.altura,0),tam,padding};
  };
@@ -7040,23 +7089,17 @@ function dibujarFilasConsularesDistribuidas(g, filas, iconos, {x,y,ancho,pie,tam
  // el generador muestra la advertencia existente y bloquea la descarga.
  if(desborde)g.desbordeEditorial=true;
  const espacioLibre=Math.max(0,disponible-mejor.total);
- // Priorizar respiración entre filas, no dejar una única bolsa de aire.
- // El crecimiento se reparte a partes iguales y se limita para no exagerarlo.
- // Las historias tienen más altura libre que el formato post: aprovecharla
- // en la separación real entre filas y equilibrar el margen inferior.
- // Con colaboradores se reserva el pie para el título y los logos.
  const aireFila=Math.min(aireMaximo,espacioLibre/Math.max(1,filasMedidas.length));
- const aireRestante=Math.max(0,espacioLibre-aireFila*filasMedidas.length);
- // Centrar el bloque de datos dentro de la zona libre: más texto no debe
- // empujar visualmente todas las filas hacia el borde inferior.
- let cursor=y+aireRestante*(equilibrarAire?.5:.42);
+ let cursor=y;
  const inicio=cursor;
+ if(soloMedir)return {inicio,fin:inicio+mejor.total+aireFila*filasMedidas.length,
+  alto:mejor.total+aireFila*filasMedidas.length,desborde,tam,filas:filasMedidas.length};
  const iconoTam=dim*tam/tamaño;
  // En el referente editorial las reglas sobresalen un poco más allá del bloque escrito.
  // Ampliarlas ayuda a que no queden "cortadas" al nivel exacto de las letras.
- g.font='300 '+tam+'px '+L;
+ g.font='500 '+tam+'px "Museo Sans oficial",'+F;
  const anchoTextoReal=Math.min(maximo,Math.max(0,...filasMedidas.flatMap(fila=>fila.lineas.map(linea=>g.measureText(linea).width))));
- const reglaAncho=Math.min(ancho,sangria+anchoTextoReal+20);
+ const reglaAncho=Math.min(ancho,sangria+anchoTextoReal+22);
  // Centrar la columna visible (iconos, texto y reglas), sin centrar cada renglón.
  // El ancho máximo de composición y el ajuste de líneas permanecen iguales.
  const xArea=x;
@@ -7066,15 +7109,15 @@ function dibujarFilasConsularesDistribuidas(g, filas, iconos, {x,y,ancho,pie,tam
  g.save();g.beginPath();g.rect(xArea,y-1,ancho,disponible+3);g.clip();
  filasMedidas.forEach((fila,i)=>{
   const alto=fila.altura+aireFila;
-  const inicioTexto=cursor+(alto-fila.altoTexto)/2;
+  const inicioTexto=cursor+(alto-fila.altoTexto)/2-fila.tintaSuperior;
   // Alinear todos los íconos con el centro de su bloque, también en direcciones largas.
   const centroIcono=cursor+alto/2;
-  dibujarIconoActividad(g,fila.icono,iconos,x+14+(dim-iconoTam)/2,centroIcono-iconoTam*.5,iconoTam);
-  g.fillStyle=ucomAzul;g.textBaseline='top';g.textAlign='left';g.font='300 '+tam+'px '+L;
+  dibujarIconoConsularPost(g,fila.icono,iconos,x+14+(dim-iconoTam)/2,centroIcono-iconoTam*.5,iconoTam);
+  g.fillStyle=ucomAzul;g.textBaseline='top';g.textAlign='left';g.font='500 '+tam+'px "Museo Sans oficial",'+F;
   fila.lineas.forEach((linea,j)=>g.fillText(linea,x+sangria,inicioTexto+j*altoLinea,maximo));
   cursor+=alto;
   if(i<filasMedidas.length-1){
-   g.fillStyle='#818da8';g.fillRect(x,cursor,reglaAncho,1.35);
+   g.fillStyle='#7483a0';g.fillRect(x,cursor-.5,reglaAncho,1);
   }
  });
  g.restore();
@@ -7085,21 +7128,24 @@ function dibujarFilasConsularesDistribuidas(g, filas, iconos, {x,y,ancho,pie,tam
 // Presentación Aurora: las fechas forman una sola unidad bajo un calendario;
 // después aparecen lugar y contactos. Se conservan todos los datos ingresados.
 function filasConsularesHistoriaAurora(fechas,lugar,atencion,contactos) {
+ const capital=valor=>datosUcom(valor).replace(/^\p{L}/u,letra=>letra.toLocaleUpperCase('es'));
  const fechasTexto=fechas.map(({fecha,hora})=>{
   const textoFecha=datosUcom(fecha).replace(/^Fecha\s*:\s*/i,'');
   const partes=extraerFechaHorarioConsular(textoFecha);
   const dia=datosUcom(partes?.fecha||textoFecha).replace(/[\s,;:.]+$/,'');
-  const rango=datosUcom(hora).replace(/^(?:Hora|Horario)\s*:\s*/i,'')||partes?.horario||'';
+  const rango=datosUcom(hora).replace(/^(?:Hora|Horario)\s*[:：]\s*/i,'')||partes?.horario||'';
   if(!dia&&!rango)return '';
-  const diaVisible=dia?dia.charAt(0).toLocaleUpperCase('es')+dia.slice(1):'';
-  const horario=rango?(/^(?:de|desde)\s/i.test(rango)?rango:'de '+rango):'';
-  return [diaVisible+(horario?',':''),horario].filter(Boolean).join('\n');
+  return [capital(dia),capital(rango)].filter(Boolean).join('\n');
  }).filter(Boolean);
- const contactoVirtual=contactos.filter(([tipo])=>tipo==='virtual');
- const otrosContactos=contactos.filter(([tipo])=>tipo!=='virtual');
+ const lugarVisible=capital(datosUcom(lugar).replace(/^Lugar\s*[:：]\s*/i,''));
+ const contactosVisibles=contactos.map(([tipo,texto])=>['virtual','whatsapp'].includes(tipo)
+  ?[tipo,capital(datosUcom(texto).replace(/^(?:(?:Consulado Virtual|WhatsApp)\s*[:：]\s*)+/i,''))]
+  :[tipo,texto]).filter(([,texto])=>datosUcom(texto));
+ const contactoVirtual=contactosVisibles.filter(([tipo])=>tipo==='virtual');
+ const otrosContactos=contactosVisibles.filter(([tipo])=>tipo!=='virtual');
  return [
   ...(fechasTexto.length?[['calendario',fechasTexto.join('\n\n'),'fechas-agrupadas']]:[]),
-  ...(lugar?[['lugar',lugar,'lugar']]:[]),
+  ...(lugarVisible?[['lugar',lugarVisible,'lugar']]:[]),
   ...contactoVirtual,
   ...(atencion?[['atencion',atencion,'atencion']]:[]),
   ...otrosContactos
@@ -7109,7 +7155,7 @@ function filasConsularesHistoriaAurora(fechas,lugar,atencion,contactos) {
 // Formato historia: lectura vertical con íconos centrados sobre cada dato.
 // Se calcula la altura real del contenido y se adapta la tipografía de forma gradual.
 // Las composiciones con más información y colaboradores conservan márgenes definidos.
-function dibujarFilasConsularesHistoria(g, filas, iconos, {x,y,ancho,pie,tamaño=39,dim=68,tamañoMinimo=23}) {
+function dibujarFilasConsularesHistoria(g, filas, iconos, {x,y,ancho,pie,tamaño=39,dim=68,tamañoMinimo=23,soloMedir=false}) {
  const activas=filas.filter(([,texto])=>datosUcom(texto));
  if(!activas.length)return {inicio:y,fin:y,alto:0,desborde:false};
  const disponible=Math.max(0,pie-y),cx=x+ancho/2,anchoTexto=Math.min(860,ancho-12);
@@ -7149,12 +7195,13 @@ function dibujarFilasConsularesHistoria(g, filas, iconos, {x,y,ancho,pie,tamaño
  }
  const desborde=elegido.alto>disponible+.5;
  if(desborde)g.desbordeEditorial=true;
- // Equilibrar el aire superior e inferior para que el bloque no quede colgado arriba.
+ // El aire adicional se reparte entre las filas sin alejar el primer dato del título.
  const sobrante=Math.max(0,disponible-elegido.alto);
  const separacionExtra=elegido.b.length>1?Math.min(18,sobrante*.22/(elegido.b.length-1)):0;
  const extraTotal=separacionExtra*Math.max(0,elegido.b.length-1);
- let cursor=y+(sobrante-extraTotal)*.48;
+ let cursor=y+Math.min(14,Math.max(0,(sobrante-extraTotal)*.48));
  const inicio=cursor;
+ if(soloMedir)return {inicio,fin:inicio+elegido.alto+extraTotal,desborde};
  g.save();g.beginPath();g.rect(x,y-1,ancho,disponible+3);g.clip();
  elegido.b.forEach((fila,i)=>{
   const iconoY=cursor+Math.max(0, (fila.alto-fila.altoTexto-elegido.di)/3);
@@ -7193,6 +7240,25 @@ async function prepararArteConsularIndividual(datos,formato) {
   }));
 }
 
+// Medir lo que se va a pintar, incluidas tres líneas al tamaño normal.
+function medirTituloHistoriaConsular(g,texto,ancho,tamaño){
+ const maximo=tamaño*1.18*3;
+ const minimo=Math.max(12,Math.floor(tamaño*.56));
+ let size=tamaño,lineas=[],paso=tamaño*1.18;
+ g.save();g.textBaseline='top';
+ do{
+  g.font='900 '+size+'px '+F;
+  lineas=lineasEditorial(g,texto,ancho);
+  paso=size*1.18;
+  if(lineas.length*paso<=maximo+.0001||size<=minimo)break;
+  size--;
+ }while(true);
+ const ultimo=lineas.at(-1);
+ const fin=ultimo?Math.min(maximo,(lineas.length-1)*paso+g.measureText(ultimo).actualBoundingBoxDescent):0;
+ g.restore();
+ return {fin,lineas:lineas.length,tamaño:size,maximo};
+}
+
 function dibujarArteConsularIndividual(g,d,fechas,H,historia,colaboracion,iconos,pagina,total,variasFechas=false) {
  const varias=variasFechas;
  const conLogos=colaboracion.logos.length>0;
@@ -7209,14 +7275,13 @@ function dibujarArteConsularIndividual(g,d,fechas,H,historia,colaboracion,iconos
  // separación visible para no amontonar el encabezado.
  // Mantener la misma distancia relativa entre las tres partes del encabezado.
  const sello=historia?[253,134,431,196]:varias?[119,99,259,142]:[133,108,291,196];
- selloUcom(g,d,540,...sello);
  const tituloY=historia?541:varias?360:414;
  const tituloTam=historia?57:varias?52:57;
  const anchoTitulo=historia?744:790;
  g.font='900 '+tituloTam+'px '+F;
  const lineasTitulo=datosUcom(d.titulo)?lineasEditorial(g,d.titulo,anchoTitulo):[];
- const altoTitulo=Math.min(historia?151:163,lineasTitulo.length*tituloTam*1.18);
- textoUcom(g,d.titulo,540,tituloY,anchoTitulo,tituloTam,{peso:900,familia:F,maximo:historia?151:163});
+ const medidaTitulo=historia?medirTituloHistoriaConsular(g,d.titulo,anchoTitulo,tituloTam):null;
+ const altoTitulo=historia?medidaTitulo.fin:Math.min(163,lineasTitulo.length*tituloTam*1.18);
  const contactos=filasInformacionConsular(d.info,false,d.whatsapp);
  const lugar=datosUcom(d.lugar);
  const lugarRotulado=lugar?(/^Lugar\s*:/i.test(lugar)?lugar:'Lugar: '+lugar):'';
@@ -7230,17 +7295,31 @@ function dibujarArteConsularIndividual(g,d,fechas,H,historia,colaboracion,iconos
  const limiteLogotipo=historia?488:varias?318:361;
  // Medir el título y dejar una separación breve y estable antes del primer dato.
  // No centrar un bloque pequeño a cientos de píxeles del encabezado.
- const y=conTitulo?Math.max(limiteLogotipo+(historia?30:22),tituloY+altoTitulo+(historia?23:20)):baseSinTitulo;
+ const y=conTitulo?Math.max(limiteLogotipo+(historia?30:22),tituloY+altoTitulo+(historia?39:20)):baseSinTitulo;
  const anchoFilas=historia?(varias?834:790):(varias?848:820);
+ const opcionesPost={
+  x:(1080-anchoFilas)/2,y,ancho:anchoFilas,pie,
+  tamaño:varias?34:36,dim:varias?51:54,aireMaximo:6,tamañoMinimo:23
+ };
+ const opcionesHistoria={x:70,y,ancho:940,pie,tamaño:40,dim:67,tamañoMinimo:23};
+ // Centrar el conjunto sin abrir un vacío entre título y datos. Los pies de
+ // colaboradores mantienen su espacio reservado y su posición original.
+ let desplazamiento=0;
+ if(!conLogos){
+  const medida=historia?
+   dibujarFilasConsularesHistoria(g,filas,iconos,{...opcionesHistoria,soloMedir:true}):
+   dibujarFilasConsularesDistribuidas(g,filas,iconos,{...opcionesPost,soloMedir:true});
+  if(!medida.desborde){
+   const centrado=(H-sello[0]-medida.fin)*.5;
+   desplazamiento=historia?Math.max(160-sello[0],Math.min(pie-medida.fin,centrado)):
+    Math.max(0,Math.min(160,pie-medida.fin,centrado));
+  }
+ }
+ selloUcom(g,d,540,sello[0]+desplazamiento,sello[1],sello[2]+desplazamiento,sello[3]);
+ textoUcom(g,d.titulo,540,tituloY+desplazamiento,anchoTitulo,tituloTam,{peso:900,familia:F,maximo:historia?medidaTitulo.maximo+.0001:163});
  const posicionFilas=historia?
-  dibujarFilasConsularesHistoria(g,filas,iconos,{
-   x:70,y,ancho:940,pie,tamaño:40,dim:67,tamañoMinimo:23
-  }):
-  dibujarFilasConsularesDistribuidas(g,filas,iconos,{
-   x:(1080-anchoFilas)/2,y,ancho:anchoFilas,pie,
-   tamaño:varias?35:37,dim:varias?59:64,
-   aireMaximo:conLogos?48:65,tamañoMinimo:22,equilibrarAire:!conLogos
-  });
+  dibujarFilasConsularesHistoria(g,filas,iconos,{...opcionesHistoria,y:y+desplazamiento}):
+  dibujarFilasConsularesDistribuidas(g,filas,iconos,{...opcionesPost,y:y+desplazamiento});
  if(conLogos){
   const rotulo=datosUcom(colaboracion.titulo);
   const altoRotulo=rotulo?37:12;
@@ -7298,18 +7377,24 @@ function prepararAvisos(datos,variante) {
   contactos:incluye.contactos?filasContactosAviso(ficha):[]
  };
  const ubicaciones=incluye.sedes?ficha.sedes.map(datosUcom).filter(Boolean):[];
- const representacion=[datos.repre1,datos.repre2].map(datosUcom).filter(linea=>linea&&linea!==nombreOficialMinisterio);
+ const representacion=[datos.repre1,datos.repre2].map(datosUcom).filter(Boolean);
+ if(!representacion.length)representacion.push(nombreOficialMinisterio);
  const incompleto=![d.mensaje,d.pie,d.contactos.length,ubicaciones.length].some(Boolean);
- const grupos=ubicaciones.length?gruposDeFechas(ubicaciones,6):[[]];
+ const simple=!comunicado&&!ubicaciones.length&&!d.contactos.length;
  const g=document.createElement('canvas').getContext('2d');
- const paginas=grupos.flatMap((sedes,i)=>{
+ const grupos=ubicaciones.length?gruposDeFechas(ubicaciones,6):[[]];
+ // Seis sedes por página son una referencia, no un corte obligatorio.
+ // Si todas caben a un tamaño legible, conservar un solo aviso.
+ const intento=ubicaciones.length>6?planificarAviso(g,representacion,componerBloquesAviso(d,ubicaciones,H,simple),H,comunicado,simple):null;
+ const unaPagina=intento&&!intento.desborde&&intento.filas.every(f=>f.tamaño>=(H===1920?26:24));
+ const paginas=unaPagina?[intento]:grupos.flatMap((sedes,i)=>{
   const contenido={
    mensaje:i===0?d.mensaje:'',
    pie:i===grupos.length-1?d.pie:'',
    contactos:i===grupos.length-1?d.contactos:[]
   };
-  const bloques=componerBloquesAviso(contenido,sedes,H,comunicado);
-  return paginarAviso(g,representacion,bloques,H,comunicado);
+  const bloques=componerBloquesAviso(contenido,sedes,H,simple);
+  return paginarAviso(g,representacion,bloques,H,comunicado,simple);
  });
  return paginas.map((plan,i)=>arteEditorial(
   'aviso-'+variante+(paginas.length>1?'-'+(i+1):'')+'.png',1080,H,incompleto,g=>{
@@ -7317,93 +7402,120 @@ function prepararAvisos(datos,variante) {
   }));
 }
 
-function componerBloquesAviso(d,sedes,H,institucional){
+// Además de los topónimos del motor común, Avisos conserva nombres locales
+// y recompone un salto simple heredado de un documento. Una línea en blanco
+// sigue marcando una separación de párrafo intencional.
+const nombresCompuestosAviso=/(?<![\p{L}\p{M}])(?:San\s+Francisco\s+Gotera|San\s+Juan\s+Opico|Santa\s+Rosa\s+de\s+Lima|San\s+Luis\s+Talpa|Nueva\s+San\s+Salvador|San\s+José\s+de\s+la\s+Montaña|Santa\s+Tecla|San\s+Salvador|San\s+Miguel|Santa\s+Ana|El\s+Salvador|Estados\s+Unidos|Ciudad\s+Merliot|La\s+Paz|La\s+Unión|La\s+Libertad|Las\s+Cascadas|Plaza\s+Mundo|Centro\s+de\s+Gobierno)(?![\p{L}\p{M}])/giu;
+const fechaAvisoCompacta=/(?<![\p{L}\p{N}])(?:[12]?\d|3[01])[^\S\r\n]+de[^\S\r\n]+(?:enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)(?:[^\S\r\n]+de[^\S\r\n]+\d{4})?(?![\p{L}\p{N}])/giu;
+const horaAvisoCompacta=/(?<![\p{L}\p{N}])(?:[01]?\d|2[0-3]):[0-5]\d(?:[^\S\r\n]*[ap]\.[^\S\r\n]*m\.)?(?![\p{L}\p{N}])/giu;
+function protegerNombresAviso(texto){
+ const unir=nombre=>nombre.replace(/\s+/g,'\u00a0');
+ return protegerToponimos(String(texto??'').replace(/\r\n?/g,'\n')
+  .replace(nombresCompuestosAviso,nombre=>/\n[^\S\n]*\n/.test(nombre)?nombre:unir(nombre))
+  .replace(fechaAvisoCompacta,unir).replace(horaAvisoCompacta,unir));
+}
+
+function componerBloquesAviso(d,sedes,H,simple){
  const historia=H===1920;
  const bloques=[];
  // UCOM: los mensajes se leen en una columna ligeramente más estrecha que
  // el directorio. Solo aplicar cuando la cantidad de sedes lo permite.
- const anchoMensaje=sedes.length>3?820:(historia?790:755);
+ const anchoMensaje=simple?680:sedes.length>3?820:(historia?790:755);
  const texto=(valor,{fuerte=false,gap=24,ancho=historia?820:820,alineacion='center',icono='',tipo=''}={})=>{
   if(valor)bloques.push({valor,fuerte,gap,ancho,alineacion,icono,tipo});
  };
  const parrafos=(valor,gapFinal)=>{
   if(!valor.trim())return;
-  for(const renglon of valor.trim().split(/\r\n?|\n/)){
+  for(const renglon of protegerNombresAviso(valor).trim().split('\n')){
    const contenido=renglon.trim();
    if(contenido)texto(contenido,{gap:historia?27:20,ancho:anchoMensaje,tipo:'parrafo'});
    else if(bloques.at(-1)?.tipo==='parrafo')bloques.at(-1).gap+=historia?14:11;
   }
   if(bloques.at(-1)?.tipo==='parrafo')bloques.at(-1).gap=gapFinal;
  };
- parrafos(d.mensaje,sedes.length?(historia?32:24):historia?30:23);
+ parrafos(d.mensaje,simple?(historia?43:35):sedes.length?(historia?32:24):historia?30:23);
  for(const [i,sede] of sedes.entries())texto(sede,{
-  fuerte:true,gap:i===sedes.length-1?(historia?31:27):(historia?13:11),
-  ancho:historia?830:844,alineacion:'left',icono:'pin',tipo:'sede'
+  fuerte:historia,gap:i===sedes.length-1?(historia?33:29):(historia?13:24),
+  ancho:historia?820:840,alineacion:'left',icono:'pin',tipo:'sede'
  });
  parrafos(d.pie,d.contactos.length?(historia?29:25):0);
  for(const [i,[icono,rotulo,valor]] of d.contactos.entries()){
-  // El sobre ya indica que se trata de una dirección de correo.
-  const sinRotulo=icono==='correo';
+  // En historia el icono identifica el dato; en post se conservan los rótulos.
+  const sinRotulo=historia||icono==='correo';
   texto(sinRotulo?valor:rotulo+': '+valor,{
-   fuerte:icono==='correo',gap:i===d.contactos.length-1?0:(d.contactos.length>1?(historia?18:17):(historia?12:9)),
+   gap:i===d.contactos.length-1?0:(historia?37:30),
    ancho:historia?820:840,alineacion:'center',icono,tipo:'contacto'
   });
  }
  return bloques;
 }
 
-function planificarAviso(g,representacion,bloques,H,institucional){
+function planificarAviso(g,representacion,bloques,H,institucional,simple){
  const historia=H===1920, azul=institucional?'#071958':ucomAzul;
+ const centradoEditorial=!institucional;
  const sedes=bloques.filter(b=>b.tipo==='sede');
  const conSedes=institucional||sedes.length>0;
  const tinta=conSedes?'#071958':azul;
- let cuerpo=historia?(institucional?35:36):(institucional?30:31);
+ // El aviso de solo texto conserva la jerarquía y las proporciones del original.
+ const segunda=representacion.length>1?30:0;
+ let cuerpo=simple?(historia?32:29):historia?(institucional?35:36):(institucional?30:31);
  const margen=historia?126:107;
  const inicioSedes=historia?(sedes.length<=3?760:608):(sedes.length<=3?568:437);
  const inicioIdeal=sedes.length?(institucional?(historia?600:453):inicioSedes):historia?(institucional?985:961):(institucional?700:665);
- const tituloSize=historia?(conSedes?100:90):conSedes?80:72;
- const anchoSello=historia?134:institucional?98:111;
+ const tituloSize=simple?(historia?93:66):historia?(conSedes?100:90):conSedes?80:72;
+ const anchoSello=simple?(historia?139:113):historia?134:institucional?98:111;
  const altoLogotipo=anchoSello+(institucional?48:60);
- const altoFirma=altoLogotipo+representacion.length*30;
- const separacionTitulo=conSedes?29:36, separacionFirma=conSedes?70:94;
+ const altoFirma=altoLogotipo+segunda;
+ const separacionTitulo=simple?(historia?83:56):conSedes?29:36;
+ const separacionFirma=simple?(historia?124:76):conSedes?70:94;
  const altoEncabezado=tituloSize+separacionTitulo+altoFirma+separacionFirma;
  const inicioMinimo=Math.max(historia?(conSedes?442:605):conSedes?326:406,
   altoEncabezado+(historia?48:32));
 
  const medir=(size,espacio)=>{
-  let anchoSedes=0;
+  // Medir las sedes y los contactos como una sola columna de información.
+  const casilla=historia?Math.max(42,size*1.83):Math.max(25,size*1.02), sangriaComun=historia?0:Math.max(39,Math.round(size*1.55));
+  let maxFila=0, primerPin=true;
   const filas=bloques.map(b=>{
-   const factor=b.tipo==='sede'?.89:1;
+   const factor=b.tipo==='sede'&&historia?.89:1;
    const tamaño=b.tamañoFijo??Math.max(18,Math.round(size*factor*10)/10);
-   const fuente=(b.fuerte?700:300)+' '+tamaño+'px '+(b.fuerte?F:L);
+   const pesoMedio=b.tipo==='contacto'||(b.tipo==='sede'&&!historia);
+   const fuente=(b.fuerte?700:simple||pesoMedio?500:300)+' '+tamaño+'px '+(b.fuerte?F:simple||pesoMedio?'"Museo Sans oficial",'+F:L);
    g.font=fuente;
-   const sangria=b.icono?Math.max(36,Math.round(tamaño*1.55)):0;
+   const sangria=b.icono&&!historia?sangriaComun:0;
+   const dibujarArriba=historia&&b.icono&&(b.tipo!=='sede'||primerPin);
+   if(b.tipo==='sede')primerPin=false;
+   const altoIcono=dibujarArriba?casilla+Math.max(9,size*.30):0;
    const disponible=b.ancho-sangria;
-   const lineas=b.lineasFijas||lineasEditorial(g,b.valor,disponible);
-   if(b.tipo==='sede')anchoSedes=Math.max(anchoSedes,sangria+Math.max(0,...lineas.map(linea=>g.measureText(linea).width)));
-   const paso=tamaño*(b.tipo==='contacto'?1.27:1.28);
-   return {...b,fuente,lineas,paso,tamaño,sangria,gap:b.gap*espacio};
+   const lineas=b.lineasFijas||wrap(g,protegerNombresAviso(b.valor).trim(),disponible).filter(Boolean);
+   if(b.icono)maxFila=Math.max(maxFila,sangria+Math.min(disponible,Math.max(0,...lineas.map(linea=>g.measureText(linea).width))));
+   const paso=tamaño*(simple?(historia?1.20:1.225):b.tipo==='contacto'?1.27:1.28);
+   return {...b,fuente,lineas,paso,tamaño,sangria,altoIcono,gap:b.gap*espacio};
   });
   if(filas.length)filas.at(-1).gap=0;
-  return {filas,anchoSedes,alto:filas.reduce((s,b)=>s+b.lineas.length*b.paso+b.gap,0)};
+  const anchoColumna=maxFila?maxFila+24:0;
+  const columna={x:(1080-anchoColumna)/2,ancho:anchoColumna,casilla,sangria:sangriaComun};
+  return {filas,columna,alto:filas.reduce((s,b)=>s+b.altoIcono+b.lineas.length*b.paso+b.gap,0)};
  };
  let espacio=1, plan=medir(cuerpo,espacio);
- if(inicioIdeal+plan.alto>H-margen){
-  espacio=Math.max(.58,1-(inicioIdeal+plan.alto-(H-margen))/(historia?500:330));
+ const sesgoOptico=simple?(historia?23:13):(historia?16:9);
+ const referenciaIdeal=centradoEditorial?(H+altoEncabezado-plan.alto)/2-sesgoOptico:inicioIdeal;
+ if(referenciaIdeal+plan.alto>H-margen){
+  espacio=Math.max(.58,1-(referenciaIdeal+plan.alto-(H-margen))/(historia?500:330));
   plan=medir(cuerpo,espacio);
  }
  while(inicioMinimo+plan.alto>H-margen&&cuerpo>23)plan=medir(--cuerpo,espacio);
- // El bloque se distribuye entre la firma y el margen inferior sin usar desplazamientos rígidos.
+ // Como en UCOM, centrar la composición completa, incluidas las filas de contacto.
  const centro=(H+altoEncabezado-plan.alto)/2;
- const referencia=sedes.length?centro-(historia?16:9):inicioIdeal;
+ const referencia=centradoEditorial||sedes.length?centro-sesgoOptico:inicioIdeal;
  const inicio=Math.max(inicioMinimo,Math.min(referencia,H-margen-plan.alto));
- return {...plan,azul,tinta,inicio,inicioMinimo,margen,tituloSize,anchoSello,altoLogotipo,
+ return {...plan,azul,tinta,inicio,inicioMinimo,margen,tituloSize,anchoSello,simple,
   tituloY:inicio-tituloSize-separacionTitulo,firmaY:inicio-altoEncabezado,
   desborde:inicio+plan.alto>H-margen};
 }
 
-function paginarAviso(g,representacion,bloques,H,institucional){
- const preparar=partes=>planificarAviso(g,representacion,partes,H,institucional);
+function paginarAviso(g,representacion,bloques,H,institucional,simple){
+ const preparar=partes=>planificarAviso(g,representacion,partes,H,institucional,simple);
  const completo=preparar(bloques);
  if(!completo.desborde)return [completo];
  const paginas=[];
@@ -7420,8 +7532,8 @@ function paginarAviso(g,representacion,bloques,H,institucional){
    actual=[bloque];plano=solo;continue;
   }
   // Un solo párrafo largo se reparte por renglones sin perder texto ni duplicarlo.
-  const {lineas,tamaño,paso}=solo.filas[0];
-  const caben=Math.floor((H-solo.margen-solo.inicioMinimo-1)/paso);
+  const {lineas,tamaño,paso,altoIcono}=solo.filas[0];
+  const caben=Math.max(1,Math.floor((H-solo.margen-solo.inicioMinimo-altoIcono-1)/paso));
   for(let i=0;i<lineas.length;i+=caben){
    const fragmento={...bloque,tamañoFijo:tamaño,lineasFijas:lineas.slice(i,i+caben)};
    if(i+caben<lineas.length)paginas.push(preparar([fragmento]));
@@ -7462,13 +7574,33 @@ function dibujarSobreAviso(g,x,y,dim,color){
  g.restore();
 }
 
+// Usar solo los trazados ya incluidos en el HTML. Cambia la caja visual,
+// no el dibujo del símbolo.
+function dibujarIconoFilaAviso(g,tipo,x,y,casilla,unidad,tinta){
+ if(tipo==='pin'){
+  const tamaño=unidad*.85;
+  dibujarIconoSede(g,'pin-contorno',x+(casilla-tamaño)/2,y+(casilla-tamaño)/2,tamaño,tinta);
+  return true;
+ }
+ return dibujarIconoContactoUcom(g,tipo,x+(casilla-unidad)/2,y+(casilla-unidad)/2,unidad,tinta);
+}
+
 function dibujarAvisoUnificado(g,representacion,plan,H,institucional) {
- const {azul,tinta,inicio,margen,tituloSize,anchoSello,altoLogotipo,tituloY,firmaY}=plan;
+ const {azul,tinta,inicio,margen,tituloSize,anchoSello,simple,tituloY,firmaY}=plan;
  if(plan.desborde)g.desbordeEditorial=true;
  g.fillStyle=institucional?'#eeeff1':ucomPapel;
  g.fillRect(0,0,1080,H);
- const marca={repre1:nombreOficialMinisterio};
- if(institucional){
+ const marca={repre1:representacion[0],repre2:representacion[1]};
+ if(simple){
+  g.save();
+  g.fillStyle=azul;
+  dibujarTrazadoSede(g,'escudoUna',540-anchoSello/2,firmaY,anchoSello);
+  g.globalAlpha=.32;
+  const regla=H===1920?179:162;
+  g.fillRect(540-regla/2,firmaY+anchoSello+19,regla,.6);
+  g.restore();
+  rotuloUcom(g,marca,540,firmaY+anchoSello+41,H===1920?30:29);
+ }else if(institucional){
   g.fillStyle=azul;
   dibujarTrazadoSede(g,'escudoUna',540-anchoSello/2,firmaY,anchoSello);
   g.fillRect(471,firmaY+anchoSello+14,138,1);
@@ -7476,59 +7608,52 @@ function dibujarAvisoUnificado(g,representacion,plan,H,institucional) {
  }else{
   selloUcom(g,marca,540,firmaY,anchoSello,firmaY+anchoSello+39);
  }
- if(representacion.length)rotuloUcom(g,{repre1:representacion[0],repre2:representacion[1]},540,firmaY+altoLogotipo,18.5);
  bloqueEditorial(g,'AVISO',{x:540,y:tituloY,ancho:750,tamaño:tituloSize,paso:tituloSize,peso:900,familia:F,color:tinta});
 
  let y=inicio;
- const contactos=plan.filas.filter(f=>f.tipo==='contacto');
- const tablaContactos=contactos.length>1;
- let anchoTablaContactos=0;
- if(tablaContactos){
-  const medidos=contactos.map(f=>{
-   g.font=f.fuente;
-   const iconoTam=f.tamaño*1.02;
-   const sangria=Math.max(f.sangria??44,iconoTam+11);
-   return sangria+Math.max(0,...f.lineas.map(linea=>g.measureText(linea).width));
-  });
-  anchoTablaContactos=Math.min(865,Math.max(585,...medidos)+18);
- }
- const xTablaContactos=(1080-anchoTablaContactos)/2;
+ const {columna}=plan;
+ const xIcono=columna.x+12;
  g.save();
  g.beginPath();g.rect(0,inicio,1080,H-margen-inicio+2);g.clip();
  for(const [indice,b] of plan.filas.entries()) {
-  const iconoSize=b.tamaño*(b.tipo==='sede'?1.17:b.tipo==='contacto'?1.02:.98);
-  const sangria=Math.max(b.sangria??(b.icono?44:0),b.icono?iconoSize+11:0), anchoTexto=b.ancho-sangria;
-  const centradoConIcono=b.alineacion==='center'&&b.icono;
-  g.textBaseline='top';g.textAlign=centradoConIcono?'left':b.alineacion;g.font=b.fuente;g.fillStyle=tinta;
-  const anchoVisible=Math.min(anchoTexto,Math.max(0,...b.lineas.map(linea=>g.measureText(linea).width)));
-  const margenFila=b.tipo==='contacto'&&tablaContactos?xTablaContactos:
-   b.tipo==='sede'&&H===1350?(1080-plan.anchoSedes)/2:
-   centradoConIcono?(1080-anchoVisible-sangria)/2:(1080-b.ancho)/2;
-  const x=g.textAlign==='center'?540:margenFila+sangria;
-  b.lineas.forEach((linea,i)=>g.fillText(linea,x,y+i*b.paso,anchoTexto));
-  const esCorreoAviso=b.tipo==='contacto'&&b.icono==='correo';
-  // El centro de la tinta tipográfica es la referencia común, incluso para el sobre apaisado.
-  const metrica=g.measureText('Ág');
-  const centroTinta=(metrica.actualBoundingBoxDescent-metrica.actualBoundingBoxAscent)/2;
-  const centroOptico=Number.isFinite(centroTinta)&&centroTinta>0?centroTinta:b.paso/2;
-  const yIcono=y+centroOptico-iconoSize/2;
-  if(b.icono==='pin'){
-   dibujarIconoSede(g,'pin-contorno',margenFila,yIcono,iconoSize,tinta);
-  }else if(esCorreoAviso){
-   // Archivo original de UCOM: icono de correo en trazado SVG, no dibujo aproximado.
-   dibujarIconoContactoUcom(g,'correo',margenFila,yIcono,iconoSize,tinta);
-  }else if(b.icono){
-   dibujarIconoContactoUcom(g,b.icono,margenFila,yIcono,iconoSize,tinta);
-  }
+  const anchoTexto=b.ancho-b.sangria;
+  const sobreTexto=b.altoIcono>0;
+  const yTexto=y+b.altoIcono;
+  g.textBaseline='top';g.textAlign=b.icono?(H===1920?'center':'left'):b.alineacion;g.font=b.fuente;g.fillStyle=tinta;
+  const x=b.icono&&H!==1920?xIcono+columna.sangria:540;
+  b.lineas.forEach((linea,i)=>g.fillText(linea,x,yTexto+i*b.paso,anchoTexto));
   const altoTexto=b.lineas.length*b.paso;
-  if(tablaContactos&&b.tipo==='contacto'&&plan.filas[indice+1]?.tipo==='contacto'){
-   // UCOM separa cada fila de contacto por una regla horizontal sutil.
+  const proxima=plan.filas[indice+1];
+  if(sobreTexto){
+   // UCOM historia: cada ícono original va centrado encima de su dato.
+   dibujarIconoFilaAviso(g,b.icono,540-columna.casilla/2,y,columna.casilla,columna.casilla,tinta);
+  }else if(H!==1920&&b.icono){
+   const primera=g.measureText(b.lineas[0]||'Ág'), ultima=g.measureText(b.lineas.at(-1)||'Ág');
+   // Igual que en Jornada individual: alinear el icono al centro óptico
+   // de la fila, incluso cuando el dato ocupa más de un renglón.
+   const centroY=y+((b.lineas.length-1)*b.paso+ultima.actualBoundingBoxDescent-primera.actualBoundingBoxAscent)/2;
+   const yIcono=centroY-columna.casilla/2;
+   dibujarIconoFilaAviso(g,b.icono,xIcono,yIcono,columna.casilla,columna.casilla,tinta);
+  }
+  if(H!==1920&&b.tipo==='contacto'&&proxima?.tipo==='contacto'){
+   // Las ubicaciones se separan solo con aire, como en el aviso de regionales.
    g.fillStyle=tinta;
-   g.globalAlpha=.33;
-   g.fillRect(xTablaContactos,y+altoTexto+b.gap*.5,anchoTablaContactos,1.2);
+   g.globalAlpha=.46;
+   let yRegla=y+altoTexto+b.gap*.5;
+   if(b.lineas.length){
+    // Repartir el aire entre la tinta real de los dos renglones, no sus cajas.
+    const ultima=g.measureText(b.lineas.at(-1));
+    g.font=proxima.fuente;
+    const primera=g.measureText(proxima.lineas[0]||'Ág');
+    const fondoFila=y+altoTexto-b.paso+ultima.actualBoundingBoxDescent;
+    const techoFila=y+altoTexto+b.gap-primera.actualBoundingBoxAscent;
+    if(Number.isFinite(fondoFila+techoFila)&&techoFila>fondoFila)
+     yRegla=(fondoFila+techoFila-1.2)*.5;
+   }
+   g.fillRect(columna.x,yRegla,columna.ancho,1.2);
    g.globalAlpha=1;
   }
-  y+=altoTexto+b.gap;
+  y+=b.altoIcono+altoTexto+b.gap;
  }
  g.restore();
 }

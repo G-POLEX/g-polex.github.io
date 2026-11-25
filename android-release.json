@@ -1,11 +1,11 @@
 {
   "available": true,
-  "versionCode": 58,
-  "versionName": "1.0.58",
-  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.58.apk",
+  "versionCode": 59,
+  "versionName": "1.0.59",
+  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.59.apk",
   "minimumAndroid": 29,
   "signed": true,
-  "sha256": "b1bafea89dbac738380f81ae3ddad081067f989284b369490108a80498e772e3",
+  "sha256": "1d37d36684dd4e87e3e06d0f838fceb49d8379ad29e3eb44c9654b4ef862565b",
   "signerSha256": "12200a2967e66dd6cc8cc74b97493f42f606513f5fb252208b9ac4df04f8d3f2",
-  "releaseNotes": "Centrado vertical automático en comunicados y convocatorias de prensa, con márgenes de seguridad y la separación editable entre título y texto."
+  "releaseNotes": "Avisos con ubicaciones alineadas y membrete editable. Historias consulares con datos más claros y opción de cambiar entre publicación e historia desde la vista previa."
 }
