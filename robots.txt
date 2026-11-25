@@ -1,2 +1,7 @@
+# Exterior: permitir que los buscadores lean noindex en la página principal.
+# Los recursos y las descargas no se ofrecen para rastreo.
 User-agent: *
+Allow: /$
+Allow: /?
+Allow: /index.html
 Disallow: /
