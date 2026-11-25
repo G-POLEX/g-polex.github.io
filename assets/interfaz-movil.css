@@ -123,6 +123,7 @@ html.exterior-web51 .web51-quick-grid{display:grid;grid-template-columns:repeat(
 html.exterior-web51 .web51-quick-button{display:flex;align-items:center;gap:10px;min-height:54px;margin:0;padding:10px 12px;background:#ffffff10;color:#fff;border:1px solid #7885a8;border-radius:9px;box-shadow:none;text-align:left;font:inherit;font-weight:700}
 html.exterior-web51 .web51-quick-button svg{width:22px;height:22px;flex:none;color:#dfb58e}
 html.exterior-web51 .web51-quick-button:hover{background:#ffffff20}
+html.exterior-web51 .web51-recent-templates{display:none}
 html.exterior-web51 .web51-desktop-settings{min-height:44px;margin:0;padding:8px 14px;border:1px solid #8291b0;border-radius:8px;background:transparent;color:inherit;box-shadow:none;font:inherit;font-weight:700}
 html.exterior-web51 .exterior-cabecera .web51-desktop-settings{color:#111e60;background:#f2f5fb;margin:8px 16px}
 html.exterior-web51 .web51-recent{padding:12px;margin:8px 0 12px;background:#17265c;border:1px solid #7181ac;border-radius:10px;color:#fff}
@@ -160,10 +161,25 @@ html.exterior-web51 .web51-viewer-stage{display:flex;align-items:center;justify-
 html.exterior-web51 .web51-viewer-stage img{display:block;max-width:100%;max-height:100%;height:auto;width:auto;object-fit:contain}
 html.exterior-web51 .web51-viewer-actions{display:flex;justify-content:space-between;gap:8px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:#111e60}
 html.exterior-web51 .web51-viewer-actions button:disabled{opacity:.4}
-html.exterior-web51 :is(.web51-nav button,.web51-quick-button,.web51-desktop-settings,.web51-dialog button,.web51-tools button,.web51-preview-tools button):focus-visible{outline:3px solid #b68a62;outline-offset:2px}
+html.exterior-web51 :is(.web51-nav button,.web51-quick-button,.web51-template,.web51-desktop-settings,.web51-dialog button,.web51-tools button,.web51-preview-tools button):focus-visible{outline:3px solid #b68a62;outline-offset:2px}
 html.exterior-web51.web51-reduced-motion :is(.web51-quick-button,.web51-nav button,.web51-dialog,.os-stage,.os-stage-action){animation:none!important;transition:none!important}
 @media(max-width:760px),(hover:none) and (pointer:coarse){
- html.exterior-web51 .web51-quick,html.exterior-web51 .web51-desktop-settings,html.exterior-web51 .os-stage-directory{display:none!important}
+ html.exterior-web51 .web51-desktop-settings,html.exterior-web51 .os-stage-directory,.exterior-offline-setup{display:none!important}
+ html.exterior-web51 .web51-recent-templates{display:block;margin:24px 0 0}
+ html.exterior-web51 .web51-recent-templates h2{margin:0 0 12px;color:inherit;font-size:17px}
+ html.exterior-web51 .web51-recent-templates-list{display:grid;gap:8px}
+ html.exterior-web51 .web51-recent-templates p{margin:0;color:#d5dced;font-size:14px}
+ html.exterior-web51 button.web51-template{display:flex;align-items:center;gap:12px;min-height:64px;margin:0;padding:8px 12px;border:1px solid #7885a8;border-radius:9px;background:#ffffff10;color:#fff;text-align:left;box-shadow:none}
+ html.exterior-web51 .web51-template img{flex:none;border-radius:4px;object-fit:contain}
+ html.exterior-web51 .web51-template span{display:grid;gap:3px}
+ html.exterior-web51 .web51-template small{color:#d5dced}
+ html.exterior-web51:not(.web51-previewing) :is(#resultCard,#proyPreview,#uxEdit,#proyPreviewJump),
+ html.exterior-web51.web51-previewing :is(.exterior-editor:has(#proy[hidden]),.exterior-editor-top,.web51-tools,.proy-editor-col,#uxPreview),
+ html.exterior-web51 :is(.web51-palette,#sedePaletaAleatoria,#sedePaletaDeshacer,#volverEdicion,#proyBackEdit,#irVistaPrevia){display:none!important}
+ html.exterior-web51 #uxMobileActions{grid-template-columns:1fr}
+ html.exterior-web51 .web51-regional-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+ html.exterior-web51 .web51-regional-actions button{width:auto;margin:0;min-height:44px;padding:8px 12px;border:1px solid #c8d2e6;border-radius:8px;color:#111e60;background:#fff;font:inherit;font-size:13px;font-weight:700;box-shadow:none}
+ html.exterior-web51 .web51-regional-actions .web51-primary{border-color:#111e60;background:#111e60;color:#fff}
  html.exterior-web51:not(.web51-home) .web51-nav{position:fixed;z-index:90;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:5px 5px calc(5px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #cbd4e4;box-shadow:0 -4px 18px #111e6018}
  html.exterior-web51 .web51-nav button{display:grid;justify-items:center;align-content:center;gap:3px;min-height:49px;min-width:0;margin:0;padding:5px 2px;background:transparent;color:#53617b;border:0;border-radius:8px;box-shadow:none;font:inherit;font-size:11px}
  html.exterior-web51 .web51-nav button svg{width:22px;height:22px}
@@ -175,6 +191,11 @@ html.exterior-web51.web51-reduced-motion :is(.web51-quick-button,.web51-nav butt
  html.exterior-web51.web51-editing .exterior-layout:not([hidden]){padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
  html.exterior-web51.web51-editing .exterior-ux-progreso{bottom:calc(158px + env(safe-area-inset-bottom,0px))}
  html.exterior-web51 .web51-dialog.web51-viewer{width:100%;max-width:100%;height:100dvh;max-height:100dvh;border:0;border-radius:0}
+}
+@media(min-width:761px) and (hover:none) and (pointer:coarse){
+ html.exterior-web51.web51-editing .exterior-layout:not([hidden]){display:block}
+ html.exterior-web51.web51-editing #uxMobileActions{position:fixed;z-index:50;inset-inline:0;display:grid;padding:9px 12px;background:#f5f7fc;border-top:1px solid #cbd4e4}
+ html.exterior-web51 #uxMobileActions button{min-height:44px;margin:0}
 }
 
 /* Los encabezados y regiones de destino reciben foco programático para orientar

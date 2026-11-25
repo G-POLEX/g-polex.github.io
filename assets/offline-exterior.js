@@ -4,6 +4,7 @@
  const pie=document.querySelector('#osStage .os-stage-footer');
  if(!pie)return;
  const caja=document.createElement('div');
+ caja.className='exterior-offline-setup';
  caja.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0';
  const boton=document.createElement('button');boton.type='button';boton.className='exterior-ux-instalar';
  const estado=document.createElement('span');estado.setAttribute('role','status');estado.style.cssText='font-size:13px;line-height:1.4';

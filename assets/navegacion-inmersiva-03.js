@@ -884,9 +884,57 @@ window.exteriorEditingTools=(()=>{
   const b=button(label,()=>clickFamily(id),'web51-quick-button');b.dataset.webQuick=id;b.prepend(icon(key));quickGrid.append(b);
  }
  quick.append(quickGrid);stage.querySelector('.os-stage-hero').append(quick);
- // En móvil mostrar un único catálogo visual en Inicio, sin duplicar sus accesos.
- const directory=stage.querySelector('.os-stage-directory');
- // Conservar el rótulo original «Tipos de arte».
+ const catalogButton=stage.querySelector('[data-os-action="map"]');
+ const quickPress=quickGrid.querySelector('[data-web-quick="prensa"]');
+ const templateKey='exterior.web.recent-templates.v1';
+ let recentTemplates=[];
+ const templateFor=({ruta,id,valor})=>{
+  if(!Object.hasOwn(catalogoPlantillas,ruta)||!Object.hasOwn(catalogoPlantillas[ruta],id))return null;
+  const ficha=catalogoPlantillas[ruta][id];
+  if(valor===null)return ficha;
+  const variante=Object.hasOwn(ficha.variantes||{},valor)&&varianteCatalogo(ruta,id,valor);
+  return variante?{...variante,nombre:ficha.nombre,categoria:variante.nombre}:null;
+ };
+ try{
+  const data=JSON.parse(localStorage.getItem(templateKey)||'[]');
+  if(Array.isArray(data))recentTemplates=data.filter(entry=>entry&&templateFor(entry)).slice(0,6);
+ }catch(_){}
+ const templates=make('section','web51-recent-templates');
+ const templateList=make('div','web51-recent-templates-list');
+ templates.append(make('h2','','Más recientes'),templateList);
+ quick.after(templates);
+ function renderTemplates(){
+  templateList.replaceChildren();
+  if(!recentTemplates.length){templateList.append(make('p','','Las plantillas que uses aparecerán aquí.'));return;}
+  for(const entry of recentTemplates){
+   const ficha=templateFor(entry);
+   const card=button('',()=>{
+    goCatalog();
+    abrirEntradaCatalogo(entry.ruta,entry.id,ficha.pasos||[]);
+   },'web51-template');
+   entradaCatalogo(card,ficha,ficha.categoria);
+   templateList.append(card);
+  }
+ }
+ function rememberTemplate(){
+  const ruta=el('m').value, conf=familiasExterior[ruta];
+  const id=conf?.selector?el(conf.selector).value:'';
+  const ficha=catalogoPlantillas[ruta]?.[id];
+  if(!ficha)return;
+  const variante=valorVarianteCatalogo(ruta,ficha);
+  const valor=Object.hasOwn(ficha.variantes||{},variante)?variante:null;
+  const same=entry=>entry.ruta===ruta&&entry.id===id&&entry.valor===valor;
+  if(recentTemplates[0]&&same(recentTemplates[0]))return;
+  recentTemplates=[{ruta,id,valor},...recentTemplates.filter(entry=>!same(entry))].slice(0,6);
+  try{localStorage.setItem(templateKey,JSON.stringify(recentTemplates));}catch(_){}
+  renderTemplates();
+ }
+ function syncHomeLayout(){
+  if(mobile.matches)quickGrid.prepend(quickPress);else quickGrid.append(quickPress);
+  catalogButton.textContent=mobile.matches?'Todas las plantillas':'Explorar plantillas';
+ }
+ renderTemplates();syncHomeLayout();
+ window.addEventListener('beforeinstallprompt',event=>{if(mobile.matches)event.preventDefault();});
  // Reutilizar los datos existentes de navegación; no guardar contenido de formularios.
  let saved=null,homeScroll=0;
  function rememberEditor(){if(inEditor())saved={top:window.scrollY,left:window.scrollX};}
@@ -911,7 +959,7 @@ window.exteriorEditingTools=(()=>{
  }
  prefsBody.append(button('Borrar historial de búsqueda',()=>{recent=[];persist();renderRecent();status.textContent='Historial eliminado.';}));
  const status=make('p','web51-status');status.setAttribute('role','status');prefsBody.append(status);
- const about=make('section','web51-about');about.append(make('h3','','Acerca de Exterior'),make('p','','Versión web '+(window.EXTERIOR_VERSION||'1.0.53')),make('p','','Ministerio de Relaciones Exteriores'),make('h3','','Novedades'),make('p','','Accesos rápidos, buscador con historial opcional, herramientas por apartados y vista previa ampliada.'));
+ const about=make('section','web51-about');about.append(make('h3','','Acerca de Exterior'),make('p','','Exterior web'),make('p','','Ministerio de Relaciones Exteriores'));
  prefsBody.append(about);settings.append(prefsBody);document.body.append(settings);
  function openSettings(){if(!settings.open)settings.showModal();}
  const nav=make('nav','web51-nav');nav.setAttribute('aria-label','Navegación principal');
@@ -933,6 +981,7 @@ window.exteriorEditingTools=(()=>{
  const labels={info:'Información',representation:'Representación',time:'Fecha y horario',photo:'Fotografía e ilustración',directory:'Directorio y contactos',logos:'Logotipos',appearance:'Formato',import:'Importar contenido',activities:'Actividades',extra:'Más opciones'};
  const contextTools=window.exteriorEditingTools;
  function regionalPalette(){return contextTools.regional();}
+ function toolLabel(key){return mobile.matches&&regionalPalette()&&key==='info'?'Editar información':contextTools.label(key);}
  let groups=new Map(),blocks=[],selection='',context='',signature='';
  const originalVisible=n=>{for(let p=n;p&&p!==editor;p=p.parentElement)if(p.hidden||p.style.display==='none')return false;return true;};
  function applyToolFilter(){
@@ -940,7 +989,7 @@ window.exteriorEditingTools=(()=>{
   for(const b of toolGrid.children)b.setAttribute('aria-pressed',String(b.dataset.webTool===selection));
   all.hidden=!selection;
  }
- function selectTool(key){
+ function selectTool(key,event){
   syncTools();
   const item=groups.get(key);if(!item)return;
   const control=[...item.controls].find(c=>c.isConnected&&!c.matches(':disabled,[aria-disabled="true"]'));
@@ -949,7 +998,10 @@ window.exteriorEditingTools=(()=>{
   const target=control.labels?.[0]||control;
   if(control.matches('summary'))control.parentElement.open=true;
   for(let d=control.closest('details');d;d=d.parentElement?.closest('details'))d.open=true;
-  requestAnimationFrame(()=>{if(visible(target))target.scrollIntoView({block:'center',behavior:'instant'});});
+  requestAnimationFrame(()=>{
+   if(!mobile.matches&&event.detail===0&&visible(control))control.focus({preventScroll:true});
+   if(visible(target))target.scrollIntoView({block:'center',behavior:'instant'});
+  });
  }
  function syncTools(){
   const family=inEditor()?['dui','dse','ad','mov','sede','proy'].map(el).find(n=>n&&originalVisible(n)):null;
@@ -961,8 +1013,12 @@ window.exteriorEditingTools=(()=>{
   ({groups,blocks}=contextTools.discover(family,editor));
   groups=new Map([...groups].filter(([,g])=>[...g.controls].some(c=>c.isConnected&&!c.matches(':disabled,[aria-disabled="true"]'))));
   if(selection&&!groups.has(selection))selection='';
-  const keys=Object.keys(labels).filter(k=>groups.has(k));const next=keys.map(k=>k+':'+contextTools.label(k)).join(',');
-  if(next!==signature){signature=next;toolGrid.replaceChildren();for(const k of keys){const b=button(contextTools.label(k),()=>selectTool(k));b.dataset.webTool=k;toolGrid.append(b);}}
+  const keys=Object.keys(labels).filter(k=>groups.has(k));
+  if(mobile.matches&&regionalPalette()){
+   if(!regionalActions.isConnected)toolGrid.before(regionalActions);
+  }else regionalActions.remove();
+  const next=keys.map(k=>k+':'+toolLabel(k)).join(',');
+  if(next!==signature){signature=next;toolGrid.replaceChildren();for(const k of keys){const b=button(toolLabel(k),event=>selectTool(k,event));b.dataset.webTool=k;toolGrid.append(b);}}
   tools.hidden=!keys.length;applyToolFilter();
  }
  // Vista previa de las imágenes existentes. No redibujar ni duplicar el motor.
@@ -998,16 +1054,35 @@ window.exteriorEditingTools=(()=>{
  }
  const random=button('Colores aleatorios',()=>paletteAction(randomOriginal)),undo=button('Deshacer',()=>paletteAction(undoOriginal));
  palette.append(random,undo);preview.append(expand,palette);out.before(preview);
+ const regionalActions=make('div','web51-regional-actions');
+ const randomEditor=button('Colores aleatorios',()=>randomOriginal.click(),'web51-primary');
+ const undoEditor=button('Deshacer colores',()=>undoOriginal.click());
+ regionalActions.append(randomEditor,undoEditor);
+ const editControls='#uxEdit,#volverEdicion,#proyBackEdit';
+ const previewControls='#uxPreview,#irVistaPrevia,#proyPreviewJump';
+ function showPreview(show){root.classList.toggle('web51-previewing',show);}
+ document.addEventListener('click',event=>{
+  if(!mobile.matches||!inEditor())return;
+  if(event.target.closest(previewControls))showPreview(true);
+  if(event.target.closest(editControls))showPreview(false);
+ },true);
+ let editorOpen=false;
  function syncPreview(){
   const has=inEditor()&&el('m').value!=='proy'&&available().length>0;
   preview.hidden=!has;expand.disabled=!has||out.getAttribute('aria-busy')==='true';
   const can=has&&regionalPalette()&&!randomOriginal?.hidden;
   palette.hidden=!can;random.disabled=!can||randomOriginal?.disabled||out.getAttribute('aria-busy')==='true';undo.disabled=!can||undoOriginal?.hidden||undoOriginal?.disabled||out.getAttribute('aria-busy')==='true';
+  randomEditor.disabled=!!randomOriginal?.disabled;
+  undoEditor.hidden=!!undoOriginal?.hidden;
  }
  function syncNav(){
   const active=!stage.hidden?'inicio':!map.hidden?'crear':'editar';
   for(const b of nav.children){if(b.dataset.webNav===active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');b.disabled=b.dataset.webNav==='editar'&&(!inEditor()&&(el('osContinue')?.hidden??true)&&(!stage.hidden||el('cerrarMapa')?.hidden));}
-  root.classList.toggle('web51-editing',inEditor());root.classList.toggle('web51-home',!stage.hidden);renderRecent();
+  const editing=inEditor();
+  if(editing&&!editorOpen)showPreview(new URLSearchParams(location.hash.slice(1)).get('zona')==='previa');
+  if(editing&&mobile.matches)rememberTemplate();
+  editorOpen=editing;
+  root.classList.toggle('web51-editing',editing);root.classList.toggle('web51-home',!stage.hidden);renderRecent();
  }
  let scheduled=0;
  function schedule(){if(scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;syncNav();syncTools();syncPreview();});}
@@ -1016,7 +1091,7 @@ window.exteriorEditingTools=(()=>{
  for(const id of ['dui','dse','ad','mov','sede','proy']){const n=el(id);if(n)observer.observe(n,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','disabled','aria-hidden','aria-disabled','style']});}
  new MutationObserver(syncPreview).observe(out,{childList:true,subtree:true,attributes:true,attributeFilter:['aria-busy','src']});
  out.addEventListener('load',syncPreview,true);
- document.addEventListener('change',schedule);mobile.addEventListener('change',()=>{selection='';schedule();});
+ document.addEventListener('change',schedule);mobile.addEventListener('change',()=>{selection='';syncHomeLayout();schedule();});
  root.classList.toggle('web51-home',!stage.hidden);
  applyPrefs();schedule();
 })();

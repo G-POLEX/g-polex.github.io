@@ -2,13 +2,9 @@
  'use strict';
  // La descarga del APK se ofrece únicamente en teléfonos Android.
  if(!/Android/i.test(navigator.userAgent)||document.documentElement.classList.contains('exterior-native')||window.Capacitor?.isNativePlatform?.())return;
- // Evitar que Chrome muestre una instalación PWA distinta de la aplicación APK.
- 
  const stage=document.getElementById('osStage');
  const footer=stage?.querySelector('.os-stage-footer');
  if(!stage||!footer||stage.querySelector('.os-apk-install-card'))return;
- // Retirar, si existiera en una versión anterior, el acceso inferior a la preparación sin conexión.
-
  const card=document.createElement('section');
  card.className='os-apk-install-card';
  card.setAttribute('aria-label','Instalación de Exterior para Android');
@@ -20,7 +16,7 @@
  title.textContent='Instalar Exterior en Android';
  title.style.cssText='font-size:18px;line-height:1.25';
  const desc=document.createElement('span');
- desc.textContent='Descargar la versión Android cuando esté autorizada para distribución.';
+ desc.textContent='Versión para teléfonos Android.';
  desc.style.cssText='font-size:14px;line-height:1.45;color:#e2e7f4';
  const button=document.createElement('button');
  button.type='button';
@@ -38,24 +34,29 @@
  // La guía de uso cierra el inicio.
  footer.insertBefore(card,footer.querySelector('.ux-home-guide'));
  let apkUrl='';
- const valid=target=>target.origin===location.origin&&!target.username&&!target.password&&!target.search&&!target.hash&&/^\/downloads\/Exterior(?:-[0-9]+\.[0-9]+\.[0-9]+(?:-prueba)?)?\.apk$/.test(target.pathname);
+ const valid=(target,version)=>target.origin===location.origin&&!target.username&&!target.password&&!target.search&&!target.hash&&target.pathname==='/downloads/Exterior-'+version+'.apk';
  button.addEventListener('click',()=>{
   if(!apkUrl)return;
-  const target=new URL(apkUrl,location.origin);
-  if(!valid(target))return;
+  const target=new URL(apkUrl);
   const link=document.createElement('a');link.href=target.href;link.download=target.pathname.split('/').pop();document.body.append(link);link.click();link.remove();
  });
  fetch('/android-release.json?check='+Date.now(),{cache:'no-store',credentials:'same-origin'})
   .then(response=>{if(!response.ok)throw Error('No disponible');return response.json();})
   .then(data=>{
+   const version=Number.isSafeInteger(data.versionCode)&&data.versionCode>0&&data.versionName==='1.0.'+data.versionCode?data.versionName:'';
+   const notes=typeof data.releaseNotes==='string'?data.releaseNotes.trim():'';
+   if(version)desc.textContent='Versión Android '+version+'. '+(notes||'Consulta aquí la disponibilidad del instalador oficial.');
+   if(data.status==='security-review'){status.textContent='Descarga temporalmente suspendida por revisión de seguridad.';return;}
    const target=new URL(String(data.apkUrl||''),location.origin);
-   if(data.status!=='security-review'&&data.available===true&&data.signed===true&&Number(data.versionCode)>0&&valid(target)){
+   const fingerprint=value=>typeof value==='string'&&/^[a-f0-9]{64}$/i.test(value);
+   if(data.available===true&&data.signed===true&&version&&fingerprint(data.sha256)&&fingerprint(data.signerSha256)&&valid(target,version)){
     apkUrl=target.href;
     button.disabled=false;
     button.style.opacity='1';
     button.style.cursor='pointer';
     button.textContent='Descargar APK';
-    status.textContent='Versión '+String(data.versionName||data.versionCode)+' disponible.';
-   }else{status.textContent=data.status==='security-review'?'Descarga temporalmente suspendida por revisión de seguridad.':'El instalador no está disponible en este momento.';}
+    status.textContent='Versión '+version+' disponible. SHA-256: '+data.sha256.toLowerCase();
+    status.style.overflowWrap='anywhere';
+   }else{status.textContent='El instalador no está disponible en este momento.';}
   }).catch(()=>{status.textContent='No se pudo comprobar la disponibilidad del instalador. Volver a cargar cuando haya conexión.';});
 })();
