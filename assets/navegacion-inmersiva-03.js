@@ -794,10 +794,10 @@ window.exteriorEditingTools=(()=>{
   if(!family)return {groups,blocks};
   const parent=family.id==='mov'?el('movf'):family.id==='proy'?family.querySelector('.proy-editor-col'):family;
   if(!parent)return {groups,blocks};
-  const add=(key,block,target)=>{
+  const add=(key,block,target,control)=>{
    if(!key)return;
-   if(!groups.has(key))groups.set(key,{blocks:new Set(),target});
-   groups.get(key).blocks.add(block);
+   if(!groups.has(key))groups.set(key,{blocks:new Set(),target,controls:new Set()});
+   const group=groups.get(key);group.blocks.add(block);if(control)group.controls.add(control);
   };
   for(const block of parent.children){
    if(!visible(block,root)||block.matches('input,select,script,style'))continue;
@@ -806,13 +806,13 @@ window.exteriorEditingTools=(()=>{
    if(!relevant)continue;
    blocks.push(block);
    if(family.id==='proy'){
-    add(block.querySelector('#proyFile,#proyImport')?'import':block.querySelector('#proyMeta')?'info':block.querySelector('#proyEventos')?'activities':'extra',block,block);continue;
+    add(block.querySelector('#proyFile,#proyImport')?'import':block.querySelector('#proyMeta')?'info':block.querySelector('#proyEventos')?'activities':'extra',block,block);for(const control of controls){const key=block.querySelector('#proyFile,#proyImport')?'import':block.querySelector('#proyMeta')?'info':block.querySelector('#proyEventos')?'activities':'extra';add(key,block,block,control);}continue;
    }
-   if(block.id==='locs'||block.matches('button')){add('directory',block,block);continue;}
+   if(block.id==='locs'||block.matches('button')){add('directory',block,block,block.matches('button')?block:null);for(const control of controls)add('directory',block,block,control);continue;}
    for(const control of controls){
     const key=category(control,block);
     const target=control.labels?.[0]||control;
-    add(key,block,target);
+    add(key,block,target,control);
     if(press()&&block.contains(el('sedeCampos'))){
      let node=control;while(node.parentElement&&node.parentElement!==el('sedeCampos'))node=node.parentElement;
      if(node.parentElement===el('sedeCampos'))node.dataset.andPressTool=key;
@@ -821,7 +821,7 @@ window.exteriorEditingTools=(()=>{
    // Importación con resumen y controles dentro de un detalle cerrado.
    for(const d of block.querySelectorAll('details')){
     const summary=d.querySelector('summary');if(!summary||!visible(d,root)||!d.querySelector(selector))continue;
-    if(/pegar desde|importar contenido/.test(fold(summary.textContent)))add('import',block,summary);
+    if(/pegar desde|importar contenido/.test(fold(summary.textContent)))add('import',block,summary,summary);
    }
   }
   return {groups,blocks};
@@ -941,20 +941,25 @@ window.exteriorEditingTools=(()=>{
   all.hidden=!selection;
  }
  function selectTool(key){
-  const item=groups.get(key);if(!item)return;selection=key;applyToolFilter();
-  const target=item.target;
-  if(target.matches('details'))target.open=true;
-  for(let d=target.closest('details');d;d=d.parentElement?.closest('details'))d.open=true;
+  syncTools();
+  const item=groups.get(key);if(!item)return;
+  const control=[...item.controls].find(c=>c.isConnected&&!c.matches(':disabled,[aria-disabled="true"]'));
+  if(!control)return;
+  selection=key;applyToolFilter();
+  const target=control.labels?.[0]||control;
+  if(control.matches('summary'))control.parentElement.open=true;
+  for(let d=control.closest('details');d;d=d.parentElement?.closest('details'))d.open=true;
   requestAnimationFrame(()=>{if(visible(target))target.scrollIntoView({block:'center',behavior:'instant'});});
  }
  function syncTools(){
   const family=inEditor()?['dui','dse','ad','mov','sede','proy'].map(el).find(n=>n&&originalVisible(n)):null;
-  const newContext=family?el('m').value+'|'+(el('sedeDiseno')?.value||'')+'|'+(el('adT')?.value||''):'';
+  const newContext=family?[el('m').value,el('sedeDiseno')?.value,el('sedeVersion')?.value,el('adT')?.value].join('|'):'';
   if(context!==newContext){selection='';context=newContext;}
   for(const b of blocks)b.classList.remove('web51-tool-filtered');
   groups=new Map();blocks=[];
   if(!family){tools.hidden=true;signature='';return;}
   ({groups,blocks}=contextTools.discover(family,editor));
+  groups=new Map([...groups].filter(([,g])=>[...g.controls].some(c=>c.isConnected&&!c.matches(':disabled,[aria-disabled="true"]'))));
   if(selection&&!groups.has(selection))selection='';
   const keys=Object.keys(labels).filter(k=>groups.has(k));const next=keys.map(k=>k+':'+contextTools.label(k)).join(',');
   if(next!==signature){signature=next;toolGrid.replaceChildren();for(const k of keys){const b=button(contextTools.label(k),()=>selectTool(k));b.dataset.webTool=k;toolGrid.append(b);}}
@@ -1008,7 +1013,7 @@ window.exteriorEditingTools=(()=>{
  function schedule(){if(scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;syncNav();syncTools();syncPreview();});}
  const observer=new MutationObserver(schedule);
  for(const n of [stage,map,layout,el('osContinue'),el('cerrarMapa'),randomOriginal,undoOriginal,el('sedePanelColores')])if(n)observer.observe(n,{attributes:true,attributeFilter:['hidden','disabled']});
- for(const id of ['dui','dse','ad','mov','sede','proy']){const n=el(id);if(n)observer.observe(n,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});}
+ for(const id of ['dui','dse','ad','mov','sede','proy']){const n=el(id);if(n)observer.observe(n,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','disabled','aria-hidden','aria-disabled','style']});}
  new MutationObserver(syncPreview).observe(out,{childList:true,subtree:true,attributes:true,attributeFilter:['aria-busy','src']});
  out.addEventListener('load',syncPreview,true);
  document.addEventListener('change',schedule);mobile.addEventListener('change',()=>{selection='';schedule();});
