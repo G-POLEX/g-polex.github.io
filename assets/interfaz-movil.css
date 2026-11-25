@@ -180,3 +180,12 @@ html.exterior-web51.web51-reduced-motion :is(.web51-quick-button,.web51-nav butt
 /* Los encabezados y regiones de destino reciben foco programático para orientar
    la navegación accesible, sin marco visual. Conservar el foco de los controles. */
 html:not(.exterior-native) :is(#osStageTitle,#tituloMapa,#editorTitulo,#resultCard,#proyPreview,#out)[tabindex="-1"]:focus{outline:none}
+
+/* Acceso permanente: mismo lugar al pasar de Inicio al catálogo y al editor. */
+html.exterior-web51 .web51-desktop-settings{position:fixed;z-index:95;top:calc(12px + env(safe-area-inset-top,0px));right:16px;display:flex;align-items:center;gap:7px;color:#111e60;background:#fff;box-shadow:0 2px 8px #111e6020}
+html.exterior-web51 .web51-desktop-settings svg{width:20px;height:20px;flex:none}
+@media(max-width:760px),(hover:none) and (pointer:coarse){
+ html.exterior-web51 .web51-desktop-settings{display:none!important}
+ html.exterior-web51.web51-home .web51-desktop-settings{position:fixed;top:auto;right:5px;bottom:calc(5px + env(safe-area-inset-bottom,0px));display:grid!important;justify-items:center;align-content:center;gap:3px;width:calc((100% - 10px)/5);min-height:49px;padding:5px 2px;border:1px solid #cbd4e4;background:#fff;color:#53617b;font-size:11px}
+ html.exterior-web51.web51-home .web51-desktop-settings svg{width:22px;height:22px}
+}

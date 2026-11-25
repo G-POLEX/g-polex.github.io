@@ -747,6 +747,88 @@
 })();
 
 
+/* Herramientas de edición: fuente común para escritorio, móvil y APK.
+   Las etiquetas describen controles presentes, no títulos de tarjetas ni textos de ejemplo. */
+window.exteriorEditingTools=(()=>{
+ const el=id=>document.getElementById(id);
+ const fold=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const visible=(node,root)=>{for(let n=node;n&&n!==root;n=n.parentElement)if(n.hidden||n.style.display==='none'||n.getAttribute('aria-hidden')==='true')return false;return !!node;};
+ const selector='input:not([type=hidden]),textarea,select,[contenteditable=true]';
+ const regional=()=>el('m')?.value==='sede'&&el('sedeDiseno')?.value==='oficinas'&&!!el('sedePanelColores')&&!el('sedePanelColores').hidden;
+ const press=()=>el('m')?.value==='prensa'&&el('sedeDiseno')?.value==='prensa';
+ const label=(key)=>{
+  if(key==='appearance'){
+   if(regional())return 'Formato y colores';
+   if(el('m')?.value==='esquelas')return 'Autoridad institucional';
+   if(press())return 'Tipo y formato';
+   return 'Formato';
+  }
+  if(key==='time'&&el('m')?.value==='esquelas')return 'Lugar y fecha';
+  if(key==='time'&&press())return 'Fecha';
+  if(key==='info'&&press())return 'Contenido';
+  return {info:'Información',representation:'Representación',time:'Fecha y horario',photo:'Fotografía e ilustración',directory:'Directorio y contactos',logos:'Logotipos',import:'Importar contenido',activities:'Actividades',extra:'Más opciones'}[key];
+ };
+ function category(control,block){
+  const id=fold(control.id),field=fold(control.dataset.campoEditorial),txt=fold([...control.labels||[]].map(n=>n.textContent).join(' ')||control.getAttribute('aria-label')||'');
+  if(control.closest('.mv-paste,.sede-importar-cartelera,#proyImport')||/^(mvpegado|mvvacantepegar|proyfile|proyraw)/.test(id)||control.closest('[id*="importacion"],[id*="Importacion"]'))return 'import';
+  if(control.closest('#proyMeta'))return 'info';
+  if(control.closest('#proyEventos,#proyGrupos')||id==='proyfilter')return 'activities';
+  if(control.closest('#sedePanelColores'))return regional()?'appearance':null;
+  if(control.closest('#sedePanelFoto,#adArtworkControls'))return 'photo';
+  if(control.closest('#locs'))return 'directory';
+  if(control.closest('#dseColaboradores')||/^(adlg|adlt|lg|editorial-archivo-logo|editorial-tipo-logo)$/.test(id))return 'logos';
+  if(/^(adv|sedeversion|sedevariante|sedeformato|f|lay|mvdiseno|aviso-comunicado|prensa-formato|prensa-tipo-.*)$/.test(id)||control.closest('.prensa-tipo,.prensa-formato'))return 'appearance';
+  if(/^(repre[12]|representacion)$/.test(field)||/\b(representacion|membrete)\b/.test(txt))return 'representation';
+  if(/^(fecha\d*|hora\d*|horario|fechaInicio|fechaFin)$/i.test(field)||/^(df|dh|gd|adf_fecha|adf_hora)$/.test(id))return 'time';
+  if(control.closest('[id^="aviso-bloque-contactos"],[id^="aviso-bloque-sedes"]')||/^(aviso-incluir-(contactos|sedes)|du|adf_lugar)$/.test(id)||/^(lugar|direccion|whatsapp|telefono|correo|virtual|emergencia|contactos)$/.test(field))return 'directory';
+  if(/^(dp|dpf|dpo|mvfoto|mvfotoy)$/.test(id)||/\b(fotografia|encuadre|ilustracion)\b/.test(txt))return 'photo';
+  if(/\b(logotipo|logotipos|logo|logos|colaboradores|colaboradoras)\b/.test(txt))return 'logos';
+  if(control.closest('.mv-block-options'))return 'extra';
+  if(/^(fecha|hora|horario|dias de atencion|lugar y fecha)\b/.test(txt))return 'time';
+  if(/^(recinto y direccion|lugar|direccion|telefono|telefonos|correo|whatsapp|contacto|contactos|consulado virtual)\b/.test(txt))return 'directory';
+  if(/^(formato|variante|autoridad institucional|calidad de imagen)\b/.test(txt))return 'appearance';
+  return 'info';
+ }
+ function discover(family,root){
+  const groups=new Map(),blocks=[];
+  if(!family)return {groups,blocks};
+  const parent=family.id==='mov'?el('movf'):family.id==='proy'?family.querySelector('.proy-editor-col'):family;
+  if(!parent)return {groups,blocks};
+  const add=(key,block,target)=>{
+   if(!key)return;
+   if(!groups.has(key))groups.set(key,{blocks:new Set(),target});
+   groups.get(key).blocks.add(block);
+  };
+  for(const block of parent.children){
+   if(!visible(block,root)||block.matches('input,select,script,style'))continue;
+   const controls=[...block.querySelectorAll(selector)].filter(n=>visible(n,root));
+   const relevant=controls.length||block.id==='locs'||block.matches('button')&&/agregar sede/i.test(block.textContent);
+   if(!relevant)continue;
+   blocks.push(block);
+   if(family.id==='proy'){
+    add(block.querySelector('#proyFile,#proyImport')?'import':block.querySelector('#proyMeta')?'info':block.querySelector('#proyEventos')?'activities':'extra',block,block);continue;
+   }
+   if(block.id==='locs'||block.matches('button')){add('directory',block,block);continue;}
+   for(const control of controls){
+    const key=category(control,block);
+    const target=control.labels?.[0]||control;
+    add(key,block,target);
+    if(press()&&block.contains(el('sedeCampos'))){
+     let node=control;while(node.parentElement&&node.parentElement!==el('sedeCampos'))node=node.parentElement;
+     if(node.parentElement===el('sedeCampos'))node.dataset.andPressTool=key;
+    }
+   }
+   // Importación con resumen y controles dentro de un detalle cerrado.
+   for(const d of block.querySelectorAll('details')){
+    const summary=d.querySelector('summary');if(!summary||!visible(d,root)||!d.querySelector(selector))continue;
+    if(/pegar desde|importar contenido/.test(fold(summary.textContent)))add('import',block,summary);
+   }
+  }
+  return {groups,blocks};
+ }
+ return {discover,label,regional,press};
+})();
+
 /* Exterior 1.0.51 — experiencia web. La APK conserva su interfaz nativa. */
 (function(){
  'use strict';
@@ -829,7 +911,7 @@
  }
  prefsBody.append(button('Borrar historial de búsqueda',()=>{recent=[];persist();renderRecent();status.textContent='Historial eliminado.';}));
  const status=make('p','web51-status');status.setAttribute('role','status');prefsBody.append(status);
- const about=make('section','web51-about');about.append(make('h3','','Acerca de Exterior'),make('p','','Versión web 1.0.51'),make('p','','Ministerio de Relaciones Exteriores'),make('h3','','Novedades'),make('p','','Accesos rápidos, buscador con historial opcional, herramientas por apartados y vista previa ampliada.'));
+ const about=make('section','web51-about');about.append(make('h3','','Acerca de Exterior'),make('p','','Versión web '+(window.EXTERIOR_VERSION||'1.0.53')),make('p','','Ministerio de Relaciones Exteriores'),make('h3','','Novedades'),make('p','','Accesos rápidos, buscador con historial opcional, herramientas por apartados y vista previa ampliada.'));
  prefsBody.append(about);settings.append(prefsBody);document.body.append(settings);
  function openSettings(){if(!settings.open)settings.showModal();}
  const nav=make('nav','web51-nav');nav.setAttribute('aria-label','Navegación principal');
@@ -837,8 +919,7 @@
   const b=button(label,action);b.dataset.webNav=key;b.prepend(icon(key));nav.append(b);
  }
  document.body.append(nav);
- const desktopSettings=button('Ajustes',openSettings,'web51-desktop-settings');stage.querySelector('.os-stage-toolbar').append(desktopSettings);
- const workSettings=button('Ajustes',openSettings,'web51-desktop-settings');document.querySelector('.exterior-cabecera')?.append(workSettings);
+ const desktopSettings=button('Ajustes',openSettings,'web51-desktop-settings');desktopSettings.prepend(icon('ajustes'));document.body.append(desktopSettings);
  stage.addEventListener('click',()=>{if(!stage.hidden)homeScroll=mobile.matches?window.scrollY:stage.scrollTop;},true);
  el('osHomeHeader')?.addEventListener('click',rememberEditor,true);
  el('osContinue')?.addEventListener('click',()=>{if(saved){const pos=saved;saved=null;requestAnimationFrame(()=>{if(inEditor())window.scrollTo({top:pos.top,left:pos.left,behavior:'instant'});});}},true);
@@ -850,20 +931,8 @@
  const all=button('Todas las opciones',()=>{selection='';applyToolFilter();},'web51-all-tools');tools.append(all);
  editor.querySelector('.exterior-editor-top')?.after(tools);
  const labels={info:'Información',representation:'Representación',time:'Fecha y horario',photo:'Fotografía e ilustración',directory:'Directorio y contactos',logos:'Logotipos',appearance:'Formato',import:'Importar contenido',activities:'Actividades',extra:'Más opciones'};
- function classify(s){
-  s=fold(s);
-  if(/pegar desde|importar|importacion/.test(s))return 'import';
-  if(/representacion|membrete/.test(s))return 'representation';
-  if(/logo|colaborador|entidad.*apoyo/.test(s))return 'logos';
-  if(/fotograf|encuadre|ilustracion|imagen|portada/.test(s))return 'photo';
-  if(/directorio|ubicacion|direccion|lugar|contact|oficina|sedes/.test(s))return 'directory';
-  if(/fecha|horario|\bhora\b|dias de atencion/.test(s))return 'time';
-  if(/formato|color|paleta|variante|calidad|diseno|selector/.test(s))return 'appearance';
-  if(/actividad|agenda|eventos/.test(s))return 'activities';
-  if(/titulo|contenido|texto|informacion|introduccion|convocatoria|subtitulo/.test(s))return 'info';
-  return '';
- }
- function regionalPalette(){return el('m').value==='sede'&&el('sedeDiseno')?.value==='oficinas'&&!el('sedePanelColores')?.hidden;}
+ const contextTools=window.exteriorEditingTools;
+ function regionalPalette(){return contextTools.regional();}
  let groups=new Map(),blocks=[],selection='',context='',signature='';
  const originalVisible=n=>{for(let p=n;p&&p!==editor;p=p.parentElement)if(p.hidden||p.style.display==='none')return false;return true;};
  function applyToolFilter(){
@@ -885,18 +954,10 @@
   for(const b of blocks)b.classList.remove('web51-tool-filtered');
   groups=new Map();blocks=[];
   if(!family){tools.hidden=true;signature='';return;}
-  const parent=family.id==='mov'&&el('movf')?el('movf'):family.id==='proy'?family.querySelector('.proy-editor-col'):family;
-  if(!parent){tools.hidden=true;return;}
-  blocks=[...parent.children].filter(n=>!n.matches('input,select,script,style')&&originalVisible(n)&&(n.matches('button,details')||n.querySelector('input:not([type=hidden]),select,textarea,button,details')||n.id==='locs'));
-  const add=(key,block,target)=>{if(!groups.has(key))groups.set(key,{blocks:new Set(),target});groups.get(key).blocks.add(block);};
-  for(const b of blocks){
-   const key=b.id==='sedeSelector'||b.id==='adConfiguracion'?'appearance':b.id==='locs'?'directory':classify((b.querySelector('h3,summary,b,strong')?.textContent||'')+' '+b.id)||classify(b.querySelector('label')?.textContent)||'info';
-   add(key,b,b);
-   for(const n of b.querySelectorAll('label,summary,legend')){if(!originalVisible(n))continue;const k=classify(n.textContent);if(k)add(k,b,n);}
-  }
+  ({groups,blocks}=contextTools.discover(family,editor));
   if(selection&&!groups.has(selection))selection='';
-  const keys=Object.keys(labels).filter(k=>groups.has(k));const next=keys.join(',')+'|'+regionalPalette();
-  if(next!==signature){signature=next;toolGrid.replaceChildren();for(const k of keys){const b=button(k==='appearance'&&regionalPalette()?'Formato y colores':labels[k],()=>selectTool(k));b.dataset.webTool=k;toolGrid.append(b);}}
+  const keys=Object.keys(labels).filter(k=>groups.has(k));const next=keys.map(k=>k+':'+contextTools.label(k)).join(',');
+  if(next!==signature){signature=next;toolGrid.replaceChildren();for(const k of keys){const b=button(contextTools.label(k),()=>selectTool(k));b.dataset.webTool=k;toolGrid.append(b);}}
   tools.hidden=!keys.length;applyToolFilter();
  }
  // Vista previa de las imágenes existentes. No redibujar ni duplicar el motor.
