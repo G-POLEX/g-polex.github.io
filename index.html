@@ -1138,6 +1138,14 @@ body.os-home-visible{overflow:hidden}
 <div id="adVersionWrap"><label for="adV" id="adVersionEtiqueta">Variante</label><select id="adV"></select></div>
 <small id="adAyudaPlantilla" class="field-help">Cambiar de variante restablece los textos y elimina los logotipos adjuntos.</small></div>
 <div class="card"><h3 class="exterior-seccion">Contenido del arte</h3><div id="adF"></div></div>
+<div class="card" id="adRepresentacionInvitacion" hidden>
+ <h3 class="exterior-seccion">Representación</h3>
+ <label for="adInvitacionRepre1">Representación · primera línea</label>
+ <input type="text" id="adInvitacionRepre1" data-campo-editorial="repre1" maxlength="110" placeholder="Nombre de la institución">
+ <label for="adInvitacionRepre2">Representación · segunda línea</label>
+ <input type="text" id="adInvitacionRepre2" data-campo-editorial="repre2" maxlength="110" placeholder="Ciudad o país">
+ <small class="field-help">Deja ambos campos vacíos para usar la firma original.</small>
+</div>
 <div class="card" id="adLogosExistentes"><label for="adLg">Logotipos de entidades colaboradoras (opcional)</label><input type="file" id="adLg" accept="image/png,image/jpeg" multiple>
 <label for="adLT">Encabezado de los logotipos</label><input id="adLT" maxlength="64" value="Con apoyo de:">
 <div id="adArtworkControls" class="ad-artwork-controls" hidden>

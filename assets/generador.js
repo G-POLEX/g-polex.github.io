@@ -73,7 +73,7 @@ function dibujarTrazadoInstitucional(g, nombre, x, y, ancho) {
   g.restore();
 }
 
-function dibujarLogoInstitucional(g, logo, x, y, ancho, alto, color = logo.color) {
+function dibujarLogoInstitucional(g, logo, x, y, ancho, alto, color = logo.color, representacion = []) {
   g.save();
   g.translate(x, y);
   g.scale(ancho / logo.w, alto / logo.h);
@@ -81,7 +81,24 @@ function dibujarLogoInstitucional(g, logo, x, y, ancho, alto, color = logo.color
   dibujarTrazadoInstitucional(g, ...logo.marca);
   if (logo.separador) {
     g.fillRect(...logo.separador);
-    dibujarTrazadoInstitucional(g, 'ministerio', ...logo.leyenda);
+    if (representacion.length) {
+      const [inicio, , anchoLeyenda] = logo.leyenda;
+      const [ , top, , altoRegla] = logo.separador;
+      const altoLeyenda = altoRegla * .84;
+      let tamaño = altoRegla / 6;
+      let lineas, paso;
+      do {
+        g.font = '400 ' + tamaño + 'px ' + ucomSerif;
+        lineas = representacion.flatMap(texto => lineasEditorial(g,texto.toLocaleUpperCase('es'),anchoLeyenda));
+        paso = tamaño * 1.15;
+        if (lineas.length * paso <= altoLeyenda) break;
+        tamaño *= .9;
+      } while (true);
+      g.textAlign = 'left';
+      g.textBaseline = 'top';
+      const yLeyenda = top + (altoRegla - lineas.length * paso) / 2;
+      lineas.forEach((linea,i) => g.fillText(linea,inicio,yLeyenda+i*paso));
+    } else dibujarTrazadoInstitucional(g, 'ministerio', ...logo.leyenda);
   }
   g.restore();
 }
@@ -2217,6 +2234,76 @@ const ADB={
   "webinars_v1": __recursosNetlify[35],
   "webinars_v2": __recursosNetlify[36]
 };/* ===== Actividades del día a día ===== */
+
+// Recursos originales de los editables. Las cajas de texto y el membrete se
+// dibujan con el mismo motor que las demás actividades.
+const actividadesDeReferencia=[
+ {id:'independencia',nombre:'Independencia',detalle:'Invitaciones a conmemoraciones de la independencia.',variantes:[
+  {nombre:'Independencia de El Salvador',archivo:'independencia-el-salvador-fondo.jpg',fondo:'#DBEDF7',pagina:[810,1012.5],imagen:[0,0,1,1],fondoCompleto:true,
+   posiciones:[.43,.47,.61,.74,.88],titulo:['Independencia','de El Salvador'],colores:['#054F8C','#1155CC'],tamano:40},
+  {nombre:'Independencia de Centroamérica',archivo:'independencia-centroamerica-ilustracion.png',fondo:'#E4F2FF',pagina:[612,792],imagen:[.232,.306,.518,.348],
+   posiciones:[null,.165,.677,.77,.044],titulo:['Independencia','de Centroamérica'],colores:['#064F8C','#1254CC'],tamano:34}
+ ]},
+ {id:'flores-y-palmas',nombre:'Flores y Palmas de Panchimalco',detalle:'Invitaciones a la celebración tradicional de Panchimalco.',variantes:[
+  {nombre:'Con ilustración',archivo:'flores-palmas-ilustracion.png',fondo:'#F9F9F9',pagina:[810,1012.5],imagen:[.262,.072,.476,.325],
+   posiciones:[.44,.477,.64,.754,.88],titulo:['Flores y Palmas','de Panchimalco'],colores:['#AC297C','#AB3736'],tamano:46},
+  {nombre:'Con fotografía',archivo:'flores-palmas-fotografia.jpg',fondo:'#F9F9F9',pagina:[810,1012.5],imagen:[0,0,1,.431],
+   posiciones:[.445,.477,.64,.754,.88],titulo:['Flores y Palmas','de Panchimalco'],colores:['#AC297C','#AB3736'],tamano:46}
+ ]},
+ {id:'desfiles',nombre:'Desfiles',detalle:'Invitaciones a desfiles con la ilustración de la banda.',variantes:[
+  {nombre:'Banda musical',archivo:'desfiles.png',fondo:'#EEEEEE',pagina:[612,792],imagen:[.258,.238,.483,.374],
+   posiciones:[null,.092,.633,.75,.86],titulo:['Desfile'],colores:['#0177C6'],tamano:35}
+ ]},
+ {id:'farolitos',nombre:'Farolitos',detalle:'Invitaciones a celebraciones con farolitos.',variantes:[
+  {nombre:'Farolitos de Ahuachapán',archivo:'farolitos.png',fondo:'#EEEEEE',pagina:[810,1012.5],imagen:[.188,.062,.674,.360],
+   posiciones:[.457,.511,.677,.787,.89],titulo:['Tradición que ilumina','Farolitos de Ahuachapán'],colores:['#876006','#B13409'],tamano:43},
+  {nombre:'Guirnalda de farolitos',archivo:'farolitos-guirnalda.png',fondo:'#EEEEEE',pagina:[810,1012.5],imagen:[.076,.131,.849,.182],
+   posiciones:[.41,.45,.61,.733,.87],titulo:['Celebración','de los Farolitos'],colores:['#876006','#B04A28'],tamano:43}
+ ]},
+ {id:'invitacion-interna',nombre:'Invitación de uso interno',detalle:'Invitación institucional con datos editables de la actividad.',variantes:[
+  {nombre:'Invitación institucional',archivo:'invitacion-interna.jpg',fondo:'#FFFFFF',pagina:[1152,648],imagen:[0,0,1,1],fondoCompleto:true,
+   posiciones:[.315,.405,.59,.80,.11],titulo:['Invitación institucional'],colores:['#111E60'],tamano:38}
+ ]}
+];
+function varianteActividadDeReferencia(grupo,d,i){
+ const id='v'+(i+1), k=grupo+'_'+id;
+ const [width,height]=d.pagina, W=width/72,H=height/72;
+ const [x,y,w,h]=d.imagen, [introY,titleY,detailsY,infoY,logoY]=d.posiciones;
+ const box=(position,ySize,margin)=>({x:W*margin,y:H*position,w:W*(1-2*margin),h:H*ySize,in:[.05,.05,.05,.05],an:'t',lf:1.14});
+ const style=(f,w,s,c='#111E60')=>({f,w,s,c,i:0});
+ const body=style('Raleway',400,height<800?15:18);
+ const field=(key,ph)=>({k:key,lab:null,st:body,v:'',ph,al:'ctr',ls:1});
+ const logoWidth=W*(grupo==='invitacion-interna'?.33:.24),logoHeight=logoWidth*.44;
+ const v={id,k,W,H,bgc:d.fondo,ft:!d.fondoCompleto,
+  lg:{c:{x:(W-logoWidth)/2,y:H*logoY,w:logoWidth,h:logoHeight},s:'adGobiernoAzul'},
+  lab:{x:W*.08,y:H*.86,w:W*.43,h:.3,al:'l',st:body},
+  zone:{x:W*.08,y:H*.90,w:W*.43,h:H*.067,al:'l'},
+  art:d.fondoCompleto?[]:[[H*y,H*(y+h)]],
+  ord:['title','det','info'],seps:[],
+  title:{box:box(titleY,d.titulo.length>1?.13:.084,.055),L:d.titulo.map((v,i)=>({st:style('Poppins',700,d.tamano,d.colores[i]),al:'ctr',ls:1,v,ph:'Título de la actividad'}))},
+  det:{box:box(detailsY,.13,.13),items:[
+   field('fecha','Indicar la fecha completa.'),field('hora','Indicar la hora local.'),field('lugar','Indicar el lugar y la dirección.')
+  ]},
+  info:{box:box(infoY,.074,.12),st:body,al:'ctr',ls:1,v:'',ph:'Datos adicionales o confirmación de asistencia.'},
+  imageTransforms:[[width*w,0,0,height*h,width*x,height*y]]
+ };
+ if(introY!==null){
+  v.intro={box:box(introY,.055,.12),st:body,al:'ctr',ls:1,
+   v:grupo==='invitacion-interna'?'Tenemos el gusto de invitarle a participar en la siguiente actividad.':'',
+   ph:'Indicar a quién se dirige la invitación.'};
+  v.ord.unshift('intro');
+ }
+ const asset='assets/actividades/'+d.archivo;
+ ADB[k]=asset;
+ miniaturasPlantillas['ad-'+grupo+'-'+id]=asset;
+ return v;
+}
+for(const group of actividadesDeReferencia){
+ catalogoPlantillas.ad[group.id]={nombre:group.nombre,detalle:group.detalle,variantes:Object.fromEntries(
+  group.variantes.map((d,i)=>['v'+(i+1),[d.nombre,group.detalle]])
+ )};
+ AD.push({id:group.id,n:group.nombre,v:group.variantes.map((d,i)=>varianteActividadDeReferencia(group.id,d,i))});
+}
 const adCache = {};
 const adImg=clave=>adCache[clave]??=img(ADB[clave]).catch(error=>{
  delete adCache[clave];
@@ -2428,6 +2515,7 @@ function adVers(restablecer=true){
 function adReset(){adLogoVersion++;adReleaseLogoUrls();LG.ad=[];$('adLg').value='';$('adLT').value=$('adLT').defaultValue;$('adArtworkSize').value=100;$('adArtworkOffset').value=0;renderLogoLists();adForm();adActualizarIlustracion()}
 function adInit(){
  if($('adT').options.length)return;
+ for(const id of ['adInvitacionRepre1','adInvitacionRepre2'])$(id).addEventListener('input',go);
  for(const id of ['adArtworkSize','adArtworkOffset'])$(''+id).addEventListener('input',()=>{adActualizarIlustracion();go()});
  $('adArtworkReset').addEventListener('click',()=>{$('adArtworkSize').value=100;$('adArtworkOffset').value=0;adActualizarIlustracion();go()});
  $('adT').replaceChildren(...AD.map(d=>new Option((catalogoPlantillas.ad[d.id]||catalogoPlantillas.efemerides[d.id]).nombre,d.id)));
@@ -2487,7 +2575,8 @@ function navidadHistoria(original){
 function prepararActividadAD(historia=false){
  const {d,v:original}=adCur(),v=historia&&original.navidad?navidadHistoria(original):original;
  const campos=Object.fromEntries([...$('adF').querySelectorAll('input,textarea')].map(c=>[c.id.slice(4),c.value.trim()]));
- const datos={v,campos,logos:LG.ad.slice(0,4),logoLabel:$('adLT').value};
+ const representacion=d.id==='invitacion-interna'?['adInvitacionRepre1','adInvitacionRepre2'].map(id=>$(id).value.trim()).filter(Boolean):[];
+ const datos={v,campos,logos:LG.ad.slice(0,4),logoLabel:$('adLT').value,representacion};
  const sufijo=v.navidad?(historia?'-historia':'-post'):'';
  return {nombre:d.id+'-'+v.id+sufijo+'.png',ancho:v.W*72,alto:v.H*72,escalaPrevia:1.5,
   ...(v.navidad?{tituloPagina:historia?'Historia · 9:16':'Publicación · 4:5'}:{}),
@@ -2525,7 +2614,7 @@ function navidadDistribuirLogos(logos,z){
  }
  return mejor.rects;
 }
-async function drawAD(K,banda,{v,campos,logos:L,logoLabel}){
+async function drawAD(K,banda,{v,campos,logos:L,logoLabel,representacion=[]}){
  const p = 72, W = v.W, H = v.H;
  const {c,g} = lienzoArte(W * p, H * p, K, banda);
  const val=k=>campos[k]??'';
@@ -2540,7 +2629,7 @@ async function drawAD(K,banda,{v,campos,logos:L,logoLabel}){
   const src=v.det.items.find(i=>i.k!='sp'),cl=[];ps.forEach((a,i)=>{if(a=='sp'){if(cl.length&&ps.slice(i+1).some(b=>b!='sp'))cl.push({al:src.al,ls:src.ls,runs:[],blank:src.st})}else cl.push(a)});P.det=cl}
  if(v.info)P.info=multi(v.info.st,val('info'),v.info.al,v.info.ls);
  const ab=v.art||[];
- const [bi] = await Promise.all([adImg(v.k), adFonts()]);
+ const [bi] = await Promise.all([adImg(v.k), adFonts(), representacion.length?fuentesEditorial():null]);
  // 1) Geometría. Con logos y el logo del Ministerio centrado abajo (y fondo con borde superior libre),
  //    el Ministerio sube a la parte superior y los logos de apoyo ocupan su lugar abajo.
  let D=0,mre=(L.length&&v.lg.r)?v.lg.r:v.lg.c,lab=v.lab,zone=v.zone,top=false;
@@ -2745,7 +2834,7 @@ async function drawAD(K,banda,{v,campos,logos:L,logoLabel}){
   globalShiftY:adGlobalShiftY/p,artShiftY:adArtShiftY/p,artShiftX:adArtShiftX/p,artScale:adArtScale,
   logoShiftY:adLogoShiftY/p,artBounds:imagenFinal?{minY:imagenFinal.minY/p,maxY:imagenFinal.maxY/p}:null,
   blocks:bl.filter(o=>o.has).map(o=>({n:o.n,y0:(yVisibleAD(o)+adGlobalShiftY)/p,y1:(yVisibleAD(o)+o.r.H+adGlobalShiftY)/p}))};
- dibujarLogoInstitucional(g,logosInstitucionales[v.lg.s],mre.x*p,(mre.y*p)+adLogoShiftY+adGlobalShiftY,mre.w*p,mre.h*p);
+ dibujarLogoInstitucional(g,logosInstitucionales[v.lg.s],mre.x*p,(mre.y*p)+adLogoShiftY+adGlobalShiftY,mre.w*p,mre.h*p,undefined,representacion);
  if(L.length){const t=logoLabel.trim();
   const desplazamientoLogos=(adGlobalShiftY+(pieInferior?adLogoShiftY:0))/p;
   const z={...zone,y:zone.y+desplazamientoLogos};
@@ -4891,6 +4980,7 @@ const modelosEditorialesAD = {
 function actualizarConfiguracionAD() {
  const selector = $('adV');
  const editorial = esEditorialAD();
+ $('adRepresentacionInvitacion').hidden = $('adT').value!=='invitacion-interna';
  $('adVersionWrap').hidden = selector.options.length <= 1;
   $('adVersionEtiqueta').textContent = $('adT').value==='esquela' ? 'Autoridad institucional' : editorial && $('adT').value!=='cafe' ? 'Formato' : 'Variante';
  $('adConfiguracion').hidden = $('adVersionWrap').hidden;
