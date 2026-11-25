@@ -180,7 +180,12 @@
   const tarea=(async()=>{
    await fuentesEditorial();
    let canvas;
-   if(clave.startsWith('esquela-')){
+   if(clave.startsWith('navidad-')){
+    const v=AD.find(d=>d.id==='navidad-2026').v.find(v=>v.id===clave.slice(8));
+    const campos={intro:v.intro?.v||'',fecha:'Fecha de la actividad',hora:'6:00 p. m.',lugar:'Lugar del encuentro',info:''};
+    v.title.L.forEach((l,i)=>campos['t'+i]=l.v);
+    canvas=await drawAD(.30,null,{v,campos,logos:[],logoLabel:''});
+   }else if(clave.startsWith('esquela-')){
     const formato=clave.slice(8);
     const [arte]=await prepararEsquela({texto1:'Expresamos nuestras condolencias por el fallecimiento de',nombre:'Nombre de la persona',qddg:'Q.D.D.G.',texto2:'Nos unimos al dolor de su familia.',fecha:'Fecha'},formato);
     canvas=arte.dibujar(.12,false);
@@ -205,7 +210,7 @@
  entradaCatalogo=function(boton,ficha,supra=''){
   entradaOriginal(boton,ficha,supra);
   const clave=ficha?.miniatura;
-  if(!clave||miniaturasPlantillas[clave]||!(/^(esquela-(canciller|vicecanciller|viceministro|otro)|efemerides-imagen-c)$/.test(clave)))return;
+  if(!clave||miniaturasPlantillas[clave]||!(/^(esquela-(canciller|vicecanciller|viceministro|otro)|efemerides-imagen-c|navidad-v[1-4])$/.test(clave)))return;
   generarMiniatura(clave).then(uri=>{
    if(boton.querySelector('img'))return;
    const img=document.createElement('img');img.src=uri;img.alt='';img.width=52;img.height=64;img.loading='lazy';img.decoding='async';boton.prepend(img);
