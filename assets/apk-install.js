@@ -59,24 +59,3 @@
    }else{status.textContent=data.status==='security-review'?'Descarga temporalmente suspendida por revisión de seguridad.':'El instalador no está disponible en este momento.';}
   }).catch(()=>{status.textContent='No se pudo comprobar la disponibilidad del instalador. Volver a cargar cuando haya conexión.';});
 })();
-
-(function(){
- 'use strict';
- // La distribución APK queda en revisión; la instalación web utiliza el mecanismo del navegador.
- if(!/Android/i.test(navigator.userAgent)||document.documentElement.classList.contains('exterior-native')||window.Capacitor?.isNativePlatform?.())return;
- if(matchMedia('(display-mode: standalone)').matches)return;
- const footer=document.querySelector('#osStage .os-stage-footer');
- if(!footer||footer.querySelector('.os-pwa-install-card'))return;
- const card=document.createElement('section');card.className='os-pwa-install-card';
- card.setAttribute('aria-label','Instalación de Exterior como aplicación web');
- card.style.cssText='display:grid;gap:9px;width:min(100%,625px);margin:0;padding:16px 17px;border:1px solid rgba(223,181,142,.8);border-left:5px solid #dfb58e;border-radius:14px;background:linear-gradient(135deg,#1b2a67 0%,#111f60 100%);color:#fff';
- const title=document.createElement('strong');title.textContent='Exterior en el teléfono';
- const desc=document.createElement('span');desc.textContent='Instalar la aplicación web desde el navegador. La distribución de la APK se encuentra en revisión de seguridad.';
- const button=document.createElement('button');button.type='button';button.textContent='Instalar aplicación web';button.setAttribute('aria-describedby','osPwaInstallStatus');
- const status=document.createElement('p');status.id='osPwaInstallStatus';status.setAttribute('role','status');status.textContent='Para instalar, abrir el menú del navegador y seleccionar Instalar aplicación o Añadir a pantalla de inicio.';
- let prompt=null;
- window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();prompt=event;status.textContent='Aplicación web disponible para instalar desde el navegador.';});
- window.addEventListener('appinstalled',()=>{prompt=null;card.hidden=true;});
- button.addEventListener('click',async()=>{if(!prompt){status.textContent='En el menú del navegador, seleccionar Instalar aplicación o Añadir a pantalla de inicio. Para trabajar sin conexión, preparar los recursos desde el acceso correspondiente.';return;}const current=prompt;prompt=null;try{await current.prompt();await current.userChoice;}catch(_){status.textContent='Abrir el menú del navegador para instalar la aplicación web.';}});
- card.append(title,desc,button,status);footer.insertBefore(card,footer.querySelector('.ux-home-guide'));
-})();
