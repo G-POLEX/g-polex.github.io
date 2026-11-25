@@ -486,3 +486,256 @@
 
 
 /* El acceso APK se inicia desde la cabecera y se sitúa al final del inicio. */
+
+
+/* Exterior 1.0.50: vistas representativas de categorías, compartidas por web y Android.
+   Se dibujan con los renderizadores originales, con datos de muestra independientes
+   del formulario activo. 540 px de ancho, sin reescalar las miniaturas antiguas. */
+(function(){
+ 'use strict';
+ const ancho=540;
+ const claves={
+  prensa:'prensa-ucom-comunicado',sede:'sede-v1-post',ad:'ad-opus-v1',
+  efemerides:'efemerides-imagen-0','atencion-consular':'consular-individual-post',
+  avisos:'avisos-normal-post',interno:'interno-esquela-original','otras-instituciones':'dui-cl-1350'
+ };
+ const cache=new Map();
+ let cola=Promise.resolve();
+ const ceder=()=>new Promise(resolve=>setTimeout(resolve,0));
+ function original(familia){return miniaturasPlantillas[claves[familia]]||'';}
+ async function recursosListos(){
+  const inicio=Date.now();
+  while(!I){
+   if(Date.now()-inicio>30000)throw Error('Los recursos de dibujo no están disponibles.');
+   await new Promise(resolve=>setTimeout(resolve,80));
+  }
+  await document.fonts.ready;
+  await fuentesEditorial();
+ }
+ async function generar(familia){
+  await recursosListos();
+  let c,arte;
+  switch(familia){
+   case 'prensa': {
+    await prensaCargarRecursos();
+    [arte]=documentoDePrensaEnUnaPagina({
+     repre1:nombreOficialMinisterio,repre2:'',titulo:'Título del comunicado',
+     cuerpo:'Información de interés institucional que se comparte con la ciudadanía a través de los canales oficiales.',
+     fecha:'San Salvador, fecha de publicación'
+    },false,false,false);
+    break;
+   }
+   case 'sede': {
+    const plantilla=disenosSede.oficinas.v1;
+    const texto=Object.fromEntries(plantilla.campos.map(([id,,valor])=>[id,valor]));
+    const color={...plantilla.colores};color.logo=logoRegionalSede(color,'v1');
+    arte=await prepararArteSede({diseno:'oficinas',version:'v1',plantilla,
+     estado:{texto,color,foto:null,encuadre:{x:50,y:50}},formato:'post',alto:1350});
+    break;
+   }
+   case 'ad': {
+    const v=AD.find(d=>d.id==='opus').v[0];
+    c=await drawAD(ancho/(v.W*72),false,{v,campos:{
+     intro:'Presentación musical',t0:'Concierto de Opus',fecha:'Fecha de la actividad',
+     hora:'6:00 p. m.',lugar:'Lugar del encuentro'
+    },logos:[],logoLabel:''});
+    break;
+   }
+   case 'efemerides':
+    c=await drawD(ancho/612,false,{
+     foto:I.ph0,encuadre:50,linea:'Día del',titulo:'Salvadoreño',subtitulo:'en el Exterior',
+     fecha:'Fecha de la actividad',hora:'',lugar:'',tituloLogos:'',logos:[]
+    });
+    break;
+   case 'atencion-consular':
+    [arte]=await prepararArteConsularIndividual({
+     repre1:'Consulado de El Salvador',repre2:'',titulo:'Consulado móvil',
+     numeroFechas:1,fecha1:'Fecha de la jornada',hora:'De 9:00 a. m. a 3:00 p. m.',
+     lugar:'Lugar de atención',atencion:'Servicios consulares',info:'',whatsapp:'',
+     colaboracion:{titulo:'',logos:[]}
+    },'post');
+    break;
+   case 'avisos':
+    [arte]=prepararAvisos({
+     repre1:nombreOficialMinisterio,repre2:'',aviso:{incluye:{pie:false,sedes:false,contactos:false},
+      comunicado:false,mensaje:'Por motivos de asueto, no se brindará atención al público.',pie:'',sedes:[]}
+    },'post');
+    break;
+   case 'interno':
+    [arte]=await prepararEsquela({
+     texto1:'Expresamos nuestras condolencias por el fallecimiento de',
+     nombre:'Nombre de la persona',qddg:'Q.D.D.G.',
+     texto2:'Nos unimos al dolor de su familia.',fecha:'Fecha'
+    },'canciller');
+    break;
+   case 'otras-instituciones': {
+    const H=1350,datos={titulo:'Jornada de identificación',subtitulo:'Enrolamiento de DUI',
+     pais:'País',fechaComun:'',cuadricula:false,encabezado:true,logos:true};
+    const g=document.createElement('canvas').getContext('2d');
+    const plan=planDuiClasico(g,H,[{c:'Ciudad',f:'Fecha de la jornada',
+     h:'De 9:00 a. m. a 3:00 p. m.',d:'Dirección de la sede'}],datos,encabezadoDui(0,datos));
+    c=await dibujarDui(H,datos,plan,ancho/1080,false);
+    break;
+   }
+   default:throw Error('Categoría sin muestra.');
+  }
+  if(!c&&arte)c=await arte.dibujar(ancho/arte.ancho,false);
+  if(!c||c.width<ancho-1||!c.height)throw Error('No se obtuvo una miniatura nítida.');
+  try{return c.toDataURL('image/webp',.92);}
+  finally{c.width=c.height=0;}
+ }
+ window.exteriorMiniaturaCategoriaOriginal=original;
+ window.exteriorMiniaturaCategoria=function(familia){
+  if(!Object.hasOwn(claves,familia))return Promise.reject(Error('Categoría no reconocida.'));
+  if(!cache.has(familia)){
+   const tarea=cola.then(ceder).then(()=>generar(familia));
+   cola=tarea.catch(()=>{});
+   cache.set(familia,tarea);
+   tarea.catch(()=>{cache.delete(familia);});
+  }
+  return cache.get(familia);
+ };
+ window.exteriorAsignarMiniaturaCategoria=function(imagen,familia){
+  imagen.dataset.miniaturaCategoria=familia;
+  const uri=original(familia);
+  if(uri&&!imagen.getAttribute('src'))imagen.src=uri;
+  window.exteriorMiniaturaCategoria(familia).then(uri=>{
+   if(!imagen.isConnected)return;
+   imagen.src=uri;
+   imagen.dataset.miniaturaCalidad='nitida';
+  }).catch(error=>{
+   console.warn('No se pudo regenerar la miniatura:',familia,error);
+  });
+ };
+ // La portada de escritorio y las categorías del catálogo web utilizan el
+ // mismo ejemplo que las tarjetas Android. Mantener los accesos originales.
+ if(!document.documentElement.classList.contains('exterior-native')){
+  function decorar(boton,familia,portada){
+   if(!Object.hasOwn(claves,familia)||boton.querySelector('.os-category-preview'))return;
+   const imagen=document.createElement('img');
+   imagen.className='os-category-preview';imagen.alt='';imagen.decoding='async';
+   imagen.loading='lazy';imagen.width=80;imagen.height=100;
+   if(portada){
+    const numero=boton.querySelector('.os-stage-number');
+    if(!numero)return;
+    numero.replaceWith(imagen);
+   }else boton.prepend(imagen);
+   boton.classList.add('os-category-with-preview');
+   window.exteriorAsignarMiniaturaCategoria(imagen,familia);
+  }
+  function actualizar(){
+   for(const boton of document.querySelectorAll('#ramasMapa > button[data-destino]'))
+    decorar(boton,boton.dataset.destino,false);
+   for(const boton of document.querySelectorAll('#osFamilyList > button[data-os-family]'))
+    decorar(boton,boton.dataset.osFamily,true);
+  }
+  actualizar();
+  const lista=document.getElementById('osFamilyList');
+  if(lista)new MutationObserver(actualizar).observe(lista,{childList:true});
+ }
+})();
+
+
+/* 1.0.50 — Navidad: la presencia de colaboradores determina la firma.
+   Mantener ilustraciones, orden editorial, estilos y fondos de las cuatro
+   referencias. El resto de Actividades del día a día conserva su motor. */
+(function(){
+ 'use strict';
+ const dibujarActividad=drawAD;
+ async function dibujarNavidad(K,banda,{v,campos,logos,logoLabel}){
+  const p=72,W=v.W,H=v.H,original=AD.find(d=>d.id==='navidad-2026').v.find(d=>d.id===v.id);
+  const {c,g}=lienzoArte(W*p,H*p,K,banda);
+  const [ilustracion]=await Promise.all([adImg(original.k),adFonts()]);
+  const colaboradores=logos.slice(0,4),conApoyo=colaboradores.length>0;
+  const rotulo=conApoyo&&String(logoLabel||'').trim();
+  const firma={x:conApoyo?W-3.10-.55:(W-3.10)/2,y:conApoyo?H-1.36-.48:.50,w:3.10,h:1.36};
+  const zona={x:.60,y:firma.y+(rotulo?.16:0),w:W-4.65,h:rotulo?1.13:1.36,al:'l'};
+  const etiqueta={x:zona.x,y:firma.y-.40,w:zona.w,h:.38};
+  const inicio=conApoyo?.50:firma.y+firma.h+.36;
+  const fin=conApoyo?Math.min(firma.y,rotulo?etiqueta.y:firma.y)-.36:H-.55;
+  const alto=fin-inicio;
+  const medidas=adArtworkBounds(original.imageTransforms);
+  const ajustable=adEsIlustracionRegulable(original);
+  const escalaUsuario=ajustable?Math.max(.75,Math.min(1.15,Number($('adArtworkSize')?.value||100)/100)):1;
+  const desplazamientoUsuario=ajustable?Number($('adArtworkOffset')?.value||0)/p:0;
+  const parrafo=(st,t,al,ls)=>String(t||'').split('\n').map(t=>({al,ls,runs:t?[{...st,t}]:[],blank:st}));
+  const P={};
+  if(original.intro)P.intro=parrafo(original.intro.st,campos.intro,original.intro.al,original.intro.ls);
+  P.title=original.title.L.map((l,i)=>({al:l.al,ls:l.ls,runs:campos['t'+i]?[{...l.st,t:campos['t'+i]}]:[],blank:l.st}));
+  P.det=original.det.items.filter(it=>it.k!=='sp'&&String(campos[it.k]||'').trim()).flatMap(it=>
+   String(campos[it.k]).split('\n').map((t,i)=>({al:it.al,ls:it.ls,blank:it.st,runs:t?
+    (i===0&&it.lab?[{...it.lab.st,t:it.lab.t},{...it.st,t}]:[{...it.st,t}]):[]})));
+  if(original.info)P.info=parrafo(original.info.st,campos.info,original.info.al,original.info.ls);
+  const orden=original.art[0][0]<original.title.box.y?
+   ['art',...original.ord]:['title','art',...original.ord.filter(n=>n!=='title')];
+  const baseArt=Math.min(escalaUsuario*(v.historia?1.12:1),W*p*.85/medidas.width);
+  function planificar(tam,escalaArte,separacion){
+   const items=[];
+   for(const n of orden){
+    if(n==='art'){items.push({n,h:medidas.height*escalaArte/p});continue;}
+    if(!adHas(P[n]))continue;
+    const b={...original[n].box,an:'t'};
+    const r=adLay(g,b,P[n],p,tam);
+    items.push({n,b,r,h:r.H/p+b.in[1]+b.in[3]});
+   }
+   return {items,tam,escalaArte,separacion,total:items.reduce((a,o)=>a+o.h,0)+Math.max(0,items.length-1)*separacion};
+  }
+  let plan=planificar(v.historia?1.08:1,baseArt,v.historia?.55:.36);
+  // Antes de reducir la tipografía, compactar los espacios y ajustar la
+  // ilustración sin deformarla. Conservar la jerarquía de cada plantilla.
+  if(plan.total>alto)plan=planificar(plan.tam,plan.escalaArte,.24);
+  if(plan.total>alto){
+   const exceso=plan.total-alto;
+   const escala=Math.max(baseArt*.68,plan.escalaArte-exceso*p/medidas.height);
+   plan=planificar(plan.tam,escala,.24);
+  }
+  while(plan.total>alto+.001&&plan.tam>.78)
+   plan=planificar(Math.max(.78,plan.tam-.04),plan.escalaArte,.22);
+  c.desbordeEditorial=plan.total>alto+.001;
+  const extra=Math.max(0,alto-plan.total);
+  const hueco=plan.separacion+Math.min(v.historia?.70:.24,extra/Math.max(1,plan.items.length-1));
+  const total=plan.total+(hueco-plan.separacion)*Math.max(0,plan.items.length-1);
+  let y=inicio+Math.max(0,(alto-total)/2),artBounds=null;
+  const blocks=[];
+  g.fillStyle=original.bgc;g.fillRect(0,0,W*p,H*p);
+  g.save();g.beginPath();g.rect(0,inicio*p,W*p,alto*p);g.clip();
+  for(let i=0;i<plan.items.length;i++){
+   const o=plan.items[i];
+   if(o.n==='art'){
+    // El desplazamiento manual queda limitado al espacio libre inmediato.
+    const offset=Math.max(-hueco*.32,Math.min(hueco*.32,desplazamientoUsuario));
+    const centro=(y+o.h/2+offset)*p;
+    const dx=W*p/2-medidas.cx,dy=centro-medidas.cy;
+    adPaintArtwork(g,ilustracion,original.imageTransforms,dy,dx,plan.escalaArte);
+    artBounds={minY:centro/p-o.h/2,maxY:centro/p+o.h/2};
+   }else{
+    const b={...o.b,y,h:o.h};
+    adDraw(g,b,o.r,p,0);
+    blocks.push({n:o.n,y0:y,y1:y+o.h});
+    const siguiente=plan.items[i+1];
+    const sep=original.seps.find(s=>s.after===o.n);
+    if(sep&&siguiente&&siguiente.n!=='art'){
+     g.strokeStyle=sep.c;g.lineWidth=sep.w;g.beginPath();
+     g.moveTo(sep.x1*p,(y+o.h+hueco/2)*p);
+     g.lineTo(sep.x2*p,(y+o.h+hueco/2)*p);g.stroke();
+    }
+   }
+   y+=o.h+hueco;
+  }
+  g.restore();
+  dibujarLogoInstitucional(g,logosInstitucionales[original.lg.s],firma.x*p,firma.y*p,firma.w*p,firma.h*p);
+  const rects=conApoyo?navidadDistribuirLogos(colaboradores,zona):[];
+  if(rotulo)rotuloColaboracionAdaptable(g,rotulo,{x:etiqueta.x*p,y:etiqueta.y*p,
+   ancho:etiqueta.w*p,alto:etiqueta.h*p,tamano:original.lab.st.s,
+   familia:'"AD Montserrat","Montserrat",sans-serif',peso:400,color:original.lab.st.c,alineacion:'left'});
+  rects.forEach(o=>g.drawImage(colaboradores[o.i],o.x*p,o.y*p,o.w*p,o.h*p));
+  window.__adDbg={D:0,top:!conApoyo,art:artBounds?[[artBounds.minY,artBounds.maxY]]:[],
+   mre:firma,lab:rotulo?{y0:etiqueta.y,y1:etiqueta.y+etiqueta.h}:null,zone:conApoyo?zona:null,
+   logoRects:rects,globalShiftY:0,logoShiftY:0,artBounds,blocks,artScale:plan.escalaArte,
+   contenido:{inicio,fin},zs:[]};
+  return c;
+ }
+ drawAD=function(K,banda,datos){
+  return datos.v.navidad?dibujarNavidad(K,banda,datos):dibujarActividad(K,banda,datos);
+ };
+})();

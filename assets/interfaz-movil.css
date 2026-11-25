@@ -102,3 +102,13 @@ html.exterior-native .os-stage-footer .ux-home-guide{order:2}
   overflow:visible;overscroll-behavior:auto;touch-action:auto;
  }
 }
+
+/* 1.0.50: vistas representativas compartidas con Android, sin recortes. */
+html:not(.exterior-native) .os-category-preview{display:block;width:100%;height:100%;max-width:100%;object-fit:contain;image-rendering:auto;border-radius:4px;background:#e1e6f1}
+html:not(.exterior-native) .os-category-preview:not([data-miniatura-calidad="nitida"]){object-fit:scale-down}
+html:not(.exterior-native) #osFamilyList .os-category-with-preview{grid-template-columns:60px minmax(0,1fr) 20px;align-items:center}
+html:not(.exterior-native) #osFamilyList .os-category-preview{width:60px;height:75px}
+html:not(.exterior-native) .exterior #mapaGenerador #ramasMapa button.os-category-with-preview{display:grid;grid-template-columns:80px minmax(0,1fr);align-items:center;align-content:center;gap:12px;padding-top:16px;min-height:132px}
+html:not(.exterior-native) .exterior #mapaGenerador #ramasMapa button.os-category-with-preview::before{display:none}
+html:not(.exterior-native) .exterior #mapaGenerador #ramasMapa .os-category-preview{width:80px;height:100px}
+@media(max-width:520px){html:not(.exterior-native) .exterior #mapaGenerador #ramasMapa button.os-category-with-preview{grid-template-columns:68px minmax(0,1fr);gap:12px;min-height:114px}html:not(.exterior-native) .exterior #mapaGenerador #ramasMapa .os-category-preview{width:68px;height:85px}}
