@@ -7655,8 +7655,8 @@ async function prepararFirmaUcom() {
 }
 // Referencia gráfica principal de las cuatro variantes de prensa:
 // https://github.com/julieatpeace/generator (formatos y css/styles.css).
-// Las medidas CSS originales se mantienen fijas; la tabla centra el bloque
-// completo. El selector de corto/largo continúa siendo exclusivamente manual.
+// Las medidas tipográficas se conservan; el bloque completo se centra según
+// su altura visible. El selector corto/largo continúa siendo manual.
 const prensaReferencia={
  fuentes:[['Bembo oficial',400],['Bembo oficial',700],['Museo Sans oficial',900],['Museo Sans oficial',500]],
  lista:false,fuentesCargadas:new Set(),fondo:null,escudo:null,promesa:null
@@ -7693,8 +7693,8 @@ function medirComunicado(d,largo,convocatoria=false){
  raiz.innerHTML=`<style>
  :host{all:initial;position:fixed;left:-20000px;top:0;visibility:hidden;pointer-events:none}
  .papel{width:1275px;height:1650px;font-family:"Times New Roman",serif;font-size:16px;line-height:normal;box-sizing:content-box;color:black}
- .tabla{width:100%;height:100%;display:table;border-spacing:0}
- .celda{width:${largo?75:80}%;height:80%;display:table-cell;text-align:center;vertical-align:middle;padding-bottom:${largo?0:15}%}
+ .tabla{width:100%;display:table;border-spacing:0}
+ .celda{width:${largo?75:80}%;display:table-cell;text-align:center}
  header{display:block;font:inherit}
  .marca{display:inline-block;width:${largo?10:15}%;aspect-ratio:1062.6/870.4;vertical-align:baseline}
  .representacion{color:#111e60;font-family:"Bembo oficial","Bembo institucional",Georgia,serif;font-size:${largo?'16pt':'150%'};font-weight:400}
@@ -7703,7 +7703,7 @@ function medirComunicado(d,largo,convocatoria=false){
  .titulo{width:${largo?65:60}%;font-family:"Museo Sans oficial","Museo Sans",sans-serif;font-size:${largo?'18pt':'22pt'};font-weight:900}
  .cuerpo,.fecha{width:${largo?75:68}%;font-family:"Museo Sans oficial",MuseoL,sans-serif;font-size:${largo?'14pt':'18pt'};font-weight:500}
  .cuerpo{text-align:justify;text-justify:inter-word}.fecha{text-align:right}
- </style><div class="papel"><div class="tabla"><div class="celda"><header><span class="marca"></span><br><br><span class="representacion r1"></span><br><span class="representacion r2"></span></header><center><br>${largo?'':'<br>'}<p class="rotulo"></p><p class="titulo"></p><p class="cuerpo"></p><p class="fecha"></p></center><br><br><br></div></div></div>`;
+ </style><div class="papel"><div class="tabla"><div class="celda"><header><span class="marca"></span><br><br><span class="representacion r1"></span><br><span class="representacion r2"></span></header><center><br>${largo?'':'<br>'}<p class="rotulo"></p><p class="titulo"></p><p class="cuerpo"></p><p class="fecha"></p></center></div></div></div>`;
  const papel=raiz.querySelector('.papel');
  for(const [selector,valor] of [['.r1',String(d.repre1||'').toLocaleUpperCase('es')],['.r2',String(d.repre2||'').toLocaleUpperCase('es')],['.rotulo',convocatoria?'CONVOCATORIA DE PRENSA':'COMUNICADO DE PRENSA'],['.titulo',d.titulo],['.cuerpo',d.cuerpo],['.fecha',d.fecha]]){
   raiz.querySelector(selector).textContent=String(valor||'').replace(/\r\n?/g,'\n');
@@ -7724,17 +7724,27 @@ function medirComunicado(d,largo,convocatoria=false){
     const palabra={texto:m[0],x:rect.left-base.left,y:rect.top-base.top,w:rect.width,h:rect.height,
       font:`${st.fontWeight} ${st.fontSize} ${st.fontFamily}`,color:st.color,tracking:parseFloat(st.letterSpacing)||0};
     textos.push(palabra);
-    if(palabra.x<-.5||palabra.x+palabra.w>W+.5||palabra.y<-.5||palabra.y+palabra.h>H+.5)desborde=true;
+    if(palabra.x<-.5||palabra.x+palabra.w>W+.5)desborde=true;
     if(['.titulo','.cuerpo','.fecha'].includes(selector)){
      const caja=el.getBoundingClientRect();if(rect.left<caja.left-.5||rect.right>caja.right+.5)desborde=true;
     }
    }
   }
-  if(logo.y<0||raiz.querySelector('.tabla').getBoundingClientRect().height>H+.5)desborde=true;
+  // Desplazar juntos el escudo y los textos: el espacio entre título y
+  // cuerpo, los saltos manuales y la justificación mantienen su posición relativa.
+  let inicio=logo.y,fin=logo.y+logo.h;
+  for(const t of textos){inicio=Math.min(inicio,t.y);fin=Math.max(fin,t.y+t.h);}
+  const margen=72,holgura=H-2*margen-(fin-inicio);
+  if(holgura<-.5)desborde=true;
+  // Leve compensación óptica hacia arriba, sin rebasar el margen superior.
+  const sobrante=Math.max(0,holgura);
+  const ajuste=margen+sobrante/2-Math.min(24,sobrante*.08)-inicio;
+  logo.y+=ajuste;
+  for(const t of textos)t.y+=ajuste;
   const fecha=raiz.querySelector('.fecha').getBoundingClientRect();
   const cuerpo=raiz.querySelector('.cuerpo').getBoundingClientRect();
   return {ancho,anchoTitulo,tam:largo?14*4/3:24,tamTitulo:largo?24:22*4/3,desborde,
-   plan:{logo,textos,ySello:logo.y,yFecha:fecha.top-base.top,altoCuerpo:cuerpo.height}};
+   plan:{logo,textos,ySello:logo.y,yFecha:fecha.top-base.top+ajuste,altoCuerpo:cuerpo.height}};
  }finally{host.remove();}
 }
 function documentoDePrensaEnUnaPagina(d,largo,convocatoria,incompleto){

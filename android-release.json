@@ -1,11 +1,11 @@
 {
   "available": true,
-  "versionCode": 57,
-  "versionName": "1.0.57",
-  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.57.apk",
+  "versionCode": 58,
+  "versionName": "1.0.58",
+  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.58.apk",
   "minimumAndroid": 29,
   "signed": true,
-  "sha256": "90bc26f2e22147d8d5ca7b5b95a2336570e326a874aefdb280083e603770ae3a",
+  "sha256": "b1bafea89dbac738380f81ae3ddad081067f989284b369490108a80498e772e3",
   "signerSha256": "12200a2967e66dd6cc8cc74b97493f42f606513f5fb252208b9ac4df04f8d3f2",
-  "releaseNotes": "Reorganización de categorías de artes, miniaturas y límites de descarga de 20 MB; mejoras en Ayuda e Inicio."
+  "releaseNotes": "Centrado vertical automático en comunicados y convocatorias de prensa, con márgenes de seguridad y la separación editable entre título y texto."
 }
