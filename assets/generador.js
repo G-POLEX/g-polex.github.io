@@ -1193,17 +1193,20 @@ async function render(){
  if(typeof ResizeObserver==='function')new ResizeObserver(alinearPaginaPrevia).observe(carruselPrevia);
  const selectorEfemeride=document.createElement('select');
  selectorEfemeride.id='efemerideDiseno';selectorEfemeride.hidden=true;
- selectorEfemeride.replaceChildren(new Option('Día del Salvadoreño en el Exterior · 2026',''),new Option('Una Navidad con Nuestra Diáspora · 2026','navidad-2026'));
+ selectorEfemeride.replaceChildren(new Option('Día del Salvadoreño en el Exterior · 2026',''),new Option('Independencia','independencia'),new Option('Una Navidad con Nuestra Diáspora · 2026','navidad-2026'));
  $('m').after(selectorEfemeride);
+ const selectorInterno=$('internoDiseno');
+ if(selectorInterno&&!Array.from(selectorInterno.options).some(op=>op.value==='invitacion-interna'))
+  selectorInterno.add(new Option('Invitación de uso interno','invitacion-interna'),0);
  const familiasExterior = {
   prensa:{nombre:'Comunicados y convocatorias',descripcion:'Comunicados de prensa y convocatorias a medios de comunicación.'},
   sede:{nombre:'Artes para sede',descripcion:'Publicaciones de sede, incluidas las convocatorias de movilidad laboral y las carteleras consulares.',selector:'sedeDiseno'},
   ad:{nombre:'Actividades del día a día',descripcion:'Invitaciones a actividades, incluido El Salvador+.',busqueda:'invitaciones cultura eventos',selector:'adT',evento:'input'},
-  efemerides:{nombre:'Efemérides',descripcion:'Campañas y conmemoraciones de 2026.',titulo:'Día del Salvadoreño en el Exterior · 2026',selector:'efemerideDiseno'},
+  efemerides:{nombre:'Efemérides',descripcion:'Campañas, conmemoraciones e Independencia de El Salvador y Centroamérica.',titulo:'Día del Salvadoreño en el Exterior · 2026',selector:'efemerideDiseno'},
   mov:{nombre:'Programa de Movilidad Laboral',descripcion:'Convocatorias de empleo en el exterior',busqueda:'pml vacantes entrevistas'},
   'atencion-consular':{nombre:'Jornadas de atención consular',descripcion:'Jornadas extraordinarias y consulados móviles individuales.',busqueda:'consulado virtual historia post',selector:'consularDiseno'},
   avisos:{nombre:'Avisos',descripcion:'Avisos de cierre o cambios en la atención institucional.',busqueda:'emergencia suspensión horarios cierre aviso institucional'},
-   interno:{nombre:'Artes de uso interno',descripcion:'Firmas de correo, proyecciones y esquelas.',selector:'internoDiseno'},
+   interno:{nombre:'Artes de uso interno',descripcion:'Invitaciones internas, firmas de correo, proyecciones y esquelas.',selector:'internoDiseno'},
    esquelas:{nombre:'Esquelas',descripcion:'Mensajes institucionales de condolencia en cuatro formatos.',busqueda:'esquela duelo condolencias fallecimiento luto'},
   'otras-instituciones':{nombre:'Artes de otras instituciones',descripcion:'Jornadas de identificación (DUI/RNPN).',titulo:'Jornada de identificación (DUI/RNPN)'}
  };
@@ -1411,6 +1414,7 @@ async function render(){
    'el-salvador-mas':{nombre:'El Salvador+',detalle:'Información sobre las actividades del programa El Salvador+.','miniatura':'ad-el-salvador-mas-post',alias:'programa servicios el salvador mas'}
   },
   efemerides:{
+   independencia:{nombre:'Independencia',detalle:'Invitaciones a las conmemoraciones de la Independencia de El Salvador y Centroamérica.',control:'adV',variantes:{v1:['Independencia de El Salvador','Arte conmemorativo con fotografía de la bandera.','independencia el salvador'],v2:['Independencia de Centroamérica','Arte conmemorativo ilustrado de la Independencia centroamericana.','independencia centroamerica']}},
    '':{nombre:'Día del Salvadoreño en el Exterior · 2026',detalle:'Arte conmemorativo con fotografía para anunciar actividades.',control:'dp',variantes:{
     0:['Bandera en el aeropuerto','Fotografía de una bandera en una terminal.','aeropuerto con bandera'],
     1:['Volcán y arcoíris','Fotografía de un paisaje al aire libre con arcoíris.'],
@@ -1441,6 +1445,7 @@ async function render(){
    }}
   },
   interno:{
+   'invitacion-interna':{nombre:'Invitación de uso interno',detalle:'Invitación institucional con datos editables de la actividad.',miniatura:'ad-invitacion-interna-v1',control:'adV',variantes:{v1:['Invitación institucional','Invitación interna con datos editables de la actividad.','invitacion interna']}},
    firma:{nombre:'Firma de correo',detalle:'Firma institucional para correo electrónico.',miniatura:'interno-firma',alias:'correo electrónico firma institucional'},
     proyeccion:{nombre:'Proyección semanal de temas',detalle:'Documento PDF con la agenda semanal de actividades.',alias:'agenda proyección temas pdf planificación sede exterior informe reporte semanal'}
   },
@@ -1478,7 +1483,8 @@ async function render(){
    'otras-instituciones':{cl:'dui-cl-1350',gr:'dui-gr-1350'}
   };
   const clavesPorFamilia={ad:'ad-'+id+'-'+valor,sede:'sede-'+valor+'-post',prensa:'prensa-'+valor,
-   efemerides:id==='navidad-2026'?'navidad-'+valor:'efemerides-imagen-'+valor,avisos:'avisos-'+valor+'-post'};
+   efemerides:id==='independencia'?'ad-independencia-'+valor:id==='navidad-2026'?'navidad-'+valor:'efemerides-imagen-'+valor,
+   interno:id==='invitacion-interna'?'ad-invitacion-interna-v1':undefined,avisos:'avisos-'+valor+'-post'};
   const miniatura=clavesMiniatura[ruta]?.[valor]||clavesPorFamilia[ruta];
   return {nombre,detalle,alias,miniatura,pasos:pasos||(control?[[control,valor,ficha.evento||'input']]:[])};
  }
@@ -1580,6 +1586,9 @@ async function render(){
  }
 
  function abrirEntradaCatalogo(ruta,id='',pasos=[],registrar=true){
+  // Compatibilidad con historiales creados antes de mover las nuevas artes.
+  if(ruta==='ad'&&id==='independencia')ruta='efemerides';
+  else if(ruta==='ad'&&id==='invitacion-interna')ruta='interno';
   if(registrar)guardarPantallaActual();
   const actual=$('m');
   if(actual.value!==ruta){
@@ -1588,6 +1597,8 @@ async function render(){
    actual.dispatchEvent(new Event('input',{bubbles:true}));
   }
   if(id||ruta==='efemerides')seleccionarDiseno(ruta,id);
+  if(ruta==='efemerides'&&id==='independencia')$('efemerideDiseno').value='independencia';
+  if(ruta==='interno'&&id==='invitacion-interna')$('internoDiseno').value='invitacion-interna';
   aplicarPasosCatalogo(pasos);
   actualizarContextoEditor();
   if(registrar)registrarPantalla('editor',{ruta,id});
@@ -1628,6 +1639,7 @@ async function render(){
     continue;
    }
    for(const [id,ficha] of Object.entries(fichas)){
+    if(ruta==='ad'&&['independencia','invitacion-interna'].includes(id))continue;
     const {nombre,detalle,alias='',variantes={}}=ficha;
      const contexto=ruta==='mov'||(ruta==='atencion-consular'&&id!=='individual')?
       familiasExterior.sede.nombre:ruta==='esquelas'?familiasExterior.interno.nombre:familia.nombre;
@@ -1717,7 +1729,7 @@ async function render(){
    }
    function abrirCatalogoFamilia(ruta,id=null,registrar=true){
     const fichas=catalogoPlantillas[ruta];if(!fichas)return;
-    const ids=Object.keys(fichas);
+    const ids=Object.keys(fichas).filter(id=>!(ruta==='ad'&&['independencia','invitacion-interna'].includes(id)));
     if(id===null&&ids.length===1)id=ids[0];
     const ficha=id===null?null:fichas[id];
     if(id!==null&&!ficha)return;
@@ -1775,11 +1787,11 @@ function abrirSubmenuSede(registrar=true){
    if(registrar)buscarPlantillas.value='';
    $('tituloMapa').textContent='Artes de uso interno';
    subcategoriasSede.replaceChildren();
-   for(const id of ['firma','proyeccion','esquelas']){
+   for(const id of ['invitacion-interna','firma','proyeccion','esquelas']){
     const ficha=id==='esquelas'?catalogoPlantillas.esquelas['']:catalogoPlantillas.interno[id];
     const acceso=document.createElement('button');
     acceso.type='button';
-    entradaCatalogo(acceso,{...ficha,miniatura:null});
+    entradaCatalogo(acceso,{...ficha,miniatura:id==='invitacion-interna'?'ad-invitacion-interna-v1':null});
     acceso.onclick=()=>abrirCatalogoFamilia(id==='esquelas'?'esquelas':'interno',id==='esquelas'?'':id);
     subcategoriasSede.append(acceso);
    }
@@ -2021,8 +2033,9 @@ async function descargarPNGs(indice, zip = false) {
  const categoria=$('m').value, esPrensa=categoria==='prensa';
  const calidad = esPrensa ? 'nitida' : $('q').value;
  const guardadoAndroid=typeof window.exteriorGuardarAndroid==='function';
- // MediaStore admite archivos más grandes que el límite de publicación web.
- const limite = guardadoAndroid ? 512 * 1024 * 1024 : esPrensa ? Infinity : limiteExportacion;
+ // Los artes PNG y ZIP tienen el mismo límite en web y Android. La presentación PDF
+ // semanal usa su exportador propio y conserva su límite independiente.
+ const limite = limiteExportacion;
  main.inert = true;
  estado.textContent = 'Preparando PNG…';
  estado.hidden = false;
@@ -2041,7 +2054,7 @@ async function descargarPNGs(indice, zip = false) {
   for (const [i, arte] of artes.entries()) {
    estado.textContent = artes.length > 1 ? 'Generando PNG ' + (i + 1) + ' de ' + artes.length + '…' : 'Generando PNG…';
    const nombre = arte.nombre;
-   const limitePng=zip && !guardadoAndroid ? limite - costoZip(nombre) - 22 : limite;
+   const limitePng=zip ? limite - costoZip(nombre) - 22 : limite;
    const png = await exportarPng(arte, calidad, limitePng);
    if (zip) lote.push({nombre, png});
    else await guardarPng(nombre, png);
@@ -2051,9 +2064,8 @@ async function descargarPNGs(indice, zip = false) {
   console.error(error);
   if(error?.exteriorSave===true)return; // El puente ya informó el error de guardado.
   const mensaje=String(error?.message||'');
-  const superaLimite=!guardadoAndroid&&!esPrensa&&/supera el límite/.test(mensaje);
-  alert(esPrensa ? 'No se pudo preparar el archivo en máxima nitidez. Intentar la descarga nuevamente.' :
-   superaLimite ? 'No se pudo generar un archivo de hasta 20 MB. Reducir el peso o tamaño de la imagen de origen.' :
+  const superaLimite=/supera el límite/.test(mensaje);
+  alert(superaLimite ? 'No se pudo generar un archivo de hasta 20 MB. Reducir el peso o tamaño de la imagen de origen.' :
    guardadoAndroid ? 'No se pudo preparar '+(zip?'el ZIP':'el PNG')+'. Intentar nuevamente.' :
    'No se pudo preparar la descarga. Probar con una calidad menor.');
  } finally {
@@ -2074,6 +2086,8 @@ let opcionesAD, borradorAD, borradorNavidad, rutaAnterior = 'efemerides', diseno
 function cambiarCategoria() {
  const ruta = $('m').value;
  const navidad=ruta==='efemerides'&&$('efemerideDiseno').value==='navidad-2026';
+ const independencia=ruta==='efemerides'&&$('efemerideDiseno').value==='independencia';
+ const invitacionInterna=ruta==='interno'&&$('internoDiseno').value==='invitacion-interna';
  const consular = ruta === 'atencion-consular', cartelera = consular && $('consularDiseno').value !== 'individual';
  const esquela = ruta === 'esquelas';
  const proyeccion = ruta === 'interno' && $('internoDiseno').value === 'proyeccion';
@@ -2095,17 +2109,17 @@ function cambiarCategoria() {
   disenoAnteriorSede = $('sedeDiseno').value;
   if (disenoAnteriorSede === 'oficinas') ultimaVersionOficinas = $('sedeVersion').value;
  }
- const paneles = {efemerides:navidad?'ad':'dse', 'otras-instituciones':'dui', prensa:'sede', avisos:'ad'};
- M = consular ? (cartelera ? 'sede' : 'ad') : esquela ? 'ad' : ruta === 'interno' ? (proyeccion ? 'proy' : 'sede') : (paneles[ruta] || ruta);
+ const paneles = {efemerides:(navidad||independencia)?'ad':'dse', 'otras-instituciones':'dui', prensa:'sede', avisos:'ad'};
+ M = consular ? (cartelera ? 'sede' : 'ad') : esquela||invitacionInterna ? 'ad' : ruta === 'interno' ? (proyeccion ? 'proy' : 'sede') : (paneles[ruta] || ruta);
  for (const tipo of ['dui','dse','mov','ad','sede','proy']) $(tipo).hidden = M !== tipo;
  $('resultCard').hidden=M==='proy';
  $('irVistaPrevia').setAttribute('aria-controls',M==='proy'?'proyPreview':'resultCard');
  previewActual = 0;
  if (M === 'ad') {
   if (!opcionesAD) { iniciarEditorialAD(); opcionesAD = Array.from($('adT').options); }
-  const idEditorial = navidad ? 'navidad-2026' : consular ? 'actividad-consular-individual' : esquela ? 'esquela' : ruta === 'avisos' ? 'aviso' : '';
+  const idEditorial = navidad ? 'navidad-2026' : independencia ? 'independencia' : invitacionInterna ? 'invitacion-interna' : consular ? 'actividad-consular-individual' : esquela ? 'esquela' : ruta === 'avisos' ? 'aviso' : '';
   const permitidas = opcionesAD.filter(({value:id}) => idEditorial ? id === idEditorial :
-   id!=='navidad-2026'&&(!Object.hasOwn(modelosEditorialesAD,id)||editorialesActividad.includes(id)));
+   id!=='navidad-2026'&&!['independencia','invitacion-interna'].includes(id)&&(!Object.hasOwn(modelosEditorialesAD,id)||editorialesActividad.includes(id)));
   const [diseño, formato] = seleccionesAD.get(ruta) || [];
   const previo = $('adT').value;
   $('adT').replaceChildren(...permitidas);
@@ -2241,8 +2255,8 @@ const actividadesDeReferencia=[
  {id:'independencia',nombre:'Independencia',detalle:'Invitaciones a conmemoraciones de la independencia.',variantes:[
   {nombre:'Independencia de El Salvador',archivo:'independencia-el-salvador-fondo.jpg',fondo:'#DBEDF7',pagina:[810,1012.5],imagen:[0,0,1,1],fondoCompleto:true,
    posiciones:[.43,.47,.61,.74,.88],titulo:['Independencia','de El Salvador'],colores:['#054F8C','#1155CC'],tamano:40},
-  {nombre:'Independencia de Centroamérica',archivo:'independencia-centroamerica-ilustracion.png',fondo:'#E4F2FF',pagina:[612,792],imagen:[.232,.306,.518,.348],
-   posiciones:[null,.165,.677,.77,.044],titulo:['Independencia','de Centroamérica'],colores:['#064F8C','#1254CC'],tamano:34}
+  {nombre:'Independencia de Centroamérica',archivo:'independencia-centroamerica-ilustracion.png',fondo:'#E4F2FF',pagina:[612,792],imagen:[.232,.326,.518,.348],
+   posiciones:[null,.18,.677,.77,.044],logoScale:.18,logoY:.025,titulo:['Independencia','de Centroamérica'],colores:['#064F8C','#1254CC'],tamano:34}
  ]},
  {id:'flores-y-palmas',nombre:'Flores y Palmas de Panchimalco',detalle:'Invitaciones a la celebración tradicional de Panchimalco.',variantes:[
   {nombre:'Con ilustración',archivo:'flores-palmas-ilustracion.png',fondo:'#F9F9F9',pagina:[810,1012.5],imagen:[.262,.072,.476,.325],
@@ -2273,9 +2287,9 @@ function varianteActividadDeReferencia(grupo,d,i){
  const style=(f,w,s,c='#111E60')=>({f,w,s,c,i:0});
  const body=style('Raleway',400,height<800?15:18);
  const field=(key,ph)=>({k:key,lab:null,st:body,v:'',ph,al:'ctr',ls:1});
- const logoWidth=W*(grupo==='invitacion-interna'?.33:.24),logoHeight=logoWidth*.44;
+ const logoWidth=W*(grupo==='invitacion-interna'?.33:(d.logoScale||.24)),logoHeight=logoWidth*.44;
  const v={id,k,W,H,bgc:d.fondo,ft:!d.fondoCompleto,
-  lg:{c:{x:(W-logoWidth)/2,y:H*logoY,w:logoWidth,h:logoHeight},s:'adGobiernoAzul'},
+  lg:{c:{x:(W-logoWidth)/2,y:H*(d.logoY??logoY),w:logoWidth,h:logoHeight},s:'adGobiernoAzul'},
   lab:{x:W*.08,y:H*.86,w:W*.43,h:.3,al:'l',st:body},
   zone:{x:W*.08,y:H*.90,w:W*.43,h:H*.067,al:'l'},
   art:d.fondoCompleto?[]:[[H*y,H*(y+h)]],
@@ -2304,6 +2318,8 @@ for(const group of actividadesDeReferencia){
  )};
  AD.push({id:group.id,n:group.nombre,v:group.variantes.map((d,i)=>varianteActividadDeReferencia(group.id,d,i))});
 }
+// Las fichas originales permanecen como datos del renderizador AD.
+// El catálogo y la búsqueda ya las excluyen de Actividades para evitar duplicados.
 const adCache = {};
 const adImg=clave=>adCache[clave]??=img(ADB[clave]).catch(error=>{
  delete adCache[clave];

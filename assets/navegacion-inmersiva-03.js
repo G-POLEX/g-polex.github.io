@@ -495,8 +495,8 @@
  'use strict';
  const ancho=540;
  const claves={
-  prensa:'prensa-ucom-comunicado',sede:'sede-v1-post',ad:'ad-opus-v1',
-  efemerides:'efemerides-imagen-0','atencion-consular':'consular-individual-post',
+  prensa:'prensa-ucom-comunicado',sede:'sede-v1-post',ad:'ad-flores-y-palmas-v1',
+  efemerides:'ad-independencia-v2','atencion-consular':'consular-individual-post',
   avisos:'avisos-normal-post',interno:'interno-esquela-original','otras-instituciones':'dui-cl-1350'
  };
  const cache=new Map();
