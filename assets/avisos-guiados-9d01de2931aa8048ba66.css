@@ -1,0 +1,45 @@
+/* Exterior: presentación del flujo de Avisos. Sin cambios de artes o iconos. */
+.aviso-guiado .ag-flujo [hidden],.ag-vista[hidden]{display:none!important}
+.aviso-guiado .ag-flujo{min-width:0}
+.aviso-guiado .ag-metodos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:4px;margin:0 0 12px;border-radius:9px;background:#edf1fa}
+.aviso-guiado .ag-metodos button,.aviso-guiado .ag-formatos button{min-width:0;min-height:44px;margin:0;padding:7px 8px;border:1px solid transparent;border-radius:7px;background:none;box-shadow:none;color:#182753;font:inherit;font-weight:700}
+.aviso-guiado .ag-metodos button[aria-pressed=true],.aviso-guiado .ag-formatos button[aria-pressed=true]{background:white;border-color:#c1cde4;box-shadow:0 1px 2px #14205226;color:#111e60}
+.aviso-guiado .ag-pegado{padding:12px;border:1px solid #c6d2ea;border-radius:9px;background:#f3f6fb}
+.aviso-guiado .ag-pegado label.ag-titulo{margin:0;font-weight:750}
+.aviso-guiado .ag-nota{display:block;margin:5px 0 10px;line-height:1.4}
+.aviso-guiado .ag-pegado textarea{min-height:109px}
+.aviso-guiado .ag-flujo button.ag-primario,.aviso-guiado .ag-vista button.ag-primario{min-height:44px;padding:8px 12px;margin:8px 0 0;color:#fff;background:#131e5b;border-color:#131e5b;font:inherit;font-weight:750}
+.aviso-guiado .ag-flujo button.ag-primario{width:100%;margin-top:10px}
+.aviso-guiado .ag-flujo button.ag-primario:disabled,.aviso-guiado .ag-vista button.ag-primario:disabled{opacity:.56}
+.aviso-guiado .ag-ejemplo{margin-top:8px}
+.aviso-guiado .ag-ejemplo summary,.aviso-guiado .aviso-identidad summary{align-content:center;min-height:44px;color:#182753}
+.aviso-guiado .ag-ejemplo-texto{white-space:pre-line;font-size:13px;margin:6px 0;color:#334368}
+.aviso-guiado .ag-importado{margin:6px 0;border-inline-start:3px solid #b58459;padding:8px 10px;background:#f3f6fb;color:#182753}
+.aviso-guiado .ag-opciones{display:grid;gap:8px;margin:12px 0 2px}
+.aviso-guiado .ag-opcion{border:1px solid #d9e1ef;padding:0 9px;border-radius:8px}
+.aviso-guiado .ag-opcion .aviso-casilla{display:flex!important;gap:8px;align-items:center;margin:0;min-height:44px}
+.aviso-guiado .ag-opcion .aviso-casilla input{width:auto;margin:0 2px 0 0}
+.aviso-guiado .ag-opcion .aviso-bloque{border:0;margin:0;padding:1px 0 8px}
+.aviso-guiado .ag-leyenda{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.aviso-guiado .ag-flujo .aviso-identidad{margin-top:13px}
+.aviso-guiado .ag-vista{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch;margin:8px 0 10px}
+.aviso-guiado .ag-formatos{display:flex;gap:4px;padding:3px;background:#edf1fa;border-radius:8px}
+.aviso-guiado .ag-formatos button{flex:1;font-size:13px}
+.aviso-guiado .ag-vista button.ag-primario{margin:0;font-size:13px}
+.aviso-guiado .ag-vista .ag-regresar{display:none}
+.aviso-guiado #resultCard .and-preview-formats{display:none}
+.aviso-guiado button:focus-visible,.aviso-guiado summary:focus-visible{outline:3px solid #a87048;outline-offset:2px}
+html:not(.exterior-native).aviso-guiado #ad:not([hidden]),html:not(.exterior-native).aviso-guiado .exterior-editor:not([hidden]){display:flex;flex-direction:column}
+html:not(.exterior-native).aviso-guiado #adConfiguracion,html:not(.exterior-native).aviso-guiado #compararVariantes{order:2}
+html:not(.exterior-native).aviso-guiado .web51-tools{display:none!important}
+@media(max-width:760px),(hover:none) and (pointer:coarse){
+ html:not(.exterior-native).aviso-guiado.web51-previewing .exterior-editor{display:none}
+ html:not(.exterior-native).aviso-guiado.web51-previewing .ag-vista .ag-regresar{display:block;grid-column:1/-1;margin:0;min-height:44px}
+ html:not(.exterior-native).aviso-guiado #uxMobileActions{display:none}
+}
+@media(min-width:761px) and (hover:hover) and (pointer:fine){
+ html:not(.exterior-native).aviso-guiado #resultCard{align-self:start;position:sticky;top:16px}
+}
+@media(max-width:350px){
+ .aviso-guiado .ag-vista{grid-template-columns:minmax(0,1fr)}
+}
