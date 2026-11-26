@@ -1055,6 +1055,24 @@ html.exterior-web51 .web51-structured-paste textarea{display:block;width:100%;mi
 html.exterior-web51 .web51-structured-paste[open]{padding-bottom:12px}
 html.exterior-web51 .web51-entry :is(button,summary):focus-visible{outline:3px solid #b68a62;outline-offset:2px}
 </style>
+
+<style id="exterior-pasos-samsung">
+html.exterior-web51:not(.exterior-native) body .web51-desktop-settings,html.exterior-web51:not(.exterior-native) .web51-nav > [data-web-nav="ajustes"]{display:none!important}
+@media(max-width:760px),(hover:none) and (pointer:coarse){
+ html.exterior-web51:not(.exterior-native):not(.web51-home) .web51-nav{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+.exterior-apk-guide .exterior-samsung-steps{list-style:none;margin:10px 0 12px;padding:0;counter-reset:samsung}
+.exterior-apk-guide .exterior-samsung-steps li{counter-increment:samsung;display:grid;grid-template-columns:28px 30px minmax(0,1fr);align-items:start;gap:8px;border:1px solid #ffffff40;border-radius:10px;padding:10px;background:#ffffff0a;color:#fff}
+.exterior-samsung-steps li::before{content:counter(samsung);display:grid;place-items:center;min-height:26px;border-radius:6px;background:#dfb58e;color:#17245e;font-weight:800}
+.exterior-samsung-steps svg{width:24px;height:24px;fill:none;stroke:#e8c3a1;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.exterior-samsung-steps strong{display:block;margin:2px 0 3px}
+.exterior-apk-guide .exterior-samsung-steps p{margin:0;color:#e2e7f4}
+.exterior-apk-guide .exterior-samsung-note{border-inline-start:3px solid #dfb58e;padding-inline-start:10px}
+@media(max-width:360px){
+ .exterior-apk-guide .exterior-samsung-steps li{padding:8px;gap:6px;grid-template-columns:24px 24px minmax(0,1fr)}
+ .exterior-samsung-steps svg{width:21px;height:21px}
+}
+</style>
 </head><body class="os-home-visible">
 <section id="osStage" aria-busy="true" class="os-stage" role="dialog" aria-modal="true" aria-labelledby="osStageTitle">
  <header class="os-stage-toolbar">
@@ -1319,7 +1337,18 @@ html.exterior-web51 .web51-entry :is(button,summary):focus-visible{outline:3px s
   <p>Si ya desinstaló Exterior, descargue la APK desde esta página y vuelva a instalarla. Los datos locales que se hayan borrado al desinstalar no se recuperan con la APK.</p>
   <p>Si todavía tiene Exterior y solo quiere ponerlo al día, abra la APK y elija «Actualizar». No desinstale la versión anterior.</p>
   <details><summary>Si Android pide un permiso</summary><p>Revise qué app abrió el archivo. Si el teléfono permite instalar desde esa fuente, autorícela solo para completar la instalación y retire el permiso al terminar.</p></details>
-  <details><summary>Si Samsung bloquea la instalación</summary><p>Este paso solo aplica si el Bloqueador automático impide instalar la APK oficial de Exterior descargada desde esta página. Si el equipo está administrado y el ajuste no puede cambiarse, consultar con soporte o utilizar la versión web.</p><ol><li>Abrir «Ajustes» › «Seguridad y privacidad» › «Bloqueador automático» y desactivarlo temporalmente.</li><li>Volver a «Descargas», abrir la APK de Exterior y completar la instalación o actualización. Mantener Google Play Protect activado.</li><li>Volver a «Bloqueador automático» y activarlo de inmediato, incluso si la instalación no se completó.</li></ol><p>Los nombres de los menús pueden variar según el modelo.</p></details>
+  <details class="exterior-samsung-guide">
+   <summary>Si Samsung bloquea la instalación</summary>
+   <p>Use estos pasos solo si el Bloqueador automático detiene la APK oficial de Exterior. Mantenga Google Play Protect activado.</p>
+   <ol class="exterior-samsung-steps">
+    <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h6l2 2h8v10H4z M12 11v5m-2-2 2 2 2-2"/></svg><div><strong>Descargue Exterior primero</strong><p>En esta página, pulse «Descargar APK». Espere a que termine la descarga. Así tendrá el archivo listo antes de cambiar el ajuste.</p></div></li>
+    <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3h8v3h3v3h2v6h-2v3h-3v3H8v-3H5v-3H3V9h2V6h3z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg><div><strong>Busque el Bloqueador automático</strong><p>Abra «Ajustes» del teléfono. Entre en «Seguridad y privacidad» y pulse «Bloqueador automático». Si no lo encuentra, escriba ese nombre en el buscador de Ajustes.</p></div></li>
+    <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 11V8a6 6 0 0 1 12 0v3 M5 11h14v10H5z M12 15v2"/></svg><div><strong>Apáguelo solo para instalar</strong><p>Pulse el interruptor. Si el teléfono pide que confirme el cambio, use su huella o el patrón o PIN que tenga configurado. Compruebe que el interruptor quedó apagado.</p></div></li>
+    <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l8 3v5c0 5-4 8-8 10-4-2-8-5-8-10V6z M8.5 12l2.5 2.5 4.5-5"/></svg><div><strong>Abra la APK e instale Exterior</strong><p>Vuelva a «Mis archivos» › «Descargas» y abra el archivo de Exterior. Pulse «Instalar» o «Actualizar». Si Google Play Protect pide analizarlo, acepte y espere. Si Android permite instalar, puede seguir. Si Play Protect bloquea la instalación o advierte que la aplicación es dañina, deténgase y consulte con soporte.</p></div></li>
+    <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 7h10a5 5 0 0 1 0 10H7A5 5 0 0 1 7 7z M20 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg><div><strong>Vuelva a encender el bloqueador</strong><p>Regrese a «Ajustes» › «Seguridad y privacidad» › «Bloqueador automático». Enciéndalo y compruebe que quedó activo, incluso si la instalación no se completó.</p></div></li>
+   </ol>
+   <p class="exterior-samsung-note">Si el equipo es administrado y el ajuste está bloqueado, use Exterior en el navegador o consulte con soporte. Los nombres de los menús pueden variar según el modelo.</p>
+  </details>
   <details><summary>Si aparece Google Play Protect</summary><p>Si pide analizar el archivo, espere el resultado. Si advierte que la aplicación es dañina o bloquea la instalación, deténgase y consulte con soporte.</p></details>
  </section>
 </template>
