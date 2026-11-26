@@ -1,11 +1,11 @@
 {
   "available": true,
-  "versionCode": 66,
-  "versionName": "1.0.66",
-  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.66.apk",
+  "versionCode": 68,
+  "versionName": "1.0.68",
+  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.68.apk",
   "minimumAndroid": 29,
   "signed": true,
-  "sha256": "9479945fc5a0f507dd0a5ff45643dd2747d6d0d439167e93571ff06a9b2bf5d1",
+  "sha256": "75ac0d3368e83d9e9649e79e0f3bbab4e53d6ec198b2c4a044f33e4b9e194a20",
   "signerSha256": "12200a2967e66dd6cc8cc74b97493f42f606513f5fb252208b9ac4df04f8d3f2",
-  "releaseNotes": "Pegado de texto por campos en Artes del día a día. Se equilibran la introducción y el título en Navidad y en las variantes ilustradas que tenían espacio de más."
+  "releaseNotes": "Historias para artes ilustrados, ajustes de composición en publicaciones y logo editable en Invitación de uso interno. Las firmas editables usan la tipografía institucional."
 }
