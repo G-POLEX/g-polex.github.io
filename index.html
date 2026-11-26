@@ -1021,7 +1021,21 @@ body.os-home-visible{overflow:hidden}
  .exterior .ux-mobile-actions button{font-family:inherit}
 }
 </style>
-<link id="exterior-interface-20261124" rel="stylesheet" href="assets/interfaz-movil.css"><link rel="icon" type="image/png" sizes="32x32" href="exterior-32.png"><link rel="icon" type="image/png" sizes="192x192" href="exterior-192.png"><link rel="apple-touch-icon" href="exterior-192.png"><meta name="theme-color" content="#111e60"><link rel="manifest" href="/manifest.webmanifest"><script defer src="assets/apk-integridad-0c3a894520e6d25ff63f.js"></script><script defer src="assets/offline-exterior.js"></script><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer"></head><body class="os-home-visible">
+<link id="exterior-interface-20261124" rel="stylesheet" href="assets/interfaz-movil.css"><link rel="icon" type="image/png" sizes="32x32" href="exterior-32.png"><link rel="icon" type="image/png" sizes="192x192" href="exterior-192.png"><link rel="apple-touch-icon" href="exterior-192.png"><meta name="theme-color" content="#111e60"><link rel="manifest" href="/manifest.webmanifest"><script defer src="assets/apk-integridad-99c2623f6ff1bfe0d4b5.js"></script><script defer src="assets/offline-exterior.js"></script><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer">
+<style id="exterior-inicio-movil">
+.exterior-apk-guide{display:none}
+@media (max-width:760px), (hover:none) and (pointer:coarse){
+ html.exterior-web51 #osStage :is(.web51-quick,.web51-recent-templates){display:none!important}
+ html:not(.exterior-native) .os-apk-install-card .exterior-apk-guide{display:block;border-top:1px solid #ffffff40;padding-top:6px;color:#fff;font-size:14px;line-height:1.5}
+ .exterior-apk-guide summary{cursor:pointer;min-height:44px;display:list-item;padding:10px 0;box-sizing:border-box;font-weight:700}
+ .exterior-apk-guide summary:focus-visible{outline:2px solid #dfb58e;outline-offset:2px}
+ .exterior-apk-guide ol{padding-inline-start:22px;margin:0 0 10px}
+ .exterior-apk-guide li+li{margin-top:7px}
+ .exterior-apk-guide details{margin:4px 0 0;border-top:1px solid #ffffff40}
+ .exterior-apk-guide p{margin:0 0 9px;color:#e2e7f4}
+}
+</style>
+</head><body class="os-home-visible">
 <section id="osStage" aria-busy="true" class="os-stage" role="dialog" aria-modal="true" aria-labelledby="osStageTitle">
  <header class="os-stage-toolbar">
   <button type="button" class="os-stage-brand ux-brand-home" data-os-action="home" aria-label="Exterior — volver al inicio" title="Volver al inicio"><span class="os-stage-mark" id="osStageMark" aria-hidden="true"><img src="assets/marca-interfaz-7d2986d2662e796a8ff5.png" alt="" decoding="async"></span><span class="os-stage-identity"><strong>Gabinete de Política Exterior</strong><span>Ministerio de Relaciones Exteriores</span></span></button>
@@ -1275,4 +1289,18 @@ body.os-home-visible{overflow:hidden}
 
 <script defer id="navegacion-inmersiva-03" src="assets/navegacion-inmersiva-03.js"></script>
 
+
+<template id="exterior-apk-guide-template">
+ <details class="exterior-apk-guide">
+  <summary>Cómo instalar o actualizar</summary>
+  <ol>
+   <li><strong>Descargue la APK.</strong> Pulse «Descargar APK» en esta página y espere a que termine la descarga.</li>
+   <li><strong>Abra el archivo.</strong> Búsquelo en «Descargas» del navegador o en la app «Archivos» o «Mis archivos».</li>
+   <li><strong>Siga el instalador.</strong> Si Android solicita permiso para abrir la APK, revise la app que abrió el archivo y autorice únicamente esa fuente si el dispositivo lo permite. Vuelva al instalador y pulse «Instalar» o «Actualizar». Después puede retirar ese permiso.</li>
+   <li><strong>Compruebe la versión.</strong> Abra Exterior y revise el número de versión en «Acerca de». Para actualizar, conserve la app anterior instalada.</li>
+  </ol>
+  <details><summary>Si Samsung bloquea la instalación</summary><p>El «Bloqueador automático» puede impedir instalar apps descargadas de la web. Mantenga la protección activada. Si el teléfono no permite instalar Exterior, siga usando el generador en el navegador o consulte con soporte.</p></details>
+  <details><summary>Si aparece Google Play Protect</summary><p>Si solicita analizar el archivo, espere el resultado. Continúe solo si Android permite instalarlo. Si advierte que la app es dañina o bloquea la instalación, deténgase y consulte con soporte.</p></details>
+ </details>
+</template>
 </body></html>
