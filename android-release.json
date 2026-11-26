@@ -1,11 +1,11 @@
 {
   "available": true,
-  "versionCode": 62,
-  "versionName": "1.0.62",
-  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.62.apk",
+  "versionCode": 63,
+  "versionName": "1.0.63",
+  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.63.apk",
   "minimumAndroid": 29,
   "signed": true,
-  "sha256": "2c89497ef9ddd39a7b9e42d580f4c0670351fe25b0e6531fcd6812db3c679e30",
+  "sha256": "a624960cc4a94a0f3ad8583e33dc061aaf372c431395dc42b55bf3d3dea1599d",
   "signerSha256": "12200a2967e66dd6cc8cc74b97493f42f606513f5fb252208b9ac4df04f8d3f2",
-  "releaseNotes": "Exterior utiliza los recursos incluidos en la APK firmada. La consulta de versiones no descarga ni instala archivos."
+  "releaseNotes": "Edición guiada de Avisos, mejoras en Regionales, Proyección semanal y artes recientes."
 }
