@@ -1,0 +1,30 @@
+#exteriorPlantillasPropias{margin:1rem 0 .25rem;padding:1rem 0 0;border-top:1px solid #d1dbea}
+#exteriorPlantillasPropias>button{width:auto;min-height:44px}
+#exteriorPlantillasEnCatalogo{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:.5rem}
+#exteriorPlantillasEnCatalogo:empty{display:none}
+#exteriorPlantillasEnCatalogo button{text-align:left;width:auto;min-height:44px;padding:.5rem .75rem}
+#exteriorPlantillasEnCatalogo span{display:block;font-size:.85em}
+.exterior-plantillas-dialogo{box-sizing:border-box;width:min(58rem,calc(100% - 1.5rem));max-height:calc(100% - 1.5rem);border:1px solid #c6d2ea;border-radius:12px;background:#fff;color:#111e60;padding:1rem;overflow:auto}
+.exterior-plantillas-dialogo::backdrop{background:#0d1c49a8}
+.exterior-plantillas-dialogo [hidden]{display:none!important}
+.exterior-plantillas-dialogo :is(h2,h3,p){margin:.25rem 0 .5rem}
+.exterior-plantillas-dialogo .field-help{min-height:1.1rem}
+.exterior-plantillas-dialogo label{display:block;font-weight:600}
+.exterior-plantillas-dialogo :is(input:not([type=checkbox],[type=color]),select,textarea){box-sizing:border-box;display:block;width:100%;min-height:42px;margin:.2rem 0 .4rem;font-size:16px}
+.exterior-plantillas-dialogo button{min-height:42px;width:auto}
+.extpl-cabecera,.extpl-controles,.extpl-colores{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.extpl-cabecera{justify-content:space-between;border-bottom:1px solid #d1dbea;padding-bottom:.5rem}
+.extpl-controles{align-items:end;margin-bottom:.65rem}
+.extpl-controles label{flex:1 1 12rem}
+.extpl-item{border:1px solid #d1dbea;border-radius:8px;padding:.6rem .75rem;margin:.55rem 0}
+.extpl-item button{margin-right:.4rem}
+.extpl-editor{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(14rem,1fr);gap:1rem}
+.extpl-visor{position:relative;background:#edf1fa}
+.extpl-visor canvas{width:100%;height:auto;display:block}
+.extpl-visor canvas.extpl-marcando{touch-action:none;cursor:crosshair}
+.extpl-marco{position:absolute;pointer-events:none;box-sizing:border-box;border:2px solid #b25121;background:#edb1813b}
+.extpl-switch{padding:.65rem 0}
+.extpl-campos fieldset{min-inline-size:0;border:1px solid #d1dbea;border-radius:8px;margin:.65rem 0;padding:.55rem}
+.extpl-coordenadas{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.4rem}
+.extpl-colores label{flex:1 1 5rem}
+@media(max-width:680px){.extpl-editor{grid-template-columns:1fr}.exterior-plantillas-dialogo{padding:.75rem}}
