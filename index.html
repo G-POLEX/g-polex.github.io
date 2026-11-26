@@ -1021,16 +1021,20 @@ body.os-home-visible{overflow:hidden}
  .exterior .ux-mobile-actions button{font-family:inherit}
 }
 </style>
-<link id="exterior-interface-20261124" rel="stylesheet" href="assets/interfaz-movil.css"><link rel="icon" type="image/png" sizes="32x32" href="exterior-32.png"><link rel="icon" type="image/png" sizes="192x192" href="exterior-192.png"><link rel="apple-touch-icon" href="exterior-192.png"><meta name="theme-color" content="#111e60"><link rel="manifest" href="/manifest.webmanifest"><script defer src="assets/apk-integridad-99c2623f6ff1bfe0d4b5.js"></script><script defer src="assets/offline-exterior.js"></script><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer">
+<link id="exterior-interface-20261124" rel="stylesheet" href="assets/interfaz-movil.css"><link rel="icon" type="image/png" sizes="32x32" href="exterior-32.png"><link rel="icon" type="image/png" sizes="192x192" href="exterior-192.png"><link rel="apple-touch-icon" href="exterior-192.png"><meta name="theme-color" content="#111e60"><link rel="manifest" href="/manifest.webmanifest"><script defer src="assets/apk-integridad-eb708161605e219e0b97.js"></script><script defer src="assets/offline-exterior.js"></script><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer">
 <style id="exterior-inicio-movil">
 @media (min-width:761px) and (min-height:520px){
  html:not(.exterior-native) #osStage .os-stage-directory{display:block!important}
 }
 
-.exterior-apk-guide{display:none}
+.exterior-apk-guide,.exterior-ayuda-titulo{display:none}
 @media (max-width:760px), (hover:none) and (pointer:coarse){
  html.exterior-web51 #osStage :is(.web51-quick,.web51-recent-templates){display:none!important}
- html:not(.exterior-native) .os-apk-install-card .exterior-apk-guide{display:block;border-top:1px solid #ffffff40;padding-top:6px;color:#fff;font-size:14px;line-height:1.5}
+ html:not(.exterior-native) .ux-home-guide .exterior-apk-guide{display:block;border-top:1px solid #ffffff40;padding-top:12px}
+ .ux-home-guide:has(.exterior-apk-guide) .exterior-uso-titulo{display:none}
+ .ux-home-guide:has(.exterior-apk-guide) .exterior-ayuda-titulo{display:inline}
+ .exterior-apk-guide h3{font-size:16px;line-height:1.35;color:#fff;margin:0 0 8px}
+ .exterior-apk-guide h4{font-size:14px;line-height:1.35;color:#fff;margin:12px 0 6px}
  .exterior-apk-guide summary{cursor:pointer;min-height:44px;display:list-item;padding:10px 0;box-sizing:border-box;font-weight:700}
  .exterior-apk-guide summary:focus-visible{outline:2px solid #dfb58e;outline-offset:2px}
  .exterior-apk-guide ol{padding-inline-start:22px;margin:0 0 10px}
@@ -1062,7 +1066,7 @@ body.os-home-visible{overflow:hidden}
    </div>
    <aside class="os-stage-directory" aria-label="Seleccionar tipo de arte"><div class="os-stage-directory-head"><h2>Tipos de arte</h2><span id="osFamilyCount" aria-live="polite"></span></div><div class="os-stage-family-list" id="osFamilyList"><p class="os-startup-status" role="status">Preparando las plantillas…</p><button type="button" disabled class="os-stage-family"><span class="os-stage-number">01</span><span><span class="os-stage-family-name">Comunicados y convocatorias</span><span class="os-stage-family-info">Comunicados de prensa y convocatorias a medios de comunicación.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">02</span><span><span class="os-stage-family-name">Artes para sede</span><span class="os-stage-family-info">Publicaciones de sede, incluidas las convocatorias de movilidad laboral y las carteleras consulares.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">03</span><span><span class="os-stage-family-name">Actividades del día a día</span><span class="os-stage-family-info">Invitaciones a actividades, incluido El Salvador+.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">04</span><span><span class="os-stage-family-name">Efemérides</span><span class="os-stage-family-info">Campañas, conmemoraciones e Independencia de El Salvador y Centroamérica.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">05</span><span><span class="os-stage-family-name">Jornadas de atención consular</span><span class="os-stage-family-info">Jornadas extraordinarias y consulados móviles individuales.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">06</span><span><span class="os-stage-family-name">Avisos</span><span class="os-stage-family-info">Avisos de cierre o cambios en la atención institucional.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">07</span><span><span class="os-stage-family-name">Artes de uso interno</span><span class="os-stage-family-info">Invitaciones internas, firmas de correo, proyecciones y esquelas.</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button><button type="button" disabled class="os-stage-family"><span class="os-stage-number">08</span><span><span class="os-stage-family-name">Artes de otras instituciones</span><span class="os-stage-family-info">Jornadas de identificación (DUI/RNPN).</span></span><span class="os-stage-family-arrow" aria-hidden="true">›</span></button></div></aside>
   </div>
-  <footer class="os-stage-footer"><details class="ux-home-guide"><summary>Cómo utilizar el generador</summary><p>Elegir una plantilla y completar los campos. Revisar la vista previa antes de descargar. Pulsar la marca Exterior para volver al inicio.</p></details></footer>
+  <footer class="os-stage-footer"><details class="ux-home-guide"><summary><span class="exterior-uso-titulo">Cómo utilizar el generador</span><span class="exterior-ayuda-titulo">Ayuda: uso e instalación</span></summary><p>Elegir una plantilla y completar los campos. Revisar la vista previa antes de descargar. Pulsar la marca Exterior para volver al inicio.</p></details></footer>
  </div>
 </section>
 <main class="exterior">
@@ -1295,16 +1299,16 @@ body.os-home-visible{overflow:hidden}
 
 
 <template id="exterior-apk-guide-template">
- <details class="exterior-apk-guide">
-  <summary>Cómo instalar o actualizar</summary>
-  <ol>
-   <li><strong>Descargue la APK.</strong> Pulse «Descargar APK» en esta página y espere a que termine la descarga.</li>
-   <li><strong>Abra el archivo.</strong> Búsquelo en «Descargas» del navegador o en la app «Archivos» o «Mis archivos».</li>
-   <li><strong>Siga el instalador.</strong> Si Android solicita permiso para abrir la APK, revise la app que abrió el archivo y autorice únicamente esa fuente si el dispositivo lo permite. Vuelva al instalador y pulse «Instalar» o «Actualizar». Después puede retirar ese permiso.</li>
-   <li><strong>Compruebe la versión.</strong> Abra Exterior y revise el número de versión en «Acerca de». Para actualizar, conserve la app anterior instalada.</li>
-  </ol>
-  <details><summary>Si Samsung bloquea la instalación</summary><p>El «Bloqueador automático» puede impedir instalar apps descargadas de la web. Mantenga la protección activada. Si el teléfono no permite instalar Exterior, siga usando el generador en el navegador o consulte con soporte.</p></details>
-  <details><summary>Si aparece Google Play Protect</summary><p>Si solicita analizar el archivo, espere el resultado. Continúe solo si Android permite instalarlo. Si advierte que la app es dañina o bloquea la instalación, deténgase y consulte con soporte.</p></details>
- </details>
+ <section class="exterior-apk-guide" aria-labelledby="exterior-apk-guide-title">
+  <h3 id="exterior-apk-guide-title">Exterior en Android</h3>
+  <h4>Primera instalación</h4>
+  <p>Pulse «Descargar APK» y abra el archivo desde «Descargas» del navegador o «Mis archivos» del teléfono. Cuando Android pregunte, pulse «Instalar».</p>
+  <h4>Reinstalación</h4>
+  <p>Si ya desinstaló Exterior, descargue la APK desde esta página y vuelva a instalarla. Los datos locales que se hayan borrado al desinstalar no se recuperan con la APK.</p>
+  <p>Si todavía tiene Exterior y solo quiere ponerlo al día, abra la APK y elija «Actualizar». No desinstale la versión anterior.</p>
+  <details><summary>Si Android pide un permiso</summary><p>Revise qué app abrió el archivo. Si el teléfono permite instalar desde esa fuente, autorícela solo para completar la instalación y retire el permiso al terminar.</p></details>
+  <details><summary>Si Samsung bloquea la instalación</summary><p>El «Bloqueador automático» puede impedir instalar aplicaciones descargadas de la web. Mantenga la protección activada. Si el teléfono no permite instalar Exterior, use el generador en el navegador o consulte con soporte.</p></details>
+  <details><summary>Si aparece Google Play Protect</summary><p>Si pide analizar el archivo, espere el resultado. Si advierte que la aplicación es dañina o bloquea la instalación, deténgase y consulte con soporte.</p></details>
+ </section>
 </template>
 </body></html>
