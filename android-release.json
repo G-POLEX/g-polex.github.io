@@ -1,11 +1,11 @@
 {
   "available": true,
-  "versionCode": 65,
-  "versionName": "1.0.65",
-  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.65.apk",
+  "versionCode": 66,
+  "versionName": "1.0.66",
+  "apkUrl": "https://g-polex.github.io/downloads/Exterior-1.0.66.apk",
   "minimumAndroid": 29,
   "signed": true,
-  "sha256": "2b5f4b4001bc4fc1a3b05302e67e227d35198d3fab64b9c282dd127329dc243c",
+  "sha256": "9479945fc5a0f507dd0a5ff45643dd2747d6d0d439167e93571ff06a9b2bf5d1",
   "signerSha256": "12200a2967e66dd6cc8cc74b97493f42f606513f5fb252208b9ac4df04f8d3f2",
-  "releaseNotes": "Colores aleatorios en la vista previa de Oficinas regionales. Se simplifican los botones de edición y revisión."
+  "releaseNotes": "Pegado de texto por campos en Artes del día a día. Se equilibran la introducción y el título en Navidad y en las variantes ilustradas que tenían espacio de más."
 }
