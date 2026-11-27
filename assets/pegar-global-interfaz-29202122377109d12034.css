@@ -1,0 +1,57 @@
+.exterior-pegado-global{box-sizing:border-box;max-width:calc(100vw - 24px);width:510px;max-height:calc(100vh - 32px);background:#fff;color:#172550;border:1px solid #d5deec;border-radius:14px;padding:18px;overflow:auto;box-shadow:0 20px 48px #13204138}
+.exterior-pegado-global::backdrop{background:#0b163b85}
+.exterior-pegado-global header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.exterior-pegado-global h2{color:#111e60;margin:0;font-size:1.35rem}
+.exterior-pegado-global p{margin:.45em 0 .75em}
+.exterior-pegado-global label{display:block;margin:.6em 0}
+.exterior-pegado-global textarea,.exterior-pegado-global select,.exterior-pegado-original textarea{display:block;box-sizing:border-box;width:100%;min-height:42px;margin:4px 0;border:1px solid #bbc8dd;border-radius:7px;background:#fff;color:#111e60;padding:8px;font:inherit}
+.exterior-pegado-global [hidden],.exterior-pegado-original[hidden]{display:none!important}
+.exterior-pegado-global button,.exterior-pegado-original button{min-height:40px;margin-right:.45rem}
+.exterior-pegado-global button:disabled{opacity:.5;cursor:not-allowed}
+.exterior-pegado-global section{border-top:1px solid #e4e9f5;padding-top:.45em}
+.exterior-pegado-original{margin:.25rem 0 1rem}
+.exterior-pegado-original summary{color:inherit;cursor:pointer;font-weight:600}
+.and-quick-grid .and-quick-paste{font:inherit;font-weight:600;min-height:44px}
+@media(max-width:520px){.exterior-pegado-global{padding:14px;max-height:calc(100dvh - 24px)}}
+
+/* Acción de Inicio: contigua al acceso principal en escritorio, flotante en móvil. */
+html:not(.exterior-native) #osStage .web-home-paste{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
+html:not(.exterior-native) #osStage .web-home-paste svg{width:17px;height:17px;flex:none;color:#e8b98a}
+@media(max-width:760px){
+ html:not(.exterior-native) #osStage .web-home-paste{
+  position:fixed;z-index:3;right:max(14px,calc(env(safe-area-inset-right,0px) + 10px));
+  bottom:calc(14px + env(safe-area-inset-bottom,0px));flex:none;white-space:nowrap;
+  min-height:44px;margin:0;padding:0 14px;box-shadow:0 2px 9px #0b143d42;
+  border:1px solid #ffffff61;border-radius:23px;background:#243363;color:#fff;
+  font:700 13px/1.2 'Museo Sans','MuseoL',system-ui,sans-serif;
+ }
+ html:not(.exterior-native) #osStage:has(.web-home-paste) .os-stage-footer{padding-block-end:64px}
+}
+html:not(.exterior-native) #osStage .web-home-paste:focus-visible{outline:2px solid #e8b98a;outline-offset:2px}
+
+.ext-consejo-inicio{box-sizing:border-box;flex:0 0 100%;width:100%;max-width:580px;margin:0;color:#d4deef;font-size:12px;line-height:1.48;padding:0 0 0 9px;border-inline-start:2px solid #c9a89285}
+.ext-consejo-inicio strong{color:#e8bf9c;font-weight:700;margin-inline-end:.45em}
+html.exterior-native #osStage .ext-consejo-inicio{width:auto;margin:11px 0 3px}
+@media(max-width:760px){html:not(.exterior-native) #osStage .ext-consejo-inicio{margin-top:0}}
+.ext-consejo-inicio{padding:8px 11px;background:#e8bf9c0e;border-inline-start-color:#dfb48c;border-radius:0 7px 7px 0}
+.ext-consejo-inicio strong{color:#f1caa8}
+html.and-hide-tips .ext-consejo-inicio,.ext-consejo-inicio[hidden]{display:none!important}
+.ext-consejo-preferencia{display:flex;align-items:center;gap:9px;min-height:40px;color:#d4deef}
+.ext-consejo-preferencia input{accent-color:#d8aa80;width:16px;height:16px}
+
+.ext-consejo-inicio{display:flex;align-items:flex-start;gap:8px}.ext-consejo-inicio svg{width:16px;height:16px;flex:none;color:#edc39c;margin-top:1px}
+
+.ext-arte-orientacion{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:9px}
+.ext-arte-orientacion strong{flex:0 0 100%;font-size:.84rem;color:#30446d}
+.exterior-pegado-global .ext-arte-orientacion button{margin:0;padding:7px 9px;min-height:37px}
+.exterior-pegado-global .exterior-revision-ortografia{border-top:1px solid #dce4f0;padding-top:7px;margin:11px 0 2px}
+.exterior-pegado-global .exterior-revision-ortografia summary{cursor:pointer;font-weight:650;font-size:.85rem;color:#30446d}
+
+.exterior-pegado-global .ext-arte-seleccion{color:#111e60;font-weight:750;margin:.45rem 0}
+.exterior-pegado-global .ext-arte-selector{margin:.45rem 0 .15rem;color:#30446d}
+.exterior-pegado-global .ext-arte-selector summary{min-height:40px;cursor:pointer;padding:8px 0;font-weight:650}
+.exterior-pegado-global .ext-arte-selector:not([open]){font-size:.9rem}
+
+/* Consejos visibles junto al buscador sin desplazar el directorio en escritorio. */
+html:not(.exterior-native) #osStage .ext-consejo-inicio-web{margin:14px 0 0;padding:10px 12px;background:#e8bf9c17;font-size:13px;line-height:1.45}
+@media(max-width:760px){html:not(.exterior-native) #osStage .ext-consejo-inicio-web{margin:10px 0 0;padding:8px 10px}}
